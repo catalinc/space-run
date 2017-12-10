@@ -67,10 +67,7 @@ local backGroup
 local mainGroup
 local uiGroup
 
-local explosionSound
-local fireSound
-local musicTrack
-
+local sounds = require("libs.sounds")
 
 local function updateText()
 	livesText.text = "Lives: " .. lives
@@ -111,7 +108,7 @@ end
 local function fireLaser()
 
 	-- Play fire sound!
-	audio.play( fireSound )
+	sounds.play( "fire" )
 
 	local newLaser = display.newImageRect( mainGroup, objectSheet, 5, 14, 40 )
 	physics.addBody( newLaser, "dynamic", { isSensor=true } )
@@ -211,7 +208,7 @@ local function onCollision( event )
 			display.remove( obj2 )
 
 			-- Play explosion sound!
-			audio.play( explosionSound )
+			sounds.play("explosion")
 
 			for i = #asteroidsTable, 1, -1 do
 				if ( asteroidsTable[i] == obj1 or asteroidsTable[i] == obj2 ) then
@@ -231,7 +228,7 @@ local function onCollision( event )
 				died = true
 
 				-- Play explosion sound!
-				audio.play( explosionSound )
+				sounds.play( "explosion" )
 
 				-- Update lives
 				lives = lives - 1
@@ -289,10 +286,6 @@ function scene:create( event )
 
 	ship:addEventListener( "tap", fireLaser )
 	ship:addEventListener( "touch", dragShip )
-
-	explosionSound = audio.loadSound( "audio/explosion.wav" )
-	fireSound = audio.loadSound( "audio/fire.wav" )
-	musicTrack = audio.loadStream( "audio/80s-Space-Game_Looping.wav" )
 end
 
 
@@ -311,7 +304,7 @@ function scene:show( event )
 		Runtime:addEventListener( "collision", onCollision )
 		gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0 )
 		-- Start the music!
-		audio.play( musicTrack, { channel=1, loops=-1 } )
+		sounds.playStream( "gameMusic" )
 	end
 end
 
@@ -331,7 +324,7 @@ function scene:hide( event )
 		Runtime:removeEventListener( "collision", onCollision )
 		physics.pause()
 		-- Stop the music!
-		audio.stop( 1 )
+		sounds.stop()
 	end
 end
 
@@ -342,9 +335,9 @@ function scene:destroy( event )
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 	-- Dispose audio!
-	audio.dispose( explosionSound )
-	audio.dispose( fireSound )
-	audio.dispose( musicTrack )
+	sounds.dispose( "explosion" )
+	sounds.dispose( "fire" )
+	sounds.dispose( "gameMusic" )
 end
 
 

@@ -2,6 +2,7 @@
 -- Manager for the sound and music files.
 -- Automatically loads files and keeps a track of them.
 -- Use playSteam() for music files and play() for short SFX files.
+local log = require("libs.log")
 
 local _M = {}
 
@@ -9,54 +10,79 @@ _M.isSoundOn = true
 _M.isMusicOn = true
 
 local sounds = {
-    menu_music = 'sounds/menu_music.mp3',
-    game_music = 'sounds/game_music.mp3',
-    tap = 'sounds/tap.wav',
-    bug = 'sounds/bug.wav',
-    cannon_touch = 'sounds/cannon_touch.wav',
-    ball_destroy = 'sounds/ball_destroy.wav',
-	explosion = 'sounds/explosion.wav',
-	poof = 'sounds/poof.wav',
-	impact = 'sounds/impact.wav',
-	cannon = 'sounds/cannon.wav',
-	win = 'sounds/win.wav',
-	lose = 'sounds/lose.wav'
+    menuMusic = 'audio/Escape_Looping.wav',
+    gameMusic = 'audio/80s-Space-Game_Looping.wav',
+    highScoresMusic = 'audio/Midnight-Crawlers_Looping.wav',
+    fire = 'audio/fire.wav',
+	explosion = 'audio/explosion.wav',
 }
-
--- Reserve two channels for streams and switch between them with a nice fade out / fade in transition
-local audioChannel, otherAudioChannel, currentStreamSound = 1, 2
-function _M.playStream(sound, force)
-    if not _M.isMusicOn then return end
-    if not sounds[sound] then
-        print('sounds: no such sound: ' .. tostring(sound))
-        return
-    end
-    sound = sounds[sound]
-    if currentStreamSound == sound and not force then return end
-    audio.fadeOut({channel = audioChannel, time = 1000})
-    audioChannel, otherAudioChannel = otherAudioChannel, audioChannel
-    audio.setVolume(0.5, {channel = audioChannel})
-    audio.play(audio.loadStream(sound), {channel = audioChannel, loops = -1, fadein = 1000})
-    currentStreamSound = sound
-end
-audio.reserveChannels(2)
 
 -- Keep all loaded sounds here
 local loadedSounds = {}
 local function loadSound(sound)
     if not loadedSounds[sound] then
+        if log.isDebugEnabled() then
+            log.debug('sounds: loading sound: ' .. sound)
+        end
         loadedSounds[sound] = audio.loadSound(sounds[sound])
     end
     return loadedSounds[sound]
 end
 
+local function loadStream(sound)
+    if not loadedSounds[sound] then
+        if log.isDebugEnabled() then
+            log.debug('sounds: loading stream: ' .. sound)
+        end
+        loadedSounds[sound] = audio.loadStream(sounds[sound])
+    end
+    return loadedSounds[sound]
+end
+
+-- Reserve two channels for streams and switch between them with a nice fade out / fade in transition
+audio.reserveChannels(2)
+local audioChannel, otherAudioChannel, currentStreamSound = 1, 2
+function _M.playStream(sound, force)
+    if not _M.isMusicOn then return end
+    if not sounds[sound] then
+        log.warn('sounds: no such sound: ' .. tostring(sound))
+        return
+    end
+    if currentStreamSound == sound and not force then return end
+    audio.fadeOut({channel = audioChannel, time = 1000})
+    audioChannel, otherAudioChannel = otherAudioChannel, audioChannel
+    audio.setVolume(0.5, {channel = audioChannel})
+    audio.play(loadStream(sound), {channel = audioChannel, loops = -1, fadein = 1000})
+    currentStreamSound = sound
+end
+
 function _M.play(sound, params)
     if not _M.isSoundOn then return end
     if not sounds[sound] then
-        print('sounds: no such sound: ' .. tostring(sound))
-        return
+        log.warn('sounds: no such sound: ' .. tostring(sound))
+        return        
     end
     return audio.play(loadSound(sound), params)
+end
+
+function _M.dispose(sound)
+    if not sounds[sound] then
+        log.warn('sounds: no such sound to dispose: ' .. tostring(sound))
+        return
+    end
+    handle = loadedSounds[sound]
+    if not handle then
+        log.warn('sounds: sound not loaded: ' .. tostring(sound))
+        return
+    end
+    loadedSounds[sound] = nil
+    if sound == currentStreamSound then
+        currentStreamSound = nil
+    end
+    if log.isDebugEnabled() then
+        log.debug('sounds: disposing sound: ' .. tostring(sound))
+    end
+    return audio.dispose(handle)
 end
 
 function _M.stop()

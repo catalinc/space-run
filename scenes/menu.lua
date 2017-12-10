@@ -8,9 +8,7 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
--- Initialize variables
-local musicTrack
-
+local sounds = require("libs.sounds")
 
 local function gotoGame()
 	composer.removeScene( "scenes.game" )
@@ -49,8 +47,6 @@ function scene:create( event )
 
 	playButton:addEventListener( "tap", gotoGame )
 	highScoresButton:addEventListener( "tap", gotoHighScores )
-
-	musicTrack = audio.loadStream( "audio/Escape_Looping.wav" )
 end
 
 
@@ -66,7 +62,7 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 		-- Start the music!
-		audio.play( musicTrack, { channel=1, loops=-1 } )
+		sounds.playStream("menuMusic")
 	end
 end
 
@@ -83,7 +79,7 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 		-- Stop the music!
-		audio.stop( 1 )
+		sounds.stop()
 	end
 end
 
@@ -94,7 +90,7 @@ function scene:destroy( event )
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 	-- Dispose audio!
-	audio.dispose( musicTrack )
+	sounds.dispose("menuMusic")
 end
 
 
