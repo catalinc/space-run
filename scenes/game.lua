@@ -124,6 +124,11 @@ local function fireLaser()
 	} )
 end
 
+local function clamp(v, min, max)
+	if v < min then return min end
+	if v > max then return max end
+	return v
+end
 
 local function dragShip( event )
 
@@ -135,10 +140,15 @@ local function dragShip( event )
 		display.currentStage:setFocus( ship )
 		-- Store initial offset position
 		ship.touchOffsetX = event.x - ship.x
+		ship.touchOffsetY = event.y - ship.y
 
 	elseif ( "moved" == phase ) then
 		-- Move the ship to the new touch position
 		ship.x = event.x - ship.touchOffsetX
+		ship.y = event.y - ship.touchOffsetY
+
+		ship.x = clamp(ship.x, 0, display.contentWidth)
+		ship.y = clamp(ship.y, 0, display.contentHeight)
 
 	elseif ( "ended" == phase or "cancelled" == phase ) then
 		-- Release touch focus on the ship
@@ -147,7 +157,6 @@ local function dragShip( event )
 
 	return true  -- Prevents touch propagation to underlying objects
 end
-
 
 local function gameLoop()
 
