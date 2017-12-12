@@ -1,6 +1,5 @@
 -- Databox
 -- This library automatically loads and saves it's storage into databox.json inside Documents directory.
--- And it uses iCloud KVS storage on iOS and tvOS.
 -- It uses metatables to do it's job.
 -- Require the library and call it with a table of default values. Only 1 level deep table is supported.
 -- supported values are strings, numbers and booleans.
@@ -10,22 +9,14 @@
 -- If you update default values, all new values will be added into the existing file.
 
 local json = require('json')
-local iCloud
 
 local data = {}
 local defaultData = {}
 
 local path = system.pathForFile('databox.json', system.DocumentsDirectory)
-local isiOS = system.getInfo('platformName') == 'iPhone OS'
-local istvOS = system.getInfo('platformName') == 'tvOS'
-local isOSX = system.getInfo('platformName') == 'Mac OS X'
-
-if isiOS or istvOS or isOSX then
-    iCloud = require('plugin.iCloud')
-end
 
 -- Copy tables by value
--- Nested tables are not supported, because iCloud
+-- Nested tables are not supported
 local function shallowcopy(t)
     local copy = {}
     for k, v in pairs(t) do
@@ -40,43 +31,23 @@ local function shallowcopy(t)
     return copy
 end
 
--- When saving, upload to iCloud and save to disk
 local function saveData()
-    if iCloud then
-        iCloud.set('databox', data)
-    end
-    if not istvOS then
-        local file = io.open(path, 'w')
-        if file then
-            file:write(json.encode(data))
-            io.close(file)
-        end
+    local file = io.open(path, 'w')
+    if file then
+        file:write(json.encode(data))
+        io.close(file)
     end
 end
 
--- When loading, try iCloud first and only then attempt reading from disk
--- If no file or no iCloud data - load defaults
+-- If no file load defaults
 local function loadData()
-    local iCloudData
-    if iCloud then
-        iCloudData = iCloud.get('databox')
-    end
-    if iCloudData then
-        data = iCloudData
+    local file = io.open(path, 'r')
+    if file then
+        data = json.decode(file:read('*a'))
+        io.close(file)
     else
-        if istvOS then
-            data = shallowcopy(defaultData)
-            saveData()
-        else
-            local file = io.open(path, 'r')
-            if file then
-                data = json.decode(file:read('*a'))
-                io.close(file)
-            else
-                data = shallowcopy(defaultData)
-                saveData()
-            end
-        end
+        data = shallowcopy(defaultData)
+        saveData()
     end
 end
 
