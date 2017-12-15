@@ -55,6 +55,9 @@ databox({
     isMusicOn = true
 })
 
+-- Temporary
+databox.isMusicOn = false
+
 local sounds = require('libs.sounds')
 sounds.isSoundOn = databox.isSoundOn
 sounds.isMusicOn = databox.isMusicOn

@@ -17,7 +17,7 @@ local path = system.pathForFile('databox.json', system.DocumentsDirectory)
 
 -- Copy tables by value
 -- Nested tables are not supported
-local function shallowcopy(t)
+local function shallowCopy(t)
     local copy = {}
     for k, v in pairs(t) do
         if type(k) == 'string' then
@@ -46,7 +46,7 @@ local function loadData()
         data = json.decode(file:read('*a'))
         io.close(file)
     else
-        data = shallowcopy(defaultData)
+        data = shallowCopy(defaultData)
         saveData()
     end
 end
@@ -76,7 +76,7 @@ local mt = {
     end,
     __call = function(t, value) -- On calling, initiate with defaults
         if type(value) == 'table' then
-            defaultData = shallowcopy(value)
+            defaultData = shallowCopy(value)
         end
         loadData()
         patchIfNewDefaultData()

@@ -60,7 +60,6 @@ local asteroidsTable = {}
 
 local ship
 local gameLoopTimer
-local fireLaserTimer
 local livesText
 local scoreText
 
@@ -131,10 +130,18 @@ local function clamp(v, min, max)
 	return v
 end
 
+local lastTime = 0
+
 local function dragShip( event )
 
 	local ship = event.target
 	local phase = event.phase
+	local now = event.time
+
+	if now - lastTime > 300 then
+		fireLaser()
+		lastTime = now
+	end
 
 	if ( "began" == phase ) then
 		-- Set touch focus on the ship
@@ -191,7 +198,6 @@ local function restoreShip()
 		onComplete = function()
 			ship.isBodyActive = true
 			died = false
-			fireLaserTimer = timer.performWithDelay(300, fireLaserTimer, 0)
 		end
 	} )
 end
@@ -247,7 +253,6 @@ local function onCollision( event )
 
 				if ( lives == 0 ) then
 					display.remove( ship )
-					timer.cancel(fireLaserTimer)
 					timer.performWithDelay( 2000, endGame )
 				else
 					ship.alpha = 0
@@ -314,7 +319,6 @@ function scene:show( event )
 		physics.start()
 		Runtime:addEventListener( "collision", onCollision )
 		gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0 )
-		fireLaserTimer = timer.performWithDelay( 300, fireLaser, 0)
 		-- Start the music!
 		sounds.playStream( "gameMusic" )
 	end
@@ -330,7 +334,6 @@ function scene:hide( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 		timer.cancel( gameLoopTimer )
-		timer.cancel( fireLaserTimer )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
