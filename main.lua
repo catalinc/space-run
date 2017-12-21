@@ -52,7 +52,8 @@ end
 local databox = require('libs.databox')
 databox({
     isSoundOn = true,
-    isMusicOn = true
+    isMusicOn = true,
+    logLevel  = 'DEBUG'
 })
 
 -- Temporary
@@ -61,6 +62,9 @@ databox.isMusicOn = false
 local sounds = require('libs.sounds')
 sounds.isSoundOn = databox.isSoundOn
 sounds.isMusicOn = databox.isMusicOn
+
+local log = require('libs.log')
+log.setLevel(databox.logLevel)
 
 local composer = require( "composer" )
 
