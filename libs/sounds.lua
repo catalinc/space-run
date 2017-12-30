@@ -2,8 +2,6 @@
 -- Manager for the sound and music files.
 -- Automatically loads files and keeps a track of them.
 -- Use playSteam() for music files and play() for short SFX files.
-local log = require("libs.log")
-
 local _M = {}
 
 _M.isSoundOn = true
@@ -21,9 +19,6 @@ local sounds = {
 local loadedSounds = {}
 local function loadSound(sound)
     if not loadedSounds[sound] then
-        if log.isDebugEnabled() then
-            log.debug('sounds: loading sound: ' .. sound)
-        end
         loadedSounds[sound] = audio.loadSound(sounds[sound])
     end
     return loadedSounds[sound]
@@ -31,9 +26,6 @@ end
 
 local function loadStream(sound)
     if not loadedSounds[sound] then
-        if log.isDebugEnabled() then
-            log.debug('sounds: loading stream: ' .. sound)
-        end
         loadedSounds[sound] = audio.loadStream(sounds[sound])
     end
     return loadedSounds[sound]
@@ -45,7 +37,6 @@ local audioChannel, otherAudioChannel, currentStreamSound = 1, 2
 function _M.playStream(sound, force)
     if not _M.isMusicOn then return end
     if not sounds[sound] then
-        log.warn('sounds: no such sound: ' .. tostring(sound))
         return
     end
     if currentStreamSound == sound and not force then return end
@@ -59,7 +50,6 @@ end
 function _M.play(sound, params)
     if not _M.isSoundOn then return end
     if not sounds[sound] then
-        log.warn('sounds: no such sound: ' .. tostring(sound))
         return        
     end
     return audio.play(loadSound(sound), params)
@@ -67,20 +57,15 @@ end
 
 function _M.dispose(sound)
     if not sounds[sound] then
-        log.warn('sounds: no such sound to dispose: ' .. tostring(sound))
         return
     end
     handle = loadedSounds[sound]
     if not handle then
-        log.warn('sounds: sound not loaded: ' .. tostring(sound))
         return
     end
     loadedSounds[sound] = nil
     if sound == currentStreamSound then
         currentStreamSound = nil
-    end
-    if log.isDebugEnabled() then
-        log.debug('sounds: disposing sound: ' .. tostring(sound))
     end
     return audio.dispose(handle)
 end

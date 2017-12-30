@@ -7,7 +7,6 @@
 -- Accessing data is simple like databox.someKey
 -- Saving data is automatic on key change, you only need to set a value like databox.someKey = 'someValue'
 -- If you update default values, all new values will be added into the existing file.
-
 local json = require('json')
 
 local data = {}

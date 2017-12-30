@@ -63,9 +63,6 @@ local sounds = require('libs.sounds')
 sounds.isSoundOn = databox.isSoundOn
 sounds.isMusicOn = databox.isMusicOn
 
-local log = require('libs.log')
-log.setLevel(databox.logLevel)
-
 local composer = require( "composer" )
 
 -- Automatically remove scenes from memory
