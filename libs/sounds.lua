@@ -59,14 +59,15 @@ function _M.dispose(sound)
     if not sounds[sound] then
         return
     end
+    
     handle = loadedSounds[sound]
-    if not handle then
-        return
-    end
+    if not handle then return end
+    
     loadedSounds[sound] = nil
     if sound == currentStreamSound then
         currentStreamSound = nil
     end
+    
     return audio.dispose(handle)
 end
 

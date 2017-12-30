@@ -67,7 +67,14 @@ local backGroup
 local mainGroup
 local uiGroup
 
-local sounds = require("libs.sounds")
+local background1
+local background2
+local lastFrameTime = 0
+local scrollSpeed = 1.6
+
+local eachframe = require( "libs.eachframe" )
+
+local sounds = require( "libs.sounds" )
 
 local function updateText()
 	livesText.text = "Lives: " .. lives
@@ -124,7 +131,7 @@ local function fireLaser()
 	} )
 end
 
-local function clamp(v, min, max)
+local function clamp( v, min, max )
 	if v < min then return min end
 	if v > max then return max end
 	return v
@@ -138,7 +145,7 @@ local function dragShip( event )
 	local phase = event.phase
 	local now = event.time
 
-	if now - lastTime > 300 then
+	if ( now - lastTime > 300 ) then
 		fireLaser()
 		lastTime = now
 	end
@@ -155,8 +162,8 @@ local function dragShip( event )
 		ship.x = event.x - ship.touchOffsetX
 		ship.y = event.y - ship.touchOffsetY
 
-		ship.x = clamp(ship.x, 0, display.contentWidth)
-		ship.y = clamp(ship.y, 0, display.contentHeight)
+		ship.x = clamp( ship.x, 0, display.contentWidth )
+		ship.y = clamp( ship.y, 0, display.contentHeight )
 
 	elseif ( "ended" == phase or "cancelled" == phase ) then
 		-- Release touch focus on the ship
@@ -263,6 +270,30 @@ local function onCollision( event )
 	end
 end
 
+local function scrollBackground( delta )
+    background1.y = background1.y + scrollSpeed * delta
+    background2.y = background2.y + scrollSpeed * delta
+
+    if ( background1.y - display.contentHeight / 2 ) > display.actualContentHeight then
+        background1:translate(0, -background1.contentHeight * 2)
+    end
+
+    if ( background2.y - display.contentHeight / 2 ) > display.actualContentHeight then
+        background2:translate(0, -background2.contentHeight * 2)
+    end
+end
+
+local function getDeltaTime()
+   local now   = system.getTimer()
+   local delta = ( now - lastFrameTime ) / ( 1000 / 60 )
+   lastFrameTime = now
+   return delta
+end
+
+local function enterFrame()
+	local delta = getDeltaTime()
+	scrollBackground(delta)
+end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -287,10 +318,25 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
 	
 	-- Load the background
-	local background = display.newImageRect( backGroup, "graphics/background.png", 800, 1400 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	
+	-- local background = display.newImageRect( backGroup, "graphics/background.png", 800, 1400 )
+	-- background.x = display.contentCenterX
+	-- background.y = display.contentCenterY
+
+	-- Scrolling background prototype
+   local backgroundImage = { type="image", filename="graphics/background.png" }
+
+    -- Add first background image
+    background1 = display.newRect( backGroup, 0, 0, display.contentWidth, display.actualContentHeight )
+    background1.fill = backgroundImage
+    background1.x = display.contentCenterX
+    background1.y = display.contentCenterY
+
+    -- Add second background image
+    background2 = display.newRect( backGroup, 0, 0, display.contentWidth, display.actualContentHeight )
+    background2.fill = backgroundImage
+    background2.x = display.contentCenterX
+    background2.y = display.contentCenterY - display.actualContentHeight
+
 	ship = display.newImageRect( mainGroup, objectSheet, 4, 98, 79 )
 	ship.x = display.contentCenterX
 	ship.y = display.contentHeight - 100
@@ -319,6 +365,8 @@ function scene:show( event )
 		physics.start()
 		Runtime:addEventListener( "collision", onCollision )
 		gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0 )
+		-- Start background scrolling
+		eachframe.add( enterFrame )
 		-- Start the music!
 		sounds.playStream( "gameMusic" )
 	end
@@ -337,6 +385,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+		eachframe.remove( enterFrame )
 		Runtime:removeEventListener( "collision", onCollision )
 		physics.pause()
 		-- Stop the music!
