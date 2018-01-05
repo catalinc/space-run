@@ -52,8 +52,7 @@ end
 local databox = require('libs.databox')
 databox({
     isSoundOn = true,
-    isMusicOn = true,
-    logLevel  = 'DEBUG'
+    isMusicOn = true
 })
 
 -- Temporary

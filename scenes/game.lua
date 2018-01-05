@@ -12,44 +12,7 @@ local physics = require( "physics" )
 physics.start()
 physics.setGravity( 0, 0 )
 
--- Configure image sheet
-local sheetOptions =
-{
-    frames =
-    {
-        {   -- 1) asteroid 1
-            x = 0,
-            y = 0,
-            width = 102,
-            height = 85
-        },
-        {   -- 2) asteroid 2
-            x = 0,
-            y = 85,
-            width = 90,
-            height = 83
-        },
-        {   -- 3) asteroid 3
-            x = 0,
-            y = 168,
-            width = 100,
-            height = 97
-        },
-        {   -- 4) ship
-            x = 0,
-            y = 265,
-            width = 98,
-            height = 79
-        },
-        {   -- 5) laser
-            x = 98,
-            y = 265,
-            width = 14,
-            height = 40
-        },
-    },
-}
-local objectSheet = graphics.newImageSheet( "graphics/gameObjects.png", sheetOptions )
+local sprites = require( "engine.sprites" )
 
 -- Initialize variables
 local lives = 3
@@ -81,10 +44,12 @@ local function updateText()
 	scoreText.text = "Score: " .. score
 end
 
+local ship = require( "engine.ship" )
+local playerShip
 
 local function createAsteroid()
 
-	local newAsteroid = display.newImageRect( mainGroup, objectSheet, 1, 102, 85 )
+	local newAsteroid = display.newImageRect( mainGroup, sprites, 1, 102, 85 )
 	table.insert( asteroidsTable, newAsteroid )
 	physics.addBody( newAsteroid, "dynamic", { radius=40, bounce=0.8 } )
 	newAsteroid.myName = "asteroid"
@@ -111,68 +76,6 @@ local function createAsteroid()
 	newAsteroid:applyTorque( math.random( -6,6 ) )
 end
 
-
-local function fireLaser()
-
-	-- Play fire sound!
-	sounds.play( "fire" )
-
-	local newLaser = display.newImageRect( mainGroup, objectSheet, 5, 14, 40 )
-	physics.addBody( newLaser, "dynamic", { isSensor=true } )
-	newLaser.isBullet = true
-	newLaser.myName = "laser"
-
-	newLaser.x = ship.x
-	newLaser.y = ship.y
-	newLaser:toBack()
-
-	transition.to( newLaser, { y=-40, time=500,
-		onComplete = function() display.remove( newLaser ) end
-	} )
-end
-
-local function clamp( v, min, max )
-	if v < min then return min end
-	if v > max then return max end
-	return v
-end
-
-local lastTime = 0
-
-local function dragShip( event )
-
-	local ship = event.target
-	local phase = event.phase
-	local now = event.time
-
-	if ( now - lastTime > 300 ) then
-		fireLaser()
-		lastTime = now
-	end
-
-	if ( "began" == phase ) then
-		-- Set touch focus on the ship
-		display.currentStage:setFocus( ship )
-		-- Store initial offset position
-		ship.touchOffsetX = event.x - ship.x
-		ship.touchOffsetY = event.y - ship.y
-
-	elseif ( "moved" == phase ) then
-		-- Move the ship to the new touch position
-		ship.x = event.x - ship.touchOffsetX
-		ship.y = event.y - ship.touchOffsetY
-
-		ship.x = clamp( ship.x, 0, display.contentWidth )
-		ship.y = clamp( ship.y, 0, display.contentHeight )
-
-	elseif ( "ended" == phase or "cancelled" == phase ) then
-		-- Release touch focus on the ship
-		display.currentStage:setFocus( nil )
-	end
-
-	return true  -- Prevents touch propagation to underlying objects
-end
-
 local function gameLoop()
 
 	-- Create new asteroid
@@ -193,29 +96,11 @@ local function gameLoop()
 	end
 end
 
-
-local function restoreShip()
-
-	ship.isBodyActive = false
-	ship.x = display.contentCenterX
-	ship.y = display.contentHeight - 100
-
-	-- Fade in the ship
-	transition.to( ship, { alpha=1, time=4000,
-		onComplete = function()
-			ship.isBodyActive = true
-			died = false
-		end
-	} )
-end
-
-
 local function endGame()
 	composer.setVariable( "finalScore", score )
 	composer.removeScene( "scenes.highscores" )
 	composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
 end
-
 
 local function onCollision( event )
 
@@ -248,22 +133,16 @@ local function onCollision( event )
 		elseif ( ( obj1.myName == "ship" and obj2.myName == "asteroid" ) or
 				 ( obj1.myName == "asteroid" and obj2.myName == "ship" ) )
 		then
-			if ( died == false ) then
-				died = true
+			if ( playerShip:isAlive() ) then
+				playerShip:die()
 
-				-- Play explosion sound!
-				sounds.play( "explosion" )
+				livesText.text = "Lives: " .. playerShip.lives
 
-				-- Update lives
-				lives = lives - 1
-				livesText.text = "Lives: " .. lives
-
-				if ( lives == 0 ) then
+				if ( playerShip:isReallyDead() ) then
 					display.remove( ship )
 					timer.performWithDelay( 2000, endGame )
 				else
-					ship.alpha = 0
-					timer.performWithDelay( 1000, restoreShip )
+					timer.performWithDelay( 1000, function () playerShip:restore() end )
 				end
 			end
 		end
@@ -337,17 +216,11 @@ function scene:create( event )
     background2.x = display.contentCenterX
     background2.y = display.contentCenterY - display.actualContentHeight
 
-	ship = display.newImageRect( mainGroup, objectSheet, 4, 98, 79 )
-	ship.x = display.contentCenterX
-	ship.y = display.contentHeight - 100
-	physics.addBody( ship, { radius=30, isSensor=true } )
-	ship.myName = "ship"
+    playerShip = ship.new(mainGroup)
 
 	-- Display lives and score
 	livesText = display.newText( uiGroup, "Lives: " .. lives, 200, 80, native.systemFont, 36 )
 	scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFont, 36 )
-
-	ship:addEventListener( "touch", dragShip )
 end
 
 
