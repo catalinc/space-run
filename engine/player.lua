@@ -3,7 +3,7 @@
 local physics = require( "physics" )
 local sounds = require( "libs.sounds" )
 local sprites = require( "engine.sprites" )
- 
+
 local M = {}
 
 local function clamp( v, min, max )
@@ -20,21 +20,16 @@ function M.new( group )
     newPlayer.lastFireTime = 0
     newPlayer.died = false
     newPlayer.lives = 3
-
     physics.addBody( newPlayer, { radius=30, isSensor=true } )
 
     function newPlayer:fireLaser()
-
         sounds.play( "fire" )
-
-        local newLaser = display.newImageRect( group, sprites, 5, 14, 40 )        
+        local newLaser = display.newImageRect( group, sprites, 5, 14, 40 )
         newLaser.isBullet = true
         newLaser.myName = "laser"
         newLaser.x = self.x
         newLaser.y = self.y
-
         newLaser:toBack()
-
         physics.addBody( newLaser, "dynamic", { isSensor=true } )
 
         transition.to( newLaser, { y=-40, time=500,
@@ -45,7 +40,6 @@ function M.new( group )
     function newPlayer:touch( event )
         local phase = event.phase
         local now = event.time
-
         if ( now - self.lastFireTime > 300 ) then
             self:fireLaser()
             self.lastFireTime = now
@@ -57,15 +51,12 @@ function M.new( group )
             -- Store initial offset position
             self.touchOffsetX = event.x - self.x
             self.touchOffsetY = event.y - self.y
-
         elseif ( "moved" == phase ) then
             -- Move the player to the new touch position
             self.x = event.x - self.touchOffsetX
             self.y = event.y - self.touchOffsetY
-
             self.x = clamp( self.x, 0, display.contentWidth )
             self.y = clamp( self.y, 0, display.contentHeight )
-
         elseif ( "ended" == phase or "cancelled" == phase ) then
             -- Release touch focus on the player
             display.currentStage:setFocus( nil )
@@ -82,7 +73,6 @@ function M.new( group )
 
     function newPlayer:die()
         sounds.play( "explosion" )
-
         self.lives = self.lives - 1
         self.died = true
         self.alpha = 0

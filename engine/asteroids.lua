@@ -12,13 +12,10 @@ local asteroidsTable = {}
 function M.generate( group )
     local newAsteroid = display.newImageRect( group, sprites, 1, 102, 85 )
     newAsteroid.myName = "asteroid" -- Used for collision detection
-
     table.insert( asteroidsTable, newAsteroid )
-
     physics.addBody( newAsteroid, "dynamic", { radius=40, bounce=0.8 } )
 
     local whereFrom = math.random( 3 )
-
     if ( whereFrom == 1 ) then
         -- From the left
         newAsteroid.x = -60
@@ -37,16 +34,12 @@ function M.generate( group )
     end
 
     newAsteroid:applyTorque( math.random( -6,6 ) )
-
-    print("asteroids #" .. (#asteroidsTable))
 end
 
 -- Remove asteroids which have drifted off screen
 function M.removeDrifted()
     for i = #asteroidsTable, 1, -1 do
-
         local thisAsteroid = asteroidsTable[i]
-
         if ( thisAsteroid.x < -100 or
              thisAsteroid.x > display.contentWidth + 100 or
              thisAsteroid.y < -100 or
@@ -55,17 +48,14 @@ function M.removeDrifted()
             display.remove( thisAsteroid )
             table.remove( asteroidsTable, i )
         end
-    end    
+    end
 end
 
 -- Remove a specific asteroid (e.g. after collision)
 function M.remove( asteroid )
     for i = #asteroidsTable, 1, -1 do
-
         if asteroidsTable[i] == asteroid then
-
             sounds.play( "explosion" )
-
             display.remove( asteroid )
             table.remove( asteroidsTable, i )
             break
@@ -73,6 +63,7 @@ function M.remove( asteroid )
     end
 end
 
+-- Remove all asteroids (e.g. before switch scene)
 function M.cleanup()
     for i = #asteroidsTable, 1, -1 do
         display.remove( asteroidsTable[i] )
