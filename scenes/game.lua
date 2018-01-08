@@ -9,22 +9,19 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local physics = require( "physics" )
-physics.start()
-physics.setGravity( 0, 0 )
-
+local eachframe = require( "libs.eachframe" )
+local sounds = require( "libs.sounds" )
 local sprites = require( "engine.sprites" )
+local player = require( "engine.player" )
+local asteroids = require( "engine.asteroids" )
 
--- Initialize variables
-local lives = 3
+local lives = 3 -- TODO move to player?
 local score = 0
-local died = false
 
-local asteroidsTable = {}
-
-local ship
 local gameLoopTimer
 local livesText
 local scoreText
+local ship
 
 local backGroup
 local mainGroup
@@ -35,68 +32,21 @@ local background2
 local lastFrameTime = 0
 local scrollSpeed = 1.6
 
-local eachframe = require( "libs.eachframe" )
-
-local sounds = require( "libs.sounds" )
+physics.start()
+physics.setGravity( 0, 0 )
 
 local function updateText()
 	livesText.text = "Lives: " .. lives
 	scoreText.text = "Score: " .. score
 end
 
-local ship = require( "engine.ship" )
-local playerShip
-
-local function createAsteroid()
-
-	local newAsteroid = display.newImageRect( mainGroup, sprites, 1, 102, 85 )
-	table.insert( asteroidsTable, newAsteroid )
-	physics.addBody( newAsteroid, "dynamic", { radius=40, bounce=0.8 } )
-	newAsteroid.myName = "asteroid"
-
-	local whereFrom = math.random( 3 )
-
-	if ( whereFrom == 1 ) then
-		-- From the left
-		newAsteroid.x = -60
-		newAsteroid.y = math.random( 500 )
-		newAsteroid:setLinearVelocity( math.random( 40,120 ), math.random( 20,60 ) )
-	elseif ( whereFrom == 2 ) then
-		-- From the top
-		newAsteroid.x = math.random( display.contentWidth )
-		newAsteroid.y = -60
-		newAsteroid:setLinearVelocity( math.random( -40,40 ), math.random( 40,120 ) )
-	elseif ( whereFrom == 3 ) then
-		-- From the right
-		newAsteroid.x = display.contentWidth + 60
-		newAsteroid.y = math.random( 500 )
-		newAsteroid:setLinearVelocity( math.random( -120,-40 ), math.random( 20,60 ) )
-	end
-
-	newAsteroid:applyTorque( math.random( -6,6 ) )
-end
-
 local function gameLoop()
-
-	-- Create new asteroid
-	createAsteroid()
-
-	-- Remove asteroids which have drifted off screen
-	for i = #asteroidsTable, 1, -1 do
-		local thisAsteroid = asteroidsTable[i]
-
-		if ( thisAsteroid.x < -100 or
-			 thisAsteroid.x > display.contentWidth + 100 or
-			 thisAsteroid.y < -100 or
-			 thisAsteroid.y > display.contentHeight + 100 )
-		then
-			display.remove( thisAsteroid )
-			table.remove( asteroidsTable, i )
-		end
-	end
+	asteroids.generate(mainGroup)
+	asteroids.removeDrifted()
 end
 
 local function endGame()
+	asteroids.cleanup()
 	composer.setVariable( "finalScore", score )
 	composer.removeScene( "scenes.highscores" )
 	composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
@@ -112,19 +62,12 @@ local function onCollision( event )
 		if ( ( obj1.myName == "laser" and obj2.myName == "asteroid" ) or
 			 ( obj1.myName == "asteroid" and obj2.myName == "laser" ) )
 		then
-			-- Remove both the laser and asteroid
-			display.remove( obj1 )
-			display.remove( obj2 )
+			-- Remove the laser
+			if obj1.myName == "laser" then display.remove( obj1 ) end
+			if obj2.myName == "laser" then display.remove( obj2 ) end
 
-			-- Play explosion sound!
-			sounds.play("explosion")
-
-			for i = #asteroidsTable, 1, -1 do
-				if ( asteroidsTable[i] == obj1 or asteroidsTable[i] == obj2 ) then
-					table.remove( asteroidsTable, i )
-					break
-				end
-			end
+			if obj1.myName == "asteroid" then asteroids.remove( obj1 ) end
+			if obj2.myName == "asteroid" then asteroids.remove( obj2 ) end
 
 			-- Increase score
 			score = score + 100
@@ -133,16 +76,16 @@ local function onCollision( event )
 		elseif ( ( obj1.myName == "ship" and obj2.myName == "asteroid" ) or
 				 ( obj1.myName == "asteroid" and obj2.myName == "ship" ) )
 		then
-			if ( playerShip:isAlive() ) then
-				playerShip:die()
+			if ( ship:isAlive() ) then
+				ship:die()
 
-				livesText.text = "Lives: " .. playerShip.lives
+				livesText.text = "Lives: " .. ship.lives
 
-				if ( playerShip:isReallyDead() ) then
+				if ( ship:isDead() ) then
 					display.remove( ship )
 					timer.performWithDelay( 2000, endGame )
 				else
-					timer.performWithDelay( 1000, function () playerShip:restore() end )
+					timer.performWithDelay( 1000, function () ship:restore() end )
 				end
 			end
 		end
@@ -216,7 +159,7 @@ function scene:create( event )
     background2.x = display.contentCenterX
     background2.y = display.contentCenterY - display.actualContentHeight
 
-    playerShip = ship.new(mainGroup)
+    ship = player.new(mainGroup)
 
 	-- Display lives and score
 	livesText = display.newText( uiGroup, "Lives: " .. lives, 200, 80, native.systemFont, 36 )
