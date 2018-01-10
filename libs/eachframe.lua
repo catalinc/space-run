@@ -5,41 +5,41 @@
 -- This leads to less runtime errors.
 -- Don't forget to remove the listeners when they are not needed anymore. Use Corona's finalize event.
 
-local _M = {}
+local M = {}
 
 local function enterFrame()
-  for i = 1, #_M.enterFrameListeners do
-    if type(_M.enterFrameListeners[i]) == 'function' then
-      _M.enterFrameListeners[i]()
-    elseif type(_M.enterFrameListeners[i]) == 'table' and type(_M.enterFrameListeners[i].eachFrame) == 'function' then
-      _M.enterFrameListeners[i]:eachFrame()
+  for i = 1, #M.enterFrameListeners do
+    if type(M.enterFrameListeners[i]) == 'function' then
+      M.enterFrameListeners[i]()
+    elseif type(M.enterFrameListeners[i]) == 'table' and type(M.enterFrameListeners[i].eachFrame) == 'function' then
+      M.enterFrameListeners[i]:eachFrame()
     end
   end
 end
 
-function _M.add(listener)
-  if not _M.enterFrameListeners then
-    _M.enterFrameListeners = {}
+function M.add(listener)
+  if not M.enterFrameListeners then
+    M.enterFrameListeners = {}
     Runtime:addEventListener('enterFrame', enterFrame)
   end
-  table.insert(_M.enterFrameListeners, listener)
+  table.insert(M.enterFrameListeners, listener)
   return listener
 end
 
-function _M.remove(listener)
-  if not listener or not _M.enterFrameListeners then return end
-  local ind = table.indexOf(_M.enterFrameListeners, listener)
+function M.remove(listener)
+  if not listener or not M.enterFrameListeners then return end
+  local ind = table.indexOf(M.enterFrameListeners, listener)
   if ind then
-    table.remove(_M.enterFrameListeners, ind)
-    if #_M.enterFrameListeners == 0 then
-      _M.removeAll()
+    table.remove(M.enterFrameListeners, ind)
+    if #M.enterFrameListeners == 0 then
+      M.removeAll()
     end
   end
 end
 
-function _M.removeAll()
+function M.removeAll()
   Runtime:removeEventListener('enterFrame', enterFrame)
-  _M.enterFrameListeners = nil
+  M.enterFrameListeners = nil
 end
 
-return _M
+return M
