@@ -1,8 +1,10 @@
--- Seed the random number generator
-math.randomseed( os.time() )
+local composer = require( "composer" )
+local databox = require('libs.databox')
+local sounds = require('libs.sounds')
 
--- Hide status bar
-display.setStatusBar( display.HiddenStatusBar )
+math.randomseed(os.time())
+
+display.setStatusBar(display.HiddenStatusBar)
 
 local platform = system.getInfo('platformName')
 
@@ -51,20 +53,13 @@ if platform == 'Android' or platform == 'WinPhone' then
                           end)
 end
 
-local databox = require('libs.databox')
-databox({
-  isSoundOn = true,
-  isMusicOn = true
-})
+-- Set default settings
+databox({isSoundOn=true, isMusicOn=true})
+databox.isMusicOn = false -- Temporary
 
--- Temporary
-databox.isMusicOn = false
-
-local sounds = require('libs.sounds')
+-- Sound settings
 sounds.isSoundOn = databox.isSoundOn
 sounds.isMusicOn = databox.isMusicOn
-
-local composer = require( "composer" )
 
 -- Automatically remove scenes from memory
 composer.recycleOnSceneChange = true

@@ -15,6 +15,7 @@ local sprites = require("engine.sprites")
 local player = require("engine.player")
 local asteroids = require("engine.asteroids")
 local background = require("engine.background")
+local collision = require("engine.collision")
 
 local score = 0
 
@@ -28,72 +29,14 @@ local mainGroup
 local uiGroup
 
 physics.start()
-physics.setGravity( 0, 0 )
-
-local function updateText()
-	livesText.text = "Lives: " .. ship.lives
-	scoreText.text = "Score: " .. score
-end
-
-local function gameLoop()
-	asteroids.newAsteroid(mainGroup)
-	asteroids.removeOffScreen()
-end
-
-local function endGame()
-	asteroids.removeAll()
-
-	composer.setVariable( "finalScore", score )
-	composer.removeScene( "scenes.highscores" )
-	composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
-end
-
-local function onCollision( event )
-
-	if ( event.phase == "began" ) then
-
-		local obj1 = event.object1
-		local obj2 = event.object2
-
-		if ( ( obj1.myName == "laser" and obj2.myName == "asteroid" ) or
-			 ( obj1.myName == "asteroid" and obj2.myName == "laser" ) )
-		then
-			-- Remove the laser
-			if obj1.myName == "laser" then display.remove( obj1 ) end
-			if obj2.myName == "laser" then display.remove( obj2 ) end
-
-			if obj1.myName == "asteroid" then asteroids.remove( obj1 ) end
-			if obj2.myName == "asteroid" then asteroids.remove( obj2 ) end
-
-			-- Increase score
-			score = score + 100
-			scoreText.text = "Score: " .. score
-
-		elseif ( ( obj1.myName == "ship" and obj2.myName == "asteroid" ) or
-				 ( obj1.myName == "asteroid" and obj2.myName == "ship" ) )
-		then
-			if ( ship:isAlive() ) then
-				ship:die()
-
-				livesText.text = "Lives: " .. ship.lives
-
-				if ( ship:isDead() ) then
-					display.remove( ship )
-					timer.performWithDelay( 2000, endGame )
-				else
-					timer.performWithDelay( 1000, function () ship:restore() end )
-				end
-			end
-		end
-	end
-end
+physics.setGravity(0, 0)
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
 -- create()
-function scene:create( event )
+function scene:create(event)
   -- Code here runs when the scene is first created but has not yet appeared on screen
 
 	local sceneGroup = self.view
@@ -114,24 +57,20 @@ function scene:create( event )
   background.init(backGroup)
   ship = player.newShip(mainGroup)
 
-	livesText = display.newText( uiGroup, "Lives: " .. ship.lives, 200, 80, native.systemFont, 36 )
-	scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFont, 36 )
+	livesText = display.newText(uiGroup, "Lives: " .. ship.lives, 200, 80, native.systemFont, 36)
+	scoreText = display.newText(uiGroup, "Score: " .. score, 400, 80, native.systemFont, 36)
 end
 
 -- show()
-function scene:show( event )
+function scene:show(event)
 	local sceneGroup = self.view
 	local phase = event.phase
 
-	if ( phase == "will" ) then
+	if phase == "will" then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
-	elseif ( phase == "did" ) then
+	elseif phase == "did" then
 		-- Code here runs when the scene is entirely on screen
-		physics.start()
-		Runtime:addEventListener( "collision", onCollision )
-		gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0 )
-    background.start()
-		sounds.playStream( "gameMusic" )
+    self:startGame()
 	end
 end
 
@@ -140,37 +79,71 @@ function scene:hide( event )
 	local sceneGroup = self.view
 	local phase = event.phase
 
-	if ( phase == "will" ) then
+	if phase == "will" then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-		timer.cancel( gameLoopTimer )
-	elseif ( phase == "did" ) then
+		timer.cancel(gameLoopTimer)
+	elseif phase == "did" then
 		-- Code here runs immediately after the scene goes entirely off screen
-    background.stop()
-		Runtime:removeEventListener( "collision", onCollision )
-		physics.pause()
-		-- Stop the music!
-		sounds.stop()
+    self:stopGame()
 	end
 end
 
 -- destroy()
-function scene:destroy( event )
+function scene:destroy(event)
   -- Code here runs prior to the removal of scene's view
 	local sceneGroup = self.view
 
-	sounds.dispose( "explosion" )
-	sounds.dispose( "fire" )
-	sounds.dispose( "gameMusic" )
+	sounds.dispose("explosion")
+	sounds.dispose("fire")
+	sounds.dispose("gameMusic")
 end
-
 
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
+scene:addEventListener("create", scene)
+scene:addEventListener("show", scene)
+scene:addEventListener("hide", scene)
+scene:addEventListener("destroy", scene)
 -- -----------------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------------
+-- Scene game functions
+-- -----------------------------------------------------------------------------------
+function scene:updateLives()
+  livesText.text = "Lives: " .. ship.lives
+end
+
+function scene:updateScore()
+  score = score + 100
+  scoreText.text = "Score: " .. score
+end
+
+function scene:gameLoop()
+  asteroids.newAsteroid(mainGroup)
+  asteroids.removeOffScreen()
+end
+
+function scene:startGame()
+  physics.start()
+  background.start()
+  collision.start()
+  gameLoopTimer = timer.performWithDelay(500, function() self:gameLoop() end, 0)
+  sounds.playStream("gameMusic")
+end
+
+function scene:stopGame()
+  background.pause()
+  collision.pause()
+  physics.pause()
+  sounds.stop()
+end
+
+function scene:endGame()
+  asteroids.removeAll()
+  composer.setVariable( "finalScore", score )
+  composer.removeScene( "scenes.highscores" )
+  composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
+end
 
 return scene

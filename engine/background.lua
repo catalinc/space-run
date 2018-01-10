@@ -54,7 +54,7 @@ function M.start()
   eachframe.add(enterFrame)
 end
 
-function M.stop()
+function M.pause()
   eachframe.remove(enterFrame)
 end
 

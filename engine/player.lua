@@ -70,6 +70,7 @@ function M.newShip(group)
 
         return true  -- Prevents touch propagation to underlying objects
     end
+
     newShip:addEventListener("touch", newShip)
 
     function newShip:isAlive() return self.died == false end
