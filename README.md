@@ -14,8 +14,8 @@ to system in the Andromeda galaxy searching for a worm hole to your home galaxy 
 
 # Controls
 
-Screen orientation is horizontal. Virtual joystick for up/down on the left side of the screen.
-Two buttons for firing laser and dropping bombs on the right side of the screen.
+Screen orientation is vertical. Drag ship to move. The ship is firing continously while dragged.
+An additional button for dropping bombs is available on the right side of the screen.
 
 # Game play
 
