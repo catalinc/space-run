@@ -9,9 +9,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local physics = require("physics")
-local eachframe = require("libs.eachframe")
 local sounds = require("libs.sounds")
-local sprites = require("engine.sprites")
 local player = require("engine.player")
 local asteroids = require("engine.asteroids")
 local background = require("engine.background")
@@ -30,6 +28,45 @@ local uiGroup
 
 physics.start()
 physics.setGravity(0, 0)
+
+-- -----------------------------------------------------------------------------------
+-- Scene game functions
+-- -----------------------------------------------------------------------------------
+function scene:updateLives()
+  livesText.text = "Lives: " .. ship.lives
+end
+
+function scene:updateScore()
+  score = score + 100
+  scoreText.text = "Score: " .. score
+end
+
+function scene:endGame()
+  asteroids.reset()
+  composer.setVariable("finalScore", score)
+  composer.removeScene("scenes.highscores")
+  composer.gotoScene("scenes.highscores", { time=800, effect="crossFade" } )
+end
+
+local function gameLoop()
+  asteroids.newAsteroid(mainGroup)
+  asteroids.removeOffScreen()
+end
+
+local function startGame()
+  physics.start()
+  background.start()
+  collision.start()
+  gameLoopTimer = timer.performWithDelay(500, gameLoop, 0)
+  sounds.playStream("gameMusic")
+end
+
+local function stopGame()
+  background.pause()
+  collision.pause()
+  physics.pause()
+  sounds.stop()
+end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -70,7 +107,7 @@ function scene:show(event)
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 	elseif phase == "did" then
 		-- Code here runs when the scene is entirely on screen
-    self:startGame()
+    startGame()
 	end
 end
 
@@ -84,7 +121,7 @@ function scene:hide( event )
 		timer.cancel(gameLoopTimer)
 	elseif phase == "did" then
 		-- Code here runs immediately after the scene goes entirely off screen
-    self:stopGame()
+    stopGame()
 	end
 end
 
@@ -106,44 +143,5 @@ scene:addEventListener("show", scene)
 scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
 -- -----------------------------------------------------------------------------------
-
--- -----------------------------------------------------------------------------------
--- Scene game functions
--- -----------------------------------------------------------------------------------
-function scene:updateLives()
-  livesText.text = "Lives: " .. ship.lives
-end
-
-function scene:updateScore()
-  score = score + 100
-  scoreText.text = "Score: " .. score
-end
-
-function scene:gameLoop()
-  asteroids.newAsteroid(mainGroup)
-  asteroids.removeOffScreen()
-end
-
-function scene:startGame()
-  physics.start()
-  background.start()
-  collision.start()
-  gameLoopTimer = timer.performWithDelay(500, function() self:gameLoop() end, 0)
-  sounds.playStream("gameMusic")
-end
-
-function scene:stopGame()
-  background.pause()
-  collision.pause()
-  physics.pause()
-  sounds.stop()
-end
-
-function scene:endGame()
-  asteroids.removeAll()
-  composer.setVariable( "finalScore", score )
-  composer.removeScene( "scenes.highscores" )
-  composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
-end
 
 return scene

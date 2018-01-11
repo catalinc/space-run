@@ -68,7 +68,7 @@ function M.remove(asteroid)
 end
 
 -- Remove all asteroids (e.g. before switching scene)
-function M.removeAll()
+function M.reset()
   for i = #asteroidsTable, 1, -1 do
     display.remove(asteroidsTable[i])
     table.remove(asteroidsTable, i)

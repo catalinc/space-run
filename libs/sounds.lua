@@ -49,16 +49,12 @@ end
 
 function M.play(sound, params)
   if not M.isSoundOn then return end
-  if not sounds[sound] then
-    return
-  end
+  if not sounds[sound] then return end
   return audio.play(loadSound(sound), params)
 end
 
 function M.dispose(sound)
-  if not sounds[sound] then
-    return
-  end
+  if not sounds[sound] then return end
 
   handle = loadedSounds[sound]
   if not handle then return end

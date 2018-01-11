@@ -24,7 +24,7 @@ end
 
 local function getDeltaTime()
    local now   = system.getTimer()
-   local delta = ( now - lastFrameTime ) / ( 1000 / 60 )
+   local delta = (now - lastFrameTime) / (1000 / 60)
    lastFrameTime = now
    return delta
 end

@@ -20,7 +20,7 @@ function M.newShip(group)
     newShip.y = display.contentHeight - 100
     newShip.myName = "ship" -- Used for collision detection
     newShip.lastFireTime = 0
-    newShip.died = false
+    newShip.isExploding = false
     newShip.lives = 3
 
     physics.addBody(newShip, {radius=30, isSensor=true})
@@ -53,7 +53,7 @@ function M.newShip(group)
 
         if "began" == phase then
             -- Set touch focus on the player
-            display.currentStage:setFocus( self )
+            display.currentStage:setFocus(self)
             -- Store initial offset position
             self.touchOffsetX = event.x - self.x
             self.touchOffsetY = event.y - self.y
@@ -73,15 +73,13 @@ function M.newShip(group)
 
     newShip:addEventListener("touch", newShip)
 
-    function newShip:isAlive() return self.died == false end
-
     function newShip:isDead() return self.lives == 0 end
 
-    function newShip:die()
-        sounds.play( "explosion" )
+    function newShip:explode()
+        sounds.play("explosion")
 
         self.lives = self.lives - 1
-        self.died = true
+        self.isExploding = true
         self.alpha = 0
     end
 
@@ -94,7 +92,7 @@ function M.newShip(group)
         transition.to(self, {alpha=1, time=4000,
             onComplete = function()
                 self.isBodyActive = true
-                self.died = false
+                self.isExploding = false
             end
         })
     end

@@ -29,8 +29,8 @@ local function onCollision(event)
           scene:updateScore()
         end
       elseif ship and asteroid then
-        if ship:isAlive() then
-          ship:die()
+        if not ship.isExploding then
+          ship:explode()
           if type(scene.updateLives) == 'function' then
             scene:updateLives()
           end
