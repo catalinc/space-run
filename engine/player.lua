@@ -28,7 +28,7 @@ function M.newShip(group)
     function newShip:fireLaser()
         sounds.play( "fire" )
 
-        local newLaser = display.newImageRect( group, sprites, 5, 14, 40 )
+        local newLaser = display.newImageRect(group, sprites, 5, 14, 40)
         newLaser.isBullet = true
         newLaser.myName = "laser"
         newLaser.x = self.x
@@ -43,6 +43,8 @@ function M.newShip(group)
     end
 
     function newShip:touch(event)
+        if self.isExploding then return end
+
         local phase = event.phase
 
         local now = event.time
@@ -89,7 +91,7 @@ function M.newShip(group)
         self.y = display.contentHeight - 100
 
         -- Fade in the player
-        transition.to(self, {alpha=1, time=4000,
+        transition.to(self, {alpha=1, time=2000,
             onComplete = function()
                 self.isBodyActive = true
                 self.isExploding = false

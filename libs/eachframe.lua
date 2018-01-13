@@ -5,9 +5,15 @@
 -- This leads to less runtime errors.
 -- Don't forget to remove the listeners when they are not needed anymore. Use Corona's finalize event.
 
-local M = {}
+local M = { deltaTime = 0, lastFrameTime = 0 }
+
+local getTimer = system.getTimer
 
 local function enterFrame()
+  local now   = getTimer()
+  M.deltaTime = (now - M.lastFrameTime) / (1000 / 60)
+  M.lastFrameTime = now
+
   for i = 1, #M.enterFrameListeners do
     if type(M.enterFrameListeners[i]) == 'function' then
       M.enterFrameListeners[i]()

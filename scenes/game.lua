@@ -12,6 +12,7 @@ local physics = require("physics")
 local sounds = require("libs.sounds")
 local player = require("engine.player")
 local asteroids = require("engine.asteroids")
+local enemies = require("engine.enemies")
 local background = require("engine.background")
 local collision = require("engine.collision")
 
@@ -20,7 +21,6 @@ local score = 0
 local gameLoopTimer
 local livesText
 local scoreText
-local ship
 
 local backGroup
 local mainGroup
@@ -33,7 +33,7 @@ physics.setGravity(0, 0)
 -- Scene game functions
 -- -----------------------------------------------------------------------------------
 function scene:updateLives()
-  livesText.text = "Lives: " .. ship.lives
+  livesText.text = "Lives: " .. self.playerShip.lives
 end
 
 function scene:updateScore()
@@ -43,14 +43,18 @@ end
 
 function scene:endGame()
   asteroids.reset()
+  enemies.reset()
   composer.setVariable("finalScore", score)
   composer.removeScene("scenes.highscores")
-  composer.gotoScene("scenes.highscores", { time=800, effect="crossFade" } )
+  composer.gotoScene("scenes.highscores", { time=800, effect="crossFade" })
 end
 
 local function gameLoop()
   asteroids.newAsteroid(mainGroup)
   asteroids.removeOffScreen()
+
+  enemies.newEnemyShip(mainGroup)
+  enemies.removeOffScreen()
 end
 
 local function startGame()
@@ -92,9 +96,9 @@ function scene:create(event)
 	sceneGroup:insert(uiGroup)
 
   background.init(backGroup)
-  ship = player.newShip(mainGroup)
+  self.playerShip = player.newShip(mainGroup)
 
-	livesText = display.newText(uiGroup, "Lives: " .. ship.lives, 200, 80, native.systemFont, 36)
+	livesText = display.newText(uiGroup, "Lives: " .. self.playerShip.lives, 200, 80, native.systemFont, 36)
 	scoreText = display.newText(uiGroup, "Score: " .. score, 400, 80, native.systemFont, 36)
 end
 

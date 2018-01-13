@@ -50,6 +50,7 @@ end
 
 
 local function gotoMenu()
+	composer.removeScene("scenes.menu")
 	composer.gotoScene( "scenes.menu", { time=800, effect="crossFade" } )
 end
 

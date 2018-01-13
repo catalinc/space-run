@@ -9,29 +9,18 @@ local background2
 local lastFrameTime = 0
 local scrollSpeed = 1.6
 
-local function scroll(delta)
-    background1.y = background1.y + scrollSpeed * delta
-    background2.y = background2.y + scrollSpeed * delta
+local function eachFrame()
+  local delta = eachframe.deltaTime
+  background1.y = background1.y + scrollSpeed * delta
+  background2.y = background2.y + scrollSpeed * delta
 
-    if ( background1.y - display.contentHeight / 2 ) > display.actualContentHeight then
-        background1:translate(0, -background1.contentHeight * 2)
-    end
+  if ( background1.y - display.contentHeight / 2 ) > display.actualContentHeight then
+      background1:translate(0, -background1.contentHeight * 2)
+  end
 
-    if ( background2.y - display.contentHeight / 2 ) > display.actualContentHeight then
-        background2:translate(0, -background2.contentHeight * 2)
-    end
-end
-
-local function getDeltaTime()
-   local now   = system.getTimer()
-   local delta = (now - lastFrameTime) / (1000 / 60)
-   lastFrameTime = now
-   return delta
-end
-
-local function enterFrame()
-  local delta = getDeltaTime()
-  scroll(delta)
+  if ( background2.y - display.contentHeight / 2 ) > display.actualContentHeight then
+      background2:translate(0, -background2.contentHeight * 2)
+  end
 end
 
 function M.init(group)
@@ -51,11 +40,11 @@ function M.init(group)
 end
 
 function M.start()
-  eachframe.add(enterFrame)
+  eachframe.add(eachFrame)
 end
 
 function M.pause()
-  eachframe.remove(enterFrame)
+  eachframe.remove(eachFrame)
 end
 
 return M
