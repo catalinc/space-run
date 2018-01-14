@@ -15,6 +15,7 @@ local asteroids = require("engine.asteroids")
 local enemies = require("engine.enemies")
 local background = require("engine.background")
 local collision = require("engine.collision")
+local level = require("engine.level")
 
 local score = 0
 
@@ -49,19 +50,11 @@ function scene:endGame()
   composer.gotoScene("scenes.highscores", { time=800, effect="crossFade" })
 end
 
-local function gameLoop()
-  asteroids.newAsteroid(mainGroup)
-  asteroids.removeOffScreen()
-
-  enemies.newEnemyShip(mainGroup)
-  enemies.removeOffScreen()
-end
-
 local function startGame()
   physics.start()
   background.start()
   collision.start()
-  gameLoopTimer = timer.performWithDelay(500, gameLoop, 0)
+  level.start()
   sounds.playStream("gameMusic")
 end
 
@@ -95,7 +88,9 @@ function scene:create(event)
 	uiGroup = display.newGroup()    -- Display group for UI objects like the score
 	sceneGroup:insert(uiGroup)
 
+  level.init(mainGroup)
   background.init(backGroup)
+
   self.playerShip = player.newShip(mainGroup)
 
 	livesText = display.newText(uiGroup, "Lives: " .. self.playerShip.lives, 200, 80, native.systemFont, 36)
@@ -122,7 +117,7 @@ function scene:hide( event )
 
 	if phase == "will" then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-		timer.cancel(gameLoopTimer)
+    level.stop()
 	elseif phase == "did" then
 		-- Code here runs immediately after the scene goes entirely off screen
     stopGame()

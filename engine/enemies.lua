@@ -59,7 +59,7 @@ function M.newEnemyShip(group)
     newLaser:toBack()
     physics.addBody(newLaser, "dynamic", {isSensor=true})
 
-    transition.to(newLaser, {y=display.contentHeight + 40, time=1000,
+    transition.to(newLaser, {y=display.contentHeight + 40, time=2000,
         onComplete = function() display.remove(newLaser) end
     })
   end
