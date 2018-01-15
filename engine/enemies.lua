@@ -34,7 +34,7 @@ function M.newEnemyShip(group)
   enemyShip.lastFireTime = 0
 
   function enemyShip:eachFrame()
-    if self.y < 50 then return end -- Outside screen
+    if self.y < 50 then return end -- No need to fire laser because we are outside screen
 
     if playerShip.isExploding then return end
 

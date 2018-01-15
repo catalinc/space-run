@@ -22,6 +22,8 @@ function M.newShip(group)
     newShip.lastFireTime = 0
     newShip.isExploding = false
     newShip.lives = 3
+    newShip.touchOffsetX = 0
+    newShip.touchOffsetY = 0
 
     physics.addBody(newShip, {radius=30, isSensor=true})
 
@@ -63,8 +65,8 @@ function M.newShip(group)
             -- Move the player to the new touch position
             self.x = event.x - self.touchOffsetX
             self.y = event.y - self.touchOffsetY
-            self.x = clamp(self.x, 0, display.contentWidth)
-            self.y = clamp(self.y, 0, display.contentHeight)
+            self.x = clamp(self.x, 0, display.actualContentWidth)
+            self.y = clamp(self.y, 0, display.actualContentHeight)
         elseif "ended" == phase or "cancelled" == phase then
             -- Release touch focus on the player
             display.currentStage:setFocus(nil)

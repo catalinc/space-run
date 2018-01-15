@@ -6,34 +6,36 @@ local M = {}
 
 local background1
 local background2
-local lastFrameTime = 0
-local scrollSpeed = 1.6
+local speed = 1.6
+
+local midY =  math.floor(display.actualContentHeight * 0.5)
+local scrollStartY = math.floor(display.contentCenterY - display.actualContentHeight)
 
 local function eachFrame()
   local delta = eachframe.deltaTime
-  background1.y = background1.y + scrollSpeed * delta
-  background2.y = background2.y + scrollSpeed * delta
+  background1.y = background1.y + speed * delta
+  background2.y = background2.y + speed * delta
 
-  if ( background1.y - display.contentHeight / 2 ) > display.actualContentHeight then
-      background1:translate(0, -background1.contentHeight * 2)
+  if (background1.y - midY) > display.actualContentHeight then
+      background1.y = scrollStartY
   end
 
-  if ( background2.y - display.contentHeight / 2 ) > display.actualContentHeight then
-      background2:translate(0, -background2.contentHeight * 2)
+  if (background2.y - midY) > display.actualContentHeight then
+      background2.y = scrollStartY
   end
 end
 
 function M.init(group)
-  group = group or display.currentStage
+  backGroup = group or display.currentStage
 
   local backgroundImage = { type="image", filename="graphics/background.png" }
 
-  background1 = display.newRect(group, 0, 0, display.contentWidth, display.actualContentHeight)
+  background1 = display.newRect(backGroup, 0, 0, display.actualContentWidth, display.actualContentHeight)
   background1.fill = backgroundImage
   background1.x = display.contentCenterX
   background1.y = display.contentCenterY
 
-  background2 = display.newRect(group, 0, 0, display.contentWidth, display.actualContentHeight)
+  background2 = display.newRect(backGroup, 0, 0, display.actualContentWidth, display.actualContentHeight)
   background2.fill = backgroundImage
   background2.x = display.contentCenterX
   background2.y = display.contentCenterY - display.actualContentHeight
