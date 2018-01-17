@@ -1,5 +1,5 @@
 
-local composer = require( "composer" )
+local composer = require("composer")
 
 local scene = composer.newScene()
 
@@ -10,16 +10,8 @@ local scene = composer.newScene()
 
 local physics = require("physics")
 local sounds = require("libs.sounds")
-local player = require("engine.player")
-local asteroids = require("engine.asteroids")
-local enemies = require("engine.enemies")
-local background = require("engine.background")
-local collision = require("engine.collision")
-local level = require("engine.level")
+local director = require("engine.director")
 
-local score = 0
-
-local gameLoopTimer
 local livesText
 local scoreText
 
@@ -33,35 +25,29 @@ physics.setGravity(0, 0)
 -- -----------------------------------------------------------------------------------
 -- Scene game functions
 -- -----------------------------------------------------------------------------------
-function scene:updateLives()
-  livesText.text = "Lives: " .. self.playerShip.lives
+local function updateLives(lives)
+  livesText.text = "Lives: " .. lives
 end
 
-function scene:updateScore()
-  score = score + 100
+local function updateScore(score)
   scoreText.text = "Score: " .. score
 end
 
-function scene:endGame()
-  asteroids.reset()
-  enemies.reset()
-  composer.setVariable("finalScore", score)
+local function endGame()
+  composer.setVariable("finalScore", director.getScore())
   composer.removeScene("scenes.highscores")
   composer.gotoScene("scenes.highscores", { time=800, effect="crossFade" })
 end
 
 local function startGame()
   physics.start()
-  background.start()
-  collision.start()
-  level.start()
+  director.start()
   sounds.playStream("gameMusic")
 end
 
 local function stopGame()
-  background.pause()
-  collision.pause()
-  physics.pause()
+  physics.stop()
+  director.stop()
   sounds.stop()
 end
 
@@ -75,7 +61,7 @@ function scene:create(event)
 
 	local sceneGroup = self.view
 
-	physics.pause()
+  physics.pause()
 
 	-- Set up display groups
 
@@ -88,13 +74,15 @@ function scene:create(event)
 	uiGroup = display.newGroup()    -- Display group for UI objects like the score
 	sceneGroup:insert(uiGroup)
 
-  level.init(mainGroup)
-  background.init(backGroup)
+  print("scene create " .. tostring(mainGroup))
 
-  self.playerShip = player.newShip(mainGroup)
+  director.init(mainGroup, backGroup)
+  director.addListener("score", updateScore)
+  director.addListener("life", updateLives)
+  director.addListener("gameOver", endGame)
 
-	livesText = display.newText(uiGroup, "Lives: " .. self.playerShip.lives, 200, 80, native.systemFont, 36)
-	scoreText = display.newText(uiGroup, "Score: " .. score, 400, 80, native.systemFont, 36)
+	livesText = display.newText(uiGroup, "Lives: " .. 3, 200, 80, native.systemFont, 36)
+	scoreText = display.newText(uiGroup, "Score: " .. 0, 400, 80, native.systemFont, 36)
 end
 
 -- show()
@@ -117,7 +105,7 @@ function scene:hide( event )
 
 	if phase == "will" then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-    level.stop()
+    director.pause()
 	elseif phase == "did" then
 		-- Code here runs immediately after the scene goes entirely off screen
     stopGame()

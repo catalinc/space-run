@@ -56,7 +56,7 @@ end
 -- Set default settings
 databox({isSoundOn=true, isMusicOn=true})
 databox.isMusicOn = false -- Temporary
-databox.isSoundOn = false -- Temporary
+databox.isSoundOn = true -- Temporary
 
 -- Sound settings
 sounds.isSoundOn = databox.isSoundOn

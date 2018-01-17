@@ -12,8 +12,8 @@ local function clamp( v, min, max )
     return v
 end
 
-function M.newShip(group)
-    group = group or display.currentStage
+function M.new(sceneGroup)
+    local group = sceneGroup or display.currentStage
 
     local newShip = display.newImageRect(group, sprites, 4, 98, 79)
     newShip.x = display.contentCenterX
@@ -21,14 +21,15 @@ function M.newShip(group)
     newShip.myName = "ship" -- Used for collision detection
     newShip.lastFireTime = 0
     newShip.isExploding = false
-    newShip.lives = 3
     newShip.touchOffsetX = 0
     newShip.touchOffsetY = 0
 
-    physics.addBody(newShip, {radius=30, isSensor=true})
+    physics.addBody(newShip, { radius = 30, isSensor = true })
 
     function newShip:fireLaser()
         sounds.play( "fire" )
+
+        print("fireLaser " .. tostring(group))
 
         local newLaser = display.newImageRect(group, sprites, 5, 14, 40)
         newLaser.isBullet = true
@@ -37,11 +38,10 @@ function M.newShip(group)
         newLaser.y = self.y
 
         newLaser:toBack()
-        physics.addBody(newLaser, "dynamic", {isSensor=true})
+        physics.addBody(newLaser, "dynamic", { isSensor = true })
 
-        transition.to(newLaser, {y=-40, time=500,
-            onComplete = function() display.remove(newLaser) end
-        })
+        transition.to(newLaser, { y = -40, time = 500,
+            onComplete = function() display.remove(newLaser) end })
     end
 
     function newShip:touch(event)
@@ -77,12 +77,9 @@ function M.newShip(group)
 
     newShip:addEventListener("touch", newShip)
 
-    function newShip:isDead() return self.lives == 0 end
-
     function newShip:explode()
         sounds.play("explosion")
 
-        self.lives = self.lives - 1
         self.isExploding = true
         self.alpha = 0
     end
@@ -92,13 +89,11 @@ function M.newShip(group)
         self.x = display.contentCenterX
         self.y = display.contentHeight - 100
 
-        -- Fade in the player
-        transition.to(self, {alpha=1, time=2000,
+        transition.to(self, { alpha=1, time=2000,
             onComplete = function()
                 self.isBodyActive = true
                 self.isExploding = false
-            end
-        })
+            end })
     end
 
     return newShip

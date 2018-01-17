@@ -25,17 +25,17 @@ local function eachFrame()
   end
 end
 
-function M.init(group)
-  backGroup = group or display.currentStage
+function M.init(sceneGroup)
+  local group = sceneGroup or display.currentStage
 
   local backgroundImage = { type="image", filename="graphics/background.png" }
 
-  background1 = display.newRect(backGroup, 0, 0, display.actualContentWidth, display.actualContentHeight)
+  background1 = display.newRect(group, 0, 0, display.actualContentWidth, display.actualContentHeight)
   background1.fill = backgroundImage
   background1.x = display.contentCenterX
   background1.y = display.contentCenterY
 
-  background2 = display.newRect(backGroup, 0, 0, display.actualContentWidth, display.actualContentHeight)
+  background2 = display.newRect(group, 0, 0, display.actualContentWidth, display.actualContentHeight)
   background2.fill = backgroundImage
   background2.x = display.contentCenterX
   background2.y = display.contentCenterY - display.actualContentHeight
@@ -45,7 +45,7 @@ function M.start()
   eachframe.add(eachFrame)
 end
 
-function M.pause()
+function M.stop()
   eachframe.remove(eachFrame)
 end
 
