@@ -10,42 +10,43 @@ local M = { deltaTime = 0, lastFrameTime = 0 }
 local getTimer = system.getTimer
 
 local function enterFrame()
-  local now   = getTimer()
-  M.deltaTime = (now - M.lastFrameTime) / (1000 / 60)
-  M.lastFrameTime = now
+    local now   = getTimer()
+    M.deltaTime = (now - M.lastFrameTime) / (1000 / 60)
+    M.lastFrameTime = now
 
-  for i = 1, #M.enterFrameListeners do
-    if type(M.enterFrameListeners[i]) == 'function' then
-      M.enterFrameListeners[i]()
-    elseif type(M.enterFrameListeners[i]) == 'table' and type(M.enterFrameListeners[i].eachFrame) == 'function' then
-      M.enterFrameListeners[i]:eachFrame()
+    for i = 1, #M.enterFrameListeners do
+        if type(M.enterFrameListeners[i]) == 'function' then
+            M.enterFrameListeners[i]()
+        elseif  type(M.enterFrameListeners[i]) == 'table' and
+                type(M.enterFrameListeners[i].eachFrame) == 'function' then
+            M.enterFrameListeners[i]:eachFrame()
+        end
     end
-  end
 end
 
 function M.add(listener)
-  if not M.enterFrameListeners then
-    M.enterFrameListeners = {}
-    Runtime:addEventListener('enterFrame', enterFrame)
-  end
-  table.insert(M.enterFrameListeners, listener)
-  return listener
+    if not M.enterFrameListeners then
+        M.enterFrameListeners = {}
+        Runtime:addEventListener('enterFrame', enterFrame)
+    end
+    table.insert(M.enterFrameListeners, listener)
+    return listener
 end
 
 function M.remove(listener)
-  if not listener or not M.enterFrameListeners then return end
-  local ind = table.indexOf(M.enterFrameListeners, listener)
-  if ind then
-    table.remove(M.enterFrameListeners, ind)
-    if #M.enterFrameListeners == 0 then
-      M.removeAll()
+    if not listener or not M.enterFrameListeners then return end
+    local ind = table.indexOf(M.enterFrameListeners, listener)
+    if ind then
+        table.remove(M.enterFrameListeners, ind)
+        if #M.enterFrameListeners == 0 then
+            M.removeAll()
+        end
     end
-  end
 end
 
 function M.removeAll()
-  Runtime:removeEventListener('enterFrame', enterFrame)
-  M.enterFrameListeners = nil
+    Runtime:removeEventListener('enterFrame', enterFrame)
+    M.enterFrameListeners = nil
 end
 
 return M

@@ -34,6 +34,6 @@ function M.new(sceneGroup)
     newAsteroid:applyTorque(math.random(-6, 6))
 
     return newAsteroid
-  end
+end
 
 return M
