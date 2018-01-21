@@ -11,13 +11,10 @@ local scene = composer.newScene()
 local physics = require("physics")
 local sounds = require("libs.sounds")
 local director = require("engine.director")
+local background = require("engine.background")
 
 local livesText
 local scoreText
-
-local backGroup
-local mainGroup
-local uiGroup
 
 physics.start()
 physics.setGravity(0, 0)
@@ -35,11 +32,14 @@ end
 
 local function startGame()
     physics.start()
+    background.start()
     director.start()
+    director.loadLevel(1)
     sounds.playStream("gameMusic")
 end
 
 local function pauseGame()
+    background.stop()
     director.pause()
     physics.pause()
     sounds.stop()
@@ -47,6 +47,7 @@ end
 
 local function stopGame()
     physics.stop()
+    background.stop()
     director.stop()
     sounds.stop()
 end
@@ -71,19 +72,23 @@ function scene:create(event)
 
     -- Set up display groups
 
-    backGroup = display.newGroup() -- Display group for the background image
+    local backGroup = display.newGroup() -- Display group for the background image
     sceneGroup:insert(backGroup)
 
-    mainGroup = display.newGroup() -- Display group for the ship, asteroids, lasers, etc.
+    local mainGroup = display.newGroup() -- Display group for the ship, asteroids, lasers, etc.
     sceneGroup:insert(mainGroup)
 
-    uiGroup = display.newGroup() -- Display group for UI objects like the score
+    local uiGroup = display.newGroup() -- Display group for UI objects like the score
     sceneGroup:insert(uiGroup)
 
-    director.init(mainGroup, backGroup)
+    director.init(mainGroup)
+
     director.addListener("score", updateScore)
     director.addListener("life", updateLives)
     director.addListener("gameOver", endGame)
+    director.addListener("endLevel", endGame)
+
+    background.init(backGroup)
 
     livesText = display.newText(uiGroup, "Lives: " .. 3, 200, 80, native.systemFont, 36)
     scoreText = display.newText(uiGroup, "Score: " .. 0, 400, 80, native.systemFont, 36)

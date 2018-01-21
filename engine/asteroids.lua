@@ -5,9 +5,7 @@ local sprites = require("engine.sprites")
 
 local M = {}
 
-function M.new(sceneGroup)
-    local group = sceneGroup or display.currentStage
-
+function M.new(group)
     local newAsteroid = display.newImageRect(group, sprites, 1, 102, 85)
     newAsteroid.myName = "asteroid" -- Used for collision detection
 

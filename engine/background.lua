@@ -8,26 +8,25 @@ local background1
 local background2
 local speed = 1.6
 
-local midY = math.floor(display.actualContentHeight * 0.5)
-local scrollStartY = math.floor(display.contentCenterY - display.actualContentHeight)
+local CH = display.actualContentHeight
+local MID_Y = display.actualContentHeight * 0.5
+local START_Y = display.contentCenterY - display.actualContentHeight
 
 local function eachFrame()
     local delta = eachframe.deltaTime
     background1.y = background1.y + speed * delta
     background2.y = background2.y + speed * delta
 
-    if (background1.y - midY) > display.actualContentHeight then
-        background1.y = scrollStartY
+    if (background1.y - MID_Y) > CH then
+        background1.y = START_Y
     end
 
-    if (background2.y - midY) > display.actualContentHeight then
-        background2.y = scrollStartY
+    if (background2.y - MID_Y) > CH then
+        background2.y = START_Y
     end
 end
 
-function M.init(sceneGroup)
-    local group = sceneGroup or display.currentStage
-
+function M.init(group)
     local backgroundImage = {type = "image", filename = "graphics/background.png"}
 
     background1 = display.newRect(group, 0, 0, display.actualContentWidth, display.actualContentHeight)

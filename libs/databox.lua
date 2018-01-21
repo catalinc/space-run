@@ -70,11 +70,11 @@ end
 local mt = {
     __index = function(t, k) -- On indexing, just return a field from the data table
         return data[k]
-    end, 
+    end,
     __newindex = function(t, k, value) -- On setting an index, save the data table automatically
         data[k] = value
         saveData()
-    end, 
+    end,
     __call = function(t, value) -- On calling, initiate with defaults
         if type(value) == 'table' then
             defaultData = shallowCopy(value)

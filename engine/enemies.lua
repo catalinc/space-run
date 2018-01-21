@@ -8,20 +8,23 @@ local sprites = require("engine.sprites")
 
 local M = {}
 
-function M.new(sceneGroup, playerShip)
-    local group = sceneGroup or display.currentStage
+local CW = display.contentWidth
+local CH = display.contentHeight
+local abs = math.abs
+local random = math.random
 
+function M.new(group, playerShip)
     local newEnemy = display.newImageRect(group, sprites, 4, 98, 79)
     newEnemy.yScale = -1
     newEnemy.myName = "enemy" -- Used for collision detection
 
     physics.addBody(newEnemy, {radius = 30, isSensor = true})
 
-    local lane = math.random(display.contentWidth / newEnemy.contentWidth)
+    local lane = random(CW / newEnemy.contentWidth)
     newEnemy.y = -100
     newEnemy.x = lane * newEnemy.contentWidth
 
-    newEnemy:setLinearVelocity(math.random(-40, 40), math.random(40, 120))
+    newEnemy:setLinearVelocity(random(-40, 40), random(40, 120))
 
     newEnemy.lastFireTime = 0
 
@@ -31,7 +34,7 @@ function M.new(sceneGroup, playerShip)
         if playerShip.isExploding then return end
 
         local now = eachframe.lastFrameTime
-        local dx = math.abs(self.x - playerShip.x)
+        local dx = abs(self.x - playerShip.x)
 
         if now - self.lastFireTime > 500 and dx < 10 then
             self.lastFireTime = now
@@ -52,8 +55,7 @@ function M.new(sceneGroup, playerShip)
 
         physics.addBody(newLaser, "dynamic", {isSensor = true})
 
-        transition.to(newLaser, {y = display.contentHeight + 40, time = 2000, 
-        onComplete = function() display.remove(newLaser) end})
+        transition.to(newLaser, {y = CH + 40, time = 2000, onComplete = function() display.remove(newLaser) end})
     end
 
     eachframe.add(newEnemy)
