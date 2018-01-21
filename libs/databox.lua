@@ -8,82 +8,82 @@
 -- Saving data is automatic on key change, you only need to set a value like databox.someKey = 'someValue'
 -- If you update default values, all new values will be added into the existing file.
 
-local json = require( 'json' )
+local json = require('json')
 
-local data = { }
-local defaultData = { }
+local data = {}
+local defaultData = {}
 
-local path = system.pathForFile( 'databox.json', system.DocumentsDirectory )
+local path = system.pathForFile('databox.json', system.DocumentsDirectory)
 
 -- Copy tables by value
 -- Nested tables are not supported
-local function shallowCopy( t )
-    local copy = { }
-    for k, v in pairs( t ) do
-        if type( k ) == 'string' then
-            if type( v ) == 'number' or type( v ) == 'string' or type( v ) == 'boolean' then
-                copy[ k ] = v
+local function shallowCopy(t)
+    local copy = {}
+    for k, v in pairs(t) do
+        if type(k) == 'string' then
+            if type(v) == 'number' or type(v) == 'string' or type(v) == 'boolean' then
+                copy[k] = v
             else
-                print( 'databox: Values of type "' .. type( v ) .. '" are not supported.' )
+                print('databox: Values of type "' .. type(v) .. '" are not supported.')
             end
         end
     end
     return copy
 end
 
-local function saveData( )
-    local file = io.open( path, 'w' )
+local function saveData()
+    local file = io.open(path, 'w')
     if file then
-        file:write( json.encode( data ))
-        io.close( file )
+        file:write(json.encode(data))
+        io.close(file)
     end
 end
 
 -- If no file load defaults
-local function loadData( )
-    local file = io.open( path, 'r' )
+local function loadData()
+    local file = io.open(path, 'r')
     if file then
-        data = json.decode( file:read( '*a' ))
-        io.close( file )
+        data = json.decode(file:read('*a'))
+        io.close(file)
     else
-        data = shallowCopy( defaultData )
-        saveData( )
+        data = shallowCopy(defaultData)
+        saveData()
     end
 end
 
 -- If you update your app and set new defaults, check if an old file has all the keys
-local function patchIfNewDefaultData( )
+local function patchIfNewDefaultData()
     local isPatched = false
-    for k, v in pairs( defaultData ) do
-        if data[ k ] == nil then
-            data[ k ] = v
+    for k, v in pairs(defaultData) do
+        if data[k] == nil then
+            data[k] = v
             isPatched = true
         end
     end
 
     if isPatched then
-        saveData( )
+        saveData()
     end
 end
 
 -- Metatables action!
-local mt = { 
-    __index = function( t, k ) -- On indexing, just return a field from the data table
-        return data[ k ]
+local mt = {
+    __index = function(t, k) -- On indexing, just return a field from the data table
+        return data[k]
     end, 
-    __newindex = function( t, k, value ) -- On setting an index, save the data table automatically
-        data[ k ] = value
-        saveData( )
+    __newindex = function(t, k, value) -- On setting an index, save the data table automatically
+        data[k] = value
+        saveData()
     end, 
-    __call = function( t, value ) -- On calling, initiate with defaults
-        if type( value ) == 'table' then
-            defaultData = shallowCopy( value )
+    __call = function(t, value) -- On calling, initiate with defaults
+        if type(value) == 'table' then
+            defaultData = shallowCopy(value)
         end
-        loadData( )
-        patchIfNewDefaultData( )
+        loadData()
+        patchIfNewDefaultData()
     end
 }
 
-local _M = { }
-setmetatable( _M, mt )
+local _M = {}
+setmetatable(_M, mt)
 return _M

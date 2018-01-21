@@ -5,47 +5,47 @@
 -- This leads to less runtime errors.
 -- Don't forget to remove the listeners when they are not needed anymore. Use Corona's finalize event.
 
-local M = { deltaTime = 0, lastFrameTime = 0 }
+local M = {deltaTime = 0, lastFrameTime = 0}
 
 local getTimer = system.getTimer
 
-local function enterFrame( )
-    local now = getTimer( )
-    M.deltaTime = ( now - M.lastFrameTime ) / ( 1000 / 60 )
+local function enterFrame()
+    local now = getTimer()
+    M.deltaTime = (now - M.lastFrameTime) / (1000 / 60)
     M.lastFrameTime = now
 
     for i = 1, #M.enterFrameListeners do
-        if type( M.enterFrameListeners[ i ]) == 'function' then
-            M.enterFrameListeners[ i ]( )
-        elseif type( M.enterFrameListeners[ i ]) == 'table' and
-            type( M.enterFrameListeners[ i ].eachFrame ) == 'function' then
-            M.enterFrameListeners[ i ]:eachFrame( )
+        if type(M.enterFrameListeners[i]) == 'function' then
+            M.enterFrameListeners[i]()
+        elseif type(M.enterFrameListeners[i]) == 'table' and
+            type(M.enterFrameListeners[i].eachFrame) == 'function' then
+            M.enterFrameListeners[i]:eachFrame()
         end
     end
 end
 
-function M.add( listener )
+function M.add(listener)
     if not M.enterFrameListeners then
-        M.enterFrameListeners = { }
-        Runtime:addEventListener( 'enterFrame', enterFrame )
+        M.enterFrameListeners = {}
+        Runtime:addEventListener('enterFrame', enterFrame)
     end
-    table.insert( M.enterFrameListeners, listener )
+    table.insert(M.enterFrameListeners, listener)
     return listener
 end
 
-function M.remove( listener )
+function M.remove(listener)
     if not listener or not M.enterFrameListeners then return end
-    local ind = table.indexOf( M.enterFrameListeners, listener )
+    local ind = table.indexOf(M.enterFrameListeners, listener)
     if ind then
-        table.remove( M.enterFrameListeners, ind )
+        table.remove(M.enterFrameListeners, ind)
         if #M.enterFrameListeners == 0 then
-            M.removeAll( )
+            M.removeAll()
         end
     end
 end
 
-function M.removeAll( )
-    Runtime:removeEventListener( 'enterFrame', enterFrame )
+function M.removeAll()
+    Runtime:removeEventListener('enterFrame', enterFrame)
     M.enterFrameListeners = nil
 end
 
