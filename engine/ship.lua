@@ -1,10 +1,8 @@
--- Player ship
+-- Player's ship.
 
 local physics = require("physics")
 local sounds = require("libs.sounds")
 local sprites = require("engine.sprites")
-
-local M = {}
 
 local CW = display.contentWidth
 local CH = display.contentHeight
@@ -18,6 +16,12 @@ local function clamp(v, min, max)
     if v > max then return max end
     return v
 end
+
+-- -----------------------------------------------------------------------------------
+-- Public API
+-- -----------------------------------------------------------------------------------
+
+local M = {}
 
 function M.new(group)
     local newShip = display.newImageRect(group, sprites, 4, 98, 79)
@@ -101,5 +105,3 @@ function M.new(group)
 end
 
 return M
-
-

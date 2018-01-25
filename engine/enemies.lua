@@ -1,19 +1,25 @@
 -- The bad guys
 
 local physics = require("physics")
-local composer = require("composer")
 local sounds = require("libs.sounds")
 local eachframe = require("libs.eachframe")
 local sprites = require("engine.sprites")
-
-local M = {}
+local entities = require("engine.entities")
 
 local CW = display.contentWidth
 local CH = display.contentHeight
 local abs = math.abs
 local random = math.random
 
-function M.new(group, playerShip)
+local collection = entities.new()
+
+-- -----------------------------------------------------------------------------------
+-- Public API
+-- -----------------------------------------------------------------------------------
+
+local M = {}
+
+function M.create(group, playerShip)
     local newEnemy = display.newImageRect(group, sprites, 4, 98, 79)
     newEnemy.yScale = -1
     newEnemy.myName = "enemy" -- Used for collision detection
@@ -66,7 +72,23 @@ function M.new(group, playerShip)
 
     newEnemy:addEventListener("finalize")
 
-    return newEnemy
+    collection:add(newEnemy)
+end
+
+function M.remove(asteroid)
+    collection:remove(asteroid)
+end
+
+function M.collect()
+    collection:collect()
+end
+
+function M.cleanup()
+    collection:clear()
+end
+
+function M.count()
+    return collection:count()
 end
 
 return M

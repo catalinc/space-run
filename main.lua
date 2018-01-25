@@ -17,7 +17,7 @@ end
 -- CMD+CTRL+F on OS X
 -- F11 or ALT+ENTER on Windows
 if platform == 'Mac OS X' or platform == 'Win' then
-    Runtime:addEventListener('key', 
+    Runtime:addEventListener('key',
         function(event)
             if event.phase == 'down' and
                 ((platform == 'Mac OS X' and event.keyName == 'f' and event.isCommandDown and event.isCtrlDown) or
@@ -36,7 +36,7 @@ end
 -- When it's pressed, check if current scene has a special field gotoPreviousScene
 -- If it's a function - call it, if it's a string - go back to the specified scene
 if platform == 'Android' or platform == 'WinPhone' then
-    Runtime:addEventListener('key', 
+    Runtime:addEventListener('key',
         function(event)
             if event.phase == 'down' and event.keyName == 'back' then
                 local scene = composer.getScene(composer.getSceneName('current'))

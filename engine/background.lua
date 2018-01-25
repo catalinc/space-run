@@ -1,8 +1,6 @@
--- Scrolling background
+-- Scrolling background.
 
 local eachframe = require("libs.eachframe")
-
-local M = {}
 
 local background1
 local background2
@@ -25,6 +23,12 @@ local function eachFrame()
         background2.y = START_Y
     end
 end
+
+-- -----------------------------------------------------------------------------------
+-- Public API
+-- -----------------------------------------------------------------------------------
+
+local M = {}
 
 function M.init(group)
     local backgroundImage = {type = "image", filename = "graphics/background.png"}

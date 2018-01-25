@@ -1,15 +1,12 @@
--- Game driver
+-- The game driver.
 
 local background = require("engine.background")
 local asteroids = require("engine.asteroids")
 local enemies = require("engine.enemies")
+local mines = require("engine.mines")
 local ship = require("engine.ship")
 
-local M = {}
-
 local listenersTable = {}
-local asteroidsTable = {}
-local enemiesTable = {}
 local playerShip
 
 local currentLevel
@@ -21,12 +18,7 @@ local gameLoopTimer
 local score = 0
 local lives = 3
 
-local mainGroup
-
-local MIN_X = -100
-local MAX_X = display.contentWidth + 100
-local MIN_Y = -100
-local MAX_Y = display.contentHeight + 100
+local entityGroup
 
 -- -----------------------------------------------------------------------------------
 -- Game loop functions
@@ -37,35 +29,15 @@ local function invokeListener(name, arg)
     if listener then listener(arg) end
 end
 
-local function isOffScreen(object)
-    return object.x < MIN_X or object.x > MAX_X or object.y < MIN_Y or object.y > MAX_Y
-end
-
-local function removeOffScreenObjects()
-    for i = #asteroidsTable, 1, -1 do
-        local thisAsteroid = asteroidsTable[i]
-        if isOffScreen(thisAsteroid) then
-            display.remove(thisAsteroid)
-            table.remove(asteroidsTable, i)
-        end
-    end
-
-    for i = #enemiesTable, 1, -1 do
-        local thisEnemy = enemiesTable[i]
-        if isOffScreen(thisEnemy) then
-            display.remove(thisEnemy)
-            table.remove(enemiesTable, i)
-        end
-    end
-end
-
 local function isEndOfLevel()
-    return #asteroidsTable + #enemiesTable == 0
+    return enemies.count() + asteroids.count() + mines.count() == 0
 end
 
 local function gameLoop()
     if currentLevel then
-        removeOffScreenObjects()
+        asteroids.collect()
+        enemies.collect()
+        mines.collect()
 
         local wave = currentLevel.waves[currentWave]
         if wave then
@@ -77,11 +49,11 @@ local function gameLoop()
                 for i = 1, #wave.generate do
                     local kind = wave.generate[i]
                     if kind == "enemy" then
-                        local newEnemy = enemies.new(mainGroup, playerShip)
-                        table.insert(enemiesTable, newEnemy)
+                        enemies.create(entityGroup, playerShip)
                     elseif kind == "asteroid" then
-                        local newAsteroid = asteroids.new(mainGroup)
-                        table.insert(asteroidsTable, newAsteroid)
+                        asteroids.create(entityGroup)
+                    elseif kind == "mine" then
+                        mines.create(entityGroup)
                     end
                 end
             end
@@ -93,28 +65,10 @@ end
 -- Collision handling functions
 -- -----------------------------------------------------------------------------------
 
-local function getObjectByName(object1, object2, name)
+local function getEntityByName(object1, object2, name)
     if object1.myName == name then return object1 end
     if object2.myName == name then return object2 end
     return nil
-end
-
-local function removeObject(t, o)
-    for i = #t, 1, -1 do
-        if t[i] == o then
-            display.remove(o)
-            table.remove(t, i)
-            break
-        end
-    end
-end
-
-local function removeAsteroid(asteroid)
-    removeObject(asteroidsTable, asteroid)
-end
-
-local function removeEnemy(enemy)
-    removeObject(enemiesTable, enemy)
 end
 
 local function increaseScore(amount)
@@ -143,28 +97,33 @@ local function onCollision(event)
         local object1 = event.object1
         local object2 = event.object2
 
-        local asteroid = getObjectByName(object1, object2, "asteroid")
-        local player = getObjectByName(object1, object2, "ship")
-        local laser = getObjectByName(object1, object2, "laser")
-        local enemy = getObjectByName(object1, object2, "enemy")
-        local enemyLaser = getObjectByName(object1, object2, "enemyLaser")
+        local asteroid = getEntityByName(object1, object2, "asteroid")
+        local player = getEntityByName(object1, object2, "ship")
+        local laser = getEntityByName(object1, object2, "laser")
+        local enemy = getEntityByName(object1, object2, "enemy")
+        local enemyLaser = getEntityByName(object1, object2, "enemyLaser")
+        local mine = getEntityByName(object1, object2, "mine")
 
         if laser and asteroid then
             display.remove(laser)
-            removeAsteroid(asteroid)
+            asteroids.remove(asteroid)
             increaseScore(100)
         elseif laser and enemy then
             display.remove(laser)
-            removeEnemy(enemy)
+            enemies.remove(enemy)
             increaseScore(200)
+        elseif laser and mine then
+            display.remove(laser)
+            mines.remove(mine)
+            increaseScore(250)
         elseif enemyLaser and asteroid then
             display.remove(enemyLaser)
-            removeAsteroid(asteroid)
+            asteroids.remove(asteroid)
         elseif enemyLaser and player then
             display.remove(enemyLaser)
             killPlayer()
         elseif enemy and player then
-            removeEnemy(enemy)
+            enemies.remove(enemy)
             killPlayer()
         end
     end
@@ -174,38 +133,41 @@ end
 -- Public API
 -- -----------------------------------------------------------------------------------
 
-local function clearTable(t)
-    for i = #t, 1, -1 do
-        display.remove(t[i])
-        table.remove(t, i)
-    end
-end
+local M = {}
 
-function M.init(group)
-    mainGroup = group
-    playerShip = ship.new(mainGroup)
+function M.init(mainGroup, backGroup)
+    entityGroup = mainGroup
+    playerShip = ship.new(entityGroup)
     score = 0
     lives = 3
+
+    background.init(backGroup)
 end
 
 function M.start()
+    background.start()
+
     gameLoopTimer = timer.performWithDelay(500, gameLoop, 0)
     Runtime:addEventListener("collision", onCollision)
-    background.start()
 end
 
 function M.pause()
+    background.stop()
+
     timer.cancel(gameLoopTimer)
     gameLoopTimer = nil
     Runtime:removeEventListener("collision", onCollision)
 end
 
 function M.stop()
+    background.stop()
+
     if gameLoopTimer then timer.cancel(gameLoopTimer) end
     Runtime:removeEventListener("collision", onCollision)
 
-    clearTable(asteroidsTable)
-    clearTable(enemiesTable)
+    asteroids.cleanup()
+    enemies.cleanup()
+    mines.cleanup()
 
     for i = #listenersTable, 1, -1 do
         table.remove(listenersTable, i)
@@ -221,8 +183,9 @@ function M.getScore()
 end
 
 function M.loadLevel(num)
-    clearTable(asteroidsTable)
-    clearTable(enemiesTable)
+    asteroids.cleanup()
+    enemies.cleanup()
+    mines.cleanup()
 
     currentWave = 1
     currentLevel = require("levels.level"..num)
@@ -230,5 +193,3 @@ function M.loadLevel(num)
 end
 
 return M
-
-

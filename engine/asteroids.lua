@@ -1,11 +1,18 @@
--- Asteroids field
+-- Asteroids field.
 
 local physics = require("physics")
 local sprites = require("engine.sprites")
+local entities = require("engine.entities")
+
+local collection = entities.new()
+
+-- -----------------------------------------------------------------------------------
+-- Public API
+-- -----------------------------------------------------------------------------------
 
 local M = {}
 
-function M.new(group)
+function M.create(group)
     local newAsteroid = display.newImageRect(group, sprites, 1, 102, 85)
     newAsteroid.myName = "asteroid" -- Used for collision detection
 
@@ -31,7 +38,23 @@ function M.new(group)
 
     newAsteroid:applyTorque(math.random(-6, 6))
 
-    return newAsteroid
+    collection:add(newAsteroid)
+end
+
+function M.remove(asteroid)
+    collection:remove(asteroid)
+end
+
+function M.collect()
+    collection:collect()
+end
+
+function M.cleanup()
+    collection:clear()
+end
+
+function M.count()
+    return collection:count()
 end
 
 return M
