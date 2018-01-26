@@ -32,7 +32,6 @@ end
 local function startGame()
     physics.start()
     director.start()
-    director.loadLevel(1)
     sounds.playStream("gameMusic")
 end
 
@@ -78,6 +77,7 @@ function scene:create(event)
     sceneGroup:insert(uiGroup)
 
     director.init(mainGroup, backGroup)
+    director.loadLevel(1)
 
     director.addListener("score", updateScore)
     director.addListener("life", updateLives)

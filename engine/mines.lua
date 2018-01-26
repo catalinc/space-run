@@ -15,6 +15,7 @@ local M = {}
 function M.create(group)
     local newMine = display.newImageRect(group, sprites, 1, 102, 85)
     newMine.myName = "mine" -- Used for collision detection
+    newMine.scorePoints = 250
 
     physics.addBody(newMine, "dynamic", {radius = 40, bounce = 0.8})
 

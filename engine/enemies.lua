@@ -5,6 +5,7 @@ local sounds = require("libs.sounds")
 local eachframe = require("libs.eachframe")
 local sprites = require("engine.sprites")
 local entities = require("engine.entities")
+local healthbar = require("engine.healthbar")
 
 local CW = display.contentWidth
 local CH = display.contentHeight
@@ -23,20 +24,27 @@ function M.create(group, playerShip)
     local newEnemy = display.newImageRect(group, sprites, 4, 98, 79)
     newEnemy.yScale = -1
     newEnemy.myName = "enemy" -- Used for collision detection
+    newEnemy.lastFireTime = 0
+    newEnemy.scorePoints = 100
 
-    physics.addBody(newEnemy, {radius = 30, isSensor = true})
+    newEnemy.health = 100
+    newEnemy.maxHealth = 100
+    newEnemy.healthBar = healthbar.new(group, newEnemy.contentWidth - 10, 5)
 
     local lane = random(CW / newEnemy.contentWidth)
-    newEnemy.y = -100
+    newEnemy.y = -60
     newEnemy.x = lane * newEnemy.contentWidth
 
+    print("lane = " .. lane .. " x = " .. newEnemy.x .. " y = " .. newEnemy.y)
+
+    physics.addBody(newEnemy, {radius = 30, isSensor = true})
     newEnemy:setLinearVelocity(random(-40, 40), random(40, 120))
 
-    newEnemy.lastFireTime = 0
-
     function newEnemy:eachFrame()
-        if self.y < 50 then return end -- No need to fire laser because we are outside screen
+        self.healthBar.x = self.x - (self.contentWidth / 2) + 5
+        self.healthBar.y = self.y - (self.contentHeight / 2) - 5
 
+        if self.y < 50 then return end -- No need to fire laser because we are outside screen
         if playerShip.isExploding then return end
 
         local now = eachframe.lastFrameTime
@@ -71,6 +79,21 @@ function M.create(group, playerShip)
     end
 
     newEnemy:addEventListener("finalize")
+
+    function newEnemy:takeDamage(amount)
+        self.health = self.health - amount
+        if self.health < 0 then self.health = 0 end
+        self.healthBar:setHealth(self.health, self.maxHealth)
+    end
+
+    function newEnemy:isDead()
+        return self.health == 0
+    end
+
+    function newEnemy:destroy()
+        if self.healthBar then display.remove(self.healthBar) end
+        self:removeSelf()
+    end
 
     collection:add(newEnemy)
 end

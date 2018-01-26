@@ -4,10 +4,10 @@ local background = require("engine.background")
 local asteroids = require("engine.asteroids")
 local enemies = require("engine.enemies")
 local mines = require("engine.mines")
-local ship = require("engine.ship")
+local player = require("engine.player")
 
 local listenersTable = {}
-local playerShip
+local ship
 
 local currentLevel
 local currentWave
@@ -49,7 +49,7 @@ local function gameLoop()
                 for i = 1, #wave.generate do
                     local kind = wave.generate[i]
                     if kind == "enemy" then
-                        enemies.create(entityGroup, playerShip)
+                        enemies.create(entityGroup, ship)
                     elseif kind == "asteroid" then
                         asteroids.create(entityGroup)
                     elseif kind == "mine" then
@@ -77,17 +77,17 @@ local function increaseScore(amount)
 end
 
 local function killPlayer()
-    if not playerShip.isExploding then
-        playerShip:explode()
+    if not ship.isExploding then
+        ship:explode()
 
         lives = lives - 1
         invokeListener("life", lives)
 
         if lives == 0 then
-            display.remove(playerShip)
+            display.remove(ship)
             timer.performWithDelay(2000, function() invokeListener("gameOver") end)
         else
-            timer.performWithDelay(1000, function () playerShip:restore() end)
+            timer.performWithDelay(1000, function () ship:restore() end)
         end
     end
 end
@@ -105,17 +105,20 @@ local function onCollision(event)
         local mine = getEntityByName(object1, object2, "mine")
 
         if laser and asteroid then
+            increaseScore(asteroid.scorePoints)
             display.remove(laser)
             asteroids.remove(asteroid)
-            increaseScore(100)
         elseif laser and enemy then
             display.remove(laser)
-            enemies.remove(enemy)
-            increaseScore(200)
+            enemy:takeDamage(laser.hitPoints)
+            if enemy:isDead() then
+                increaseScore(enemy.scorePoints)
+                enemies.remove(enemy)
+            end
         elseif laser and mine then
+            increaseScore(mine.scorePoints)
             display.remove(laser)
             mines.remove(mine)
-            increaseScore(250)
         elseif enemyLaser and asteroid then
             display.remove(enemyLaser)
             asteroids.remove(asteroid)
@@ -137,7 +140,7 @@ local M = {}
 
 function M.init(mainGroup, backGroup)
     entityGroup = mainGroup
-    playerShip = ship.new(entityGroup)
+    ship = player.new(entityGroup)
     score = 0
     lives = 3
 

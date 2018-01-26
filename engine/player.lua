@@ -24,18 +24,18 @@ end
 local M = {}
 
 function M.new(group)
-    local newShip = display.newImageRect(group, sprites, 4, 98, 79)
-    newShip.x = display.contentCenterX
-    newShip.y = display.contentHeight - 100
-    newShip.myName = "ship" -- Used for collision detection
-    newShip.lastFireTime = 0
-    newShip.isExploding = false
-    newShip.touchOffsetX = 0
-    newShip.touchOffsetY = 0
+    local newPlayer = display.newImageRect(group, sprites, 4, 98, 79)
+    newPlayer.x = display.contentCenterX
+    newPlayer.y = display.contentHeight - 100
+    newPlayer.myName = "ship" -- Used for collision detection
+    newPlayer.lastFireTime = 0
+    newPlayer.isExploding = false
+    newPlayer.touchOffsetX = 0
+    newPlayer.touchOffsetY = 0
 
-    physics.addBody(newShip, {radius = 30, isSensor = true})
+    physics.addBody(newPlayer, {radius = 30, isSensor = true})
 
-    function newShip:fireLaser()
+    function newPlayer:fireLaser()
         sounds.play("fire")
 
         local newLaser = display.newImageRect(group, sprites, 5, 14, 40)
@@ -43,6 +43,7 @@ function M.new(group)
         newLaser.myName = "laser"
         newLaser.x = self.x
         newLaser.y = self.y
+        newLaser.hitPoints = 50
 
         newLaser:toBack()
         physics.addBody(newLaser, "dynamic", {isSensor = true})
@@ -50,7 +51,7 @@ function M.new(group)
         transition.to(newLaser, {y = -40, time = 500, onComplete = function() display.remove(newLaser) end})
     end
 
-    function newShip:touch(event)
+    function newPlayer:touch(event)
         if self.isExploding then return end
 
         local phase = event.phase
@@ -81,16 +82,16 @@ function M.new(group)
         return true -- Prevents touch propagation to underlying objects
     end
 
-    newShip:addEventListener("touch", newShip)
+    newPlayer:addEventListener("touch", newPlayer)
 
-    function newShip:explode()
+    function newPlayer:explode()
         sounds.play("explosion")
 
         self.isExploding = true
         self.alpha = 0
     end
 
-    function newShip:restore()
+    function newPlayer:restore()
         self.isBodyActive = false
         self.x = display.contentCenterX
         self.y = display.contentHeight - 100
@@ -101,7 +102,7 @@ function M.new(group)
         end})
     end
 
-    return newShip
+    return newPlayer
 end
 
 return M
