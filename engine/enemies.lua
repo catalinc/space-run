@@ -6,11 +6,17 @@ local eachframe = require("libs.eachframe")
 local sprites = require("engine.sprites")
 local entities = require("engine.entities")
 local healthbar = require("engine.healthbar")
+local mathutils = require("libs.mathutils")
 
 local CW = display.contentWidth
 local CH = display.contentHeight
 local abs = math.abs
 local random = math.random
+local randomSequence = mathutils.randomSequence
+
+local MAX_LANES = 4
+local LANE_WIDTH = CW / MAX_LANES
+local randomLanes = {}
 
 local collection = entities.new()
 
@@ -31,11 +37,11 @@ function M.create(group, playerShip)
     newEnemy.maxHealth = 100
     newEnemy.healthBar = healthbar.new(group, newEnemy.contentWidth - 10, 5)
 
-    local lane = random(CW / newEnemy.contentWidth)
-    newEnemy.y = -60
-    newEnemy.x = lane * newEnemy.contentWidth
+    if #randomLanes == 0 then randomLanes = randomSequence(0, MAX_LANES - 1) end
+    local lane = table.remove(randomLanes, 1)
 
-    print("lane = " .. lane .. " x = " .. newEnemy.x .. " y = " .. newEnemy.y)
+    newEnemy.y = -60
+    newEnemy.x = LANE_WIDTH * (lane + 0.5)
 
     physics.addBody(newEnemy, {radius = 30, isSensor = true})
     newEnemy:setLinearVelocity(random(-40, 40), random(40, 120))

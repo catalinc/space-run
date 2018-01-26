@@ -3,6 +3,7 @@
 local physics = require("physics")
 local sounds = require("libs.sounds")
 local sprites = require("engine.sprites")
+local mathutils = require("libs.mathutils")
 
 local CW = display.contentWidth
 local CH = display.contentHeight
@@ -11,11 +12,7 @@ local MAX_X = CW - 100
 local MIN_Y = 0
 local MAX_Y = CH
 
-local function clamp(v, min, max)
-    if v < min then return min end
-    if v > max then return max end
-    return v
-end
+local clamp = mathutils.clamp
 
 -- -----------------------------------------------------------------------------------
 -- Public API
