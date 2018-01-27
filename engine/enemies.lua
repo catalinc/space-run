@@ -3,10 +3,11 @@
 local physics = require("physics")
 local sounds = require("libs.sounds")
 local eachframe = require("libs.eachframe")
+local mathutils = require("libs.mathutils")
 local sprites = require("engine.sprites")
 local entities = require("engine.entities")
 local healthbar = require("engine.healthbar")
-local mathutils = require("libs.mathutils")
+local laser = require("engine.laser")
 
 local CW = display.contentWidth
 local CH = display.contentHeight
@@ -65,17 +66,7 @@ function M.create(group, playerShip)
     function newEnemy:fireLaser()
         sounds.play("fire")
 
-        local newLaser = display.newImageRect(group, sprites, 5, 14, 40)
-        newLaser.isBullet = true
-        newLaser.myName = "enemyLaser"
-        newLaser.x = self.x
-        newLaser.y = self.y
-
-        newLaser:toBack()
-
-        physics.addBody(newLaser, "dynamic", {isSensor = true})
-
-        transition.to(newLaser, {y = CH + 40, time = 2000, onComplete = function() display.remove(newLaser) end})
+        laser.fire(group, self.x, self.y, {y = CH + 40, name="enemyLaser", duration = 2000, damage = 20})
     end
 
     eachframe.add(newEnemy)

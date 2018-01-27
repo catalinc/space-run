@@ -110,7 +110,7 @@ local function onCollision(event)
             asteroids.remove(asteroid)
         elseif laser and enemy then
             display.remove(laser)
-            enemy:takeDamage(laser.hitPoints)
+            enemy:takeDamage(laser.damage)
             if enemy:isDead() then
                 increaseScore(enemy.scorePoints)
                 enemies.remove(enemy)

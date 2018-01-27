@@ -2,8 +2,9 @@
 
 local physics = require("physics")
 local sounds = require("libs.sounds")
-local sprites = require("engine.sprites")
 local mathutils = require("libs.mathutils")
+local sprites = require("engine.sprites")
+local laser = require("engine.laser")
 
 local CW = display.contentWidth
 local CH = display.contentHeight
@@ -34,18 +35,7 @@ function M.new(group)
 
     function newPlayer:fireLaser()
         sounds.play("fire")
-
-        local newLaser = display.newImageRect(group, sprites, 5, 14, 40)
-        newLaser.isBullet = true
-        newLaser.myName = "laser"
-        newLaser.x = self.x
-        newLaser.y = self.y
-        newLaser.hitPoints = 50
-
-        newLaser:toBack()
-        physics.addBody(newLaser, "dynamic", {isSensor = true})
-
-        transition.to(newLaser, {y = -40, time = 500, onComplete = function() display.remove(newLaser) end})
+        laser.fire(group, self.x, self.y, {y = -40, duration = 1000, damage = 40})
     end
 
     function newPlayer:touch(event)
