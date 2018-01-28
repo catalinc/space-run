@@ -6,12 +6,12 @@ local mathutils = require("libs.mathutils")
 local sprites = require("engine.sprites")
 local laser = require("engine.laser")
 
-local CW = display.contentWidth
-local CH = display.contentHeight
+local WIDTH = display.contentWidth
+local HEIGHT = display.contentHeight
 local MIN_X = 100
-local MAX_X = CW - 100
+local MAX_X = WIDTH - 100
 local MIN_Y = 0
-local MAX_Y = CH
+local MAX_Y = HEIGHT
 
 local clamp = mathutils.clamp
 
@@ -25,27 +25,25 @@ function M.new(group)
     local newPlayer = display.newImageRect(group, sprites, 4, 98, 79)
     newPlayer.x = display.contentCenterX
     newPlayer.y = display.contentHeight - 100
+    newPlayer.health = 100
     newPlayer.myName = "ship" -- Used for collision detection
     newPlayer.lastFireTime = 0
-    newPlayer.isExploding = false
     newPlayer.touchOffsetX = 0
     newPlayer.touchOffsetY = 0
 
     physics.addBody(newPlayer, {radius = 30, isSensor = true})
 
-    function newPlayer:fireLaser()
-        sounds.play("fire")
-        laser.fire(group, self.x, self.y, {y = -40, duration = 1000, damage = 40})
-    end
-
     function newPlayer:touch(event)
-        if self.isExploding then return end
+        if not self.isBodyActive then
+            return
+        end
 
         local phase = event.phase
 
         local now = event.time
         if now - self.lastFireTime > 300 then
-            self:fireLaser()
+            sounds.play("fire")
+            laser.fire(group, self.x, self.y, {y = -40, duration = 1000, damage = 40})
             self.lastFireTime = now
         end
 
@@ -73,8 +71,6 @@ function M.new(group)
 
     function newPlayer:explode()
         sounds.play("explosion")
-
-        self.isExploding = true
         self.alpha = 0
     end
 
@@ -85,7 +81,6 @@ function M.new(group)
 
         transition.to(self, {alpha = 1, time = 2000, onComplete = function()
             self.isBodyActive = true
-            self.isExploding = false
         end})
     end
 

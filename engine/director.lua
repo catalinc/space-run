@@ -42,18 +42,18 @@ local function gameLoop()
         local wave = currentLevel.waves[currentWave]
         if wave then
             local now = getTimer()
-            local elapsed = (now - lastWaveTime) / 1000
+            local elapsed = (now - lastWaveTime) / 1000 -- Seconds
             if elapsed >= wave.after then
                 lastWaveTime = now
                 currentWave = currentWave + 1
                 for i = 1, #wave.generate do
                     local kind = wave.generate[i]
                     if kind == "enemy" then
-                        enemies.create(entityGroup, ship)
+                        enemies.spawn(entityGroup, ship)
                     elseif kind == "asteroid" then
-                        asteroids.create(entityGroup)
+                        asteroids.spawn(entityGroup)
                     elseif kind == "mine" then
-                        mines.create(entityGroup)
+                        mines.spawn(entityGroup)
                     end
                 end
             end
@@ -105,18 +105,18 @@ local function onCollision(event)
         local mine = getEntityByName(object1, object2, "mine")
 
         if laser and asteroid then
-            increaseScore(asteroid.scorePoints)
+            increaseScore(asteroid.points)
             display.remove(laser)
             asteroids.remove(asteroid)
         elseif laser and enemy then
             display.remove(laser)
             enemy:takeDamage(laser.damage)
             if enemy:isDead() then
-                increaseScore(enemy.scorePoints)
-                enemies.remove(enemy)
+                increaseScore(enemy.points)
+                local removed = enemies.remove(enemy)
             end
         elseif laser and mine then
-            increaseScore(mine.scorePoints)
+            increaseScore(mine.points)
             display.remove(laser)
             mines.remove(mine)
         elseif enemyLaser and asteroid then

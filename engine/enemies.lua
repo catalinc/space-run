@@ -1,25 +1,25 @@
--- The bad guys
+-- The bad guys.
 
-local physics = require("physics")
-local sounds = require("libs.sounds")
-local eachframe = require("libs.eachframe")
 local mathutils = require("libs.mathutils")
-local sprites = require("engine.sprites")
 local entities = require("engine.entities")
-local healthbar = require("engine.healthbar")
-local laser = require("engine.laser")
+local enemy = require("engine.enemy")
 
-local CW = display.contentWidth
-local CH = display.contentHeight
-local abs = math.abs
 local random = math.random
 local randomSequence = mathutils.randomSequence
-
-local MAX_LANES = 4
-local LANE_WIDTH = CW / MAX_LANES
 local randomLanes = {}
+local MAX_LANES = 4
+local LANE_WIDTH = display.contentWidth / MAX_LANES
 
-local collection = entities.new()
+local function randomX()
+    if #randomLanes == 0 then
+        randomLanes = randomSequence(0, MAX_LANES - 1)
+    end
+
+    local lane = table.remove(randomLanes, 1)
+    return LANE_WIDTH * (lane + 0.5)
+end
+
+local enemies = entities.new()
 
 -- -----------------------------------------------------------------------------------
 -- Public API
@@ -27,88 +27,27 @@ local collection = entities.new()
 
 local M = {}
 
-function M.create(group, playerShip)
-    local newEnemy = display.newImageRect(group, sprites, 4, 98, 79)
-    newEnemy.yScale = -1
-    newEnemy.myName = "enemy" -- Used for collision detection
-    newEnemy.lastFireTime = 0
-    newEnemy.scorePoints = 100
-
-    newEnemy.health = 100
-    newEnemy.maxHealth = 100
-    newEnemy.healthBar = healthbar.new(group, newEnemy.contentWidth - 10, 5)
-
-    if #randomLanes == 0 then randomLanes = randomSequence(0, MAX_LANES - 1) end
-    local lane = table.remove(randomLanes, 1)
-
-    newEnemy.y = -60
-    newEnemy.x = LANE_WIDTH * (lane + 0.5)
-
-    physics.addBody(newEnemy, {radius = 30, isSensor = true})
-    newEnemy:setLinearVelocity(random(-40, 40), random(40, 120))
-
-    function newEnemy:eachFrame()
-        self.healthBar.x = self.x - (self.contentWidth / 2) + 5
-        self.healthBar.y = self.y - (self.contentHeight / 2) - 5
-
-        if self.y < 50 then return end -- No need to fire laser because we are outside screen
-        if playerShip.isExploding then return end
-
-        local now = eachframe.lastFrameTime
-        local dx = abs(self.x - playerShip.x)
-
-        if now - self.lastFireTime > 500 and dx < 10 then
-            self.lastFireTime = now
-            self:fireLaser()
-        end
-    end
-
-    function newEnemy:fireLaser()
-        sounds.play("fire")
-
-        laser.fire(group, self.x, self.y, {y = CH + 40, name="enemyLaser", duration = 2000, damage = 20})
-    end
-
-    eachframe.add(newEnemy)
-
-    function newEnemy:finalize(event)
-        eachframe.remove(self)
-    end
-
-    newEnemy:addEventListener("finalize")
-
-    function newEnemy:takeDamage(amount)
-        self.health = self.health - amount
-        if self.health < 0 then self.health = 0 end
-        self.healthBar:setHealth(self.health, self.maxHealth)
-    end
-
-    function newEnemy:isDead()
-        return self.health == 0
-    end
-
-    function newEnemy:destroy()
-        if self.healthBar then display.remove(self.healthBar) end
-        self:removeSelf()
-    end
-
-    collection:add(newEnemy)
+function M.spawn(group, player)
+    local newEnemy = enemy.new(group, randomX(), -60,
+                               {showHealthBar = true, target = player,
+                                velocity = {x = random(-40, 40), y = random(40, 120)}})
+    enemies:add(newEnemy)
 end
 
-function M.remove(asteroid)
-    collection:remove(asteroid)
+function M.remove(enemy)
+    enemies:remove(enemy)
 end
 
 function M.collect()
-    collection:collect()
+    enemies:collect()
 end
 
 function M.cleanup()
-    collection:clear()
+    enemies:clear()
 end
 
 function M.count()
-    return collection:count()
+    return enemies:count()
 end
 
 return M

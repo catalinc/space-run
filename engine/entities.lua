@@ -15,20 +15,11 @@ function Collection:add(entity)
     table.insert(self.data, entity)
 end
 
-function Collection:removeAt(i)
-    local entity = self.data[i]
-    if type(entity.destroy) == "function" then
-        entity:destroy()
-    else
-        display.remove(entity)
-    end
-    table.remove(self.data, i)
-end
-
 function Collection:remove(entity)
     for i = #self.data, 1, -1 do
         if self.data[i] == entity then
-            self:removeAt(i)
+            display.remove(entity)
+            table.remove(self.data, i)
             break
         end
     end
@@ -39,14 +30,17 @@ function Collection:collect()
         local thisEntity = self.data[i]
         if thisEntity.x < MIN_X or thisEntity.x > MAX_X or
             thisEntity.y < MIN_Y or thisEntity.y > MAX_Y then
-            self:removeAt(i)
+            display.remove(thisEntity)
+            table.remove(self.data, i)
         end
     end
 end
 
 function Collection:clear()
     for i = #self.data, 1, -1 do
-        self:removeAt(i)
+        local thisEntity = self.data[i]
+        display.remove(thisEntity)
+        table.remove(self.data, i)
     end
 end
 

@@ -12,10 +12,10 @@ local collection = entities.new()
 
 local M = {}
 
-function M.create(group)
+function M.spawn(group)
     local newAsteroid = display.newImageRect(group, sprites, 1, 102, 85)
     newAsteroid.myName = "asteroid" -- Used for collision detection
-    newAsteroid.scorePoints = 100
+    newAsteroid.points = 100
 
     physics.addBody(newAsteroid, "dynamic", {radius = 40, bounce = 0.8})
 
