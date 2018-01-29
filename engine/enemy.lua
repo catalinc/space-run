@@ -7,9 +7,6 @@ local sprites = require("engine.sprites")
 local healthbar = require("engine.healthbar")
 local laser = require("engine.laser")
 
-local abs = math.abs
-local HEIGHT = display.contentHeight
-
 -- -----------------------------------------------------------------------------------
 -- Public API
 -- -----------------------------------------------------------------------------------
@@ -43,32 +40,16 @@ function M.new(group, x, y, options)
     local velocity = options.velocity or {x = 0, y = 0}
     newEnemy:setLinearVelocity(velocity.x, velocity.y)
 
+    local behaviour = options.behaviour
+
     function newEnemy:eachFrame()
         if self.healthBar then
             self.healthBar.x = self.x - (self.contentWidth / 2) + 5
             self.healthBar.y = self.y - (self.contentHeight / 2) - 5
         end
 
-        if not self.target then
-            return
-        end
-
-        if not self.target.isBodyActive then
-            return
-        end
-
-        if self.y < 50 then -- No need to fire laser because we are outside screen
-            return
-        end
-
-        local now = eachframe.lastFrameTime
-        local dx = abs(self.x - self.target.x)
-
-        if now - self.lastFireTime > self.fireInterval and dx < 10 then
-            self.lastFireTime = now
-            sounds.play("fire")
-            laser.fire(group, self.x, self.y,
-                       {y = HEIGHT + 40, name="enemyLaser", duration = 2000, damage = self.damage})
+        if behaviour then
+            behaviour(self)
         end
     end
 
@@ -76,11 +57,9 @@ function M.new(group, x, y, options)
 
     function newEnemy:takeDamage(amount)
         self.health = self.health - amount
-
         if self.health < 0 then
             self.health = 0
         end
-
         if self.healthBar then
             self.healthBar:setHealth(self.health, self.maxHealth)
         end

@@ -3,6 +3,7 @@
 local mathutils = require("libs.mathutils")
 local entities = require("engine.entities")
 local enemy = require("engine.enemy")
+local behaviours = require("engine.behaviours")
 
 local random = math.random
 local randomSequence = mathutils.randomSequence
@@ -29,8 +30,10 @@ local M = {}
 
 function M.spawn(group, player)
     local newEnemy = enemy.new(group, randomX(), -60,
-                               {showHealthBar = true, target = player,
-                                velocity = {x = random(-40, 40), y = random(40, 120)}})
+                               {showHealthBar = true,
+                                target = player,
+                                velocity = {x = random(-40, 40), y = random(40, 120)},
+                                behaviour = behaviours.simple})
     enemies:add(newEnemy)
 end
 

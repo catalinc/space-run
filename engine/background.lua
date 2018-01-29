@@ -6,7 +6,7 @@ local background1
 local background2
 local speed = 1.6
 
-local CH = display.actualContentHeight
+local HEIGHT = display.actualContentHeight
 local MID_Y = display.actualContentHeight * 0.5
 local START_Y = display.contentCenterY - display.actualContentHeight
 
@@ -15,11 +15,11 @@ local function eachFrame()
     background1.y = background1.y + speed * delta
     background2.y = background2.y + speed * delta
 
-    if (background1.y - MID_Y) > CH then
+    if (background1.y - MID_Y) > HEIGHT then
         background1.y = START_Y
     end
 
-    if (background2.y - MID_Y) > CH then
+    if (background2.y - MID_Y) > HEIGHT then
         background2.y = START_Y
     end
 end
