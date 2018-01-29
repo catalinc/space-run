@@ -25,7 +25,9 @@ function M.new(group)
     local newPlayer = display.newImageRect(group, sprites, 4, 98, 79)
     newPlayer.x = display.contentCenterX
     newPlayer.y = display.contentHeight - 100
-    newPlayer.health = 100
+    newPlayer.lives = 3
+    newPlayer.maxHealth = 100
+    newPlayer.health = newPlayer.maxHealth
     newPlayer.myName = "ship" -- Used for collision detection
     newPlayer.lastFireTime = 0
     newPlayer.touchOffsetX = 0
@@ -38,8 +40,6 @@ function M.new(group)
             return
         end
 
-        local phase = event.phase
-
         local now = event.time
         if now - self.lastFireTime > 300 then
             sounds.play("fire")
@@ -47,41 +47,55 @@ function M.new(group)
             self.lastFireTime = now
         end
 
+        local phase = event.phase
         if "began" == phase then
-            -- Set touch focus on the player
             display.currentStage:setFocus(self)
-            -- Store initial offset position
             self.touchOffsetX = event.x - self.x
             self.touchOffsetY = event.y - self.y
         elseif "moved" == phase then
-            -- Move the player to the new touch position
-            self.x = event.x - self.touchOffsetX
-            self.y = event.y - self.touchOffsetY
-            self.x = clamp(self.x, MIN_X, MAX_X)
-            self.y = clamp(self.y, MIN_Y, MAX_Y)
+            self.x = clamp(event.x - self.touchOffsetX, MIN_X, MAX_X)
+            self.y = clamp(event.y - self.touchOffsetY, MIN_Y, MAX_Y)
         elseif "ended" == phase or "cancelled" == phase then
-            -- Release touch focus on the player
             display.currentStage:setFocus(nil)
         end
 
-        return true -- Prevents touch propagation to underlying objects
+        return true
     end
 
     newPlayer:addEventListener("touch", newPlayer)
 
-    function newPlayer:explode()
+    function newPlayer:takeDamage(amount)
+        self.health = self.health - amount
+        if self.health <= 0 then
+            self.health = 0
+            self:die()
+        end
+    end
+
+    function newPlayer:die()
         sounds.play("explosion")
+
+        self.isBodyActive = false
+        self.lives = self.lives - 1
         self.alpha = 0
+
+        if self.lives > 0 then
+            timer.performWithDelay(1000, function() self:restore() end)
+        end
+    end
+
+    function newPlayer:isDead()
+        return self.lives == 0
     end
 
     function newPlayer:restore()
-        self.isBodyActive = false
+        self.health = 100
         self.x = display.contentCenterX
         self.y = display.contentHeight - 100
 
-        transition.to(self, {alpha = 1, time = 2000, onComplete = function()
-            self.isBodyActive = true
-        end})
+        transition.to(self,
+                      {alpha = 1, time = 1000,
+                       onComplete = function() self.isBodyActive = true end})
     end
 
     return newPlayer

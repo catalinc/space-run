@@ -6,7 +6,7 @@ local enemies = require("engine.enemies")
 local mines = require("engine.mines")
 local player = require("engine.player")
 
-local listenersTable = {}
+local listeners = {}
 local ship
 
 local currentLevel
@@ -16,17 +16,17 @@ local getTimer = system.getTimer
 local gameLoopTimer
 
 local score = 0
-local lives = 3
-
-local entityGroup
+local group -- Display group for all entities (the ship, asteroids, lasers, etc.)
 
 -- -----------------------------------------------------------------------------------
 -- Game loop functions
 -- -----------------------------------------------------------------------------------
 
 local function invokeListener(name, arg)
-    local listener = listenersTable[name]
-    if listener then listener(arg) end
+    local listener = listeners[name]
+    if listener then
+        listener(arg)
+    end
 end
 
 local function isEndOfLevel()
@@ -49,15 +49,17 @@ local function gameLoop()
                 for i = 1, #wave.generate do
                     local kind = wave.generate[i]
                     if kind == "enemy" then
-                        enemies.spawn(entityGroup, ship)
+                        enemies.spawn(group, ship)
                     elseif kind == "asteroid" then
-                        asteroids.spawn(entityGroup)
+                        asteroids.spawn(group)
                     elseif kind == "mine" then
-                        mines.spawn(entityGroup)
+                        mines.spawn(group)
                     end
                 end
             end
-        elseif isEndOfLevel() then invokeListener("endLevel") end
+        elseif isEndOfLevel() then
+            invokeListener("endLevel")
+        end
     end
 end
 
@@ -66,8 +68,12 @@ end
 -- -----------------------------------------------------------------------------------
 
 local function getEntityByName(object1, object2, name)
-    if object1.myName == name then return object1 end
-    if object2.myName == name then return object2 end
+    if object1.myName == name then
+        return object1
+    end
+    if object2.myName == name then
+        return object2
+    end
     return nil
 end
 
@@ -76,18 +82,18 @@ local function increaseScore(amount)
     invokeListener("score", score)
 end
 
-local function killPlayer()
-    if not ship.isExploding then
-        ship:explode()
+local function gameOver()
+    invokeListener("gameOver")
+end
 
-        lives = lives - 1
-        invokeListener("life", lives)
-
-        if lives == 0 then
+local function playerHit(damage)
+    if ship.isBodyActive then
+        ship:takeDamage(damage)
+        if ship:isDead() then
             display.remove(ship)
-            timer.performWithDelay(2000, function() invokeListener("gameOver") end)
+            timer.performWithDelay(2000, gameOver)
         else
-            timer.performWithDelay(1000, function () ship:restore() end)
+            invokeListener("life", {lives = ship.lives, health = ship.health, maxHealth = ship.maxHealth})
         end
     end
 end
@@ -113,7 +119,7 @@ local function onCollision(event)
             enemy:takeDamage(laser.damage)
             if enemy:isDead() then
                 increaseScore(enemy.points)
-                local removed = enemies.remove(enemy)
+                enemies.remove(enemy)
             end
         elseif laser and mine then
             increaseScore(mine.points)
@@ -124,10 +130,13 @@ local function onCollision(event)
             asteroids.remove(asteroid)
         elseif enemyLaser and player then
             display.remove(enemyLaser)
-            killPlayer()
+            playerHit(enemyLaser.damage)
         elseif enemy and player then
             enemies.remove(enemy)
-            killPlayer()
+            playerHit(enemy.damage)
+        elseif asteroid and player then
+            asteroids.remove(asteroid)
+            playerHit(asteroid.damage)
         end
     end
 end
@@ -139,10 +148,9 @@ end
 local M = {}
 
 function M.init(mainGroup, backGroup)
-    entityGroup = mainGroup
-    ship = player.new(entityGroup)
+    group = mainGroup
+    ship = player.new(group)
     score = 0
-    lives = 3
 
     background.init(backGroup)
 end
@@ -159,26 +167,30 @@ function M.pause()
 
     timer.cancel(gameLoopTimer)
     gameLoopTimer = nil
+
     Runtime:removeEventListener("collision", onCollision)
 end
 
 function M.stop()
     background.stop()
 
-    if gameLoopTimer then timer.cancel(gameLoopTimer) end
+    if gameLoopTimer then
+        timer.cancel(gameLoopTimer)
+    end
+
     Runtime:removeEventListener("collision", onCollision)
 
     asteroids.cleanup()
     enemies.cleanup()
     mines.cleanup()
 
-    for i = #listenersTable, 1, -1 do
-        table.remove(listenersTable, i)
+    for i = #listeners, 1, -1 do
+        table.remove(listeners, i)
     end
 end
 
 function M.addListener(name, listener)
-    listenersTable[name] = listener
+    listeners[name] = listener
 end
 
 function M.getScore()

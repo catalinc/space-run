@@ -6,7 +6,7 @@
 
 local M = {}
 
-function M.new(parent, width, height)
+function M.new(parent, x, y, width, height)
     width = width or 35
     height = height or 6
 
@@ -34,6 +34,8 @@ function M.new(parent, width, height)
     end
 
     parent:insert(group)
+    group.x = x
+    group.y = y
 
     return group
 end

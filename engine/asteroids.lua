@@ -16,6 +16,7 @@ function M.spawn(group)
     local newAsteroid = display.newImageRect(group, sprites, 1, 102, 85)
     newAsteroid.myName = "asteroid" -- Used for collision detection
     newAsteroid.points = 100
+    newAsteroid.damage = 20
 
     physics.addBody(newAsteroid, "dynamic", {radius = 40, bounce = 0.8})
 

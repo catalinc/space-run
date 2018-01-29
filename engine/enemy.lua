@@ -16,6 +16,7 @@ local HEIGHT = display.contentHeight
 
 local M = {}
 
+-- TODO find a way to pass the "AI" from outside
 function M.new(group, x, y, options)
     options = options or {}
 
@@ -29,13 +30,14 @@ function M.new(group, x, y, options)
     newEnemy.fireInterval = options.fireInterval or 500 -- Millis
     newEnemy.lastFireTime = 0
     newEnemy.target = options.target
+    newEnemy.damage = options.damage or 30
     newEnemy.myName = "enemy" -- Used for collision detection
 
     physics.addBody(newEnemy, {radius = 30, isSensor = true})
 
     local showHealthBar = options.showHealthBar or false
     if showHealthBar then
-        newEnemy.healthBar = healthbar.new(group, newEnemy.contentWidth - 10, 5)
+        newEnemy.healthBar = healthbar.new(group, x, y, newEnemy.contentWidth - 10, 5)
     end
 
     local velocity = options.velocity or {x = 0, y = 0}
@@ -66,7 +68,7 @@ function M.new(group, x, y, options)
             self.lastFireTime = now
             sounds.play("fire")
             laser.fire(group, self.x, self.y,
-                       {y = HEIGHT + 40, name="enemyLaser", duration = 2000, damage = 20})
+                       {y = HEIGHT + 40, name="enemyLaser", duration = 2000, damage = self.damage})
         end
     end
 

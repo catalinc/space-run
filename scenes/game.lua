@@ -11,7 +11,9 @@ local scene = composer.newScene()
 local physics = require("physics")
 local sounds = require("libs.sounds")
 local director = require("engine.director")
+local healthbar = require("engine.healthbar")
 
+local healthBar
 local livesText
 local scoreText
 
@@ -21,8 +23,9 @@ physics.setGravity(0, 0)
 -- -----------------------------------------------------------------------------------
 -- Scene game functions
 -- -----------------------------------------------------------------------------------
-local function updateLives(lives)
-    livesText.text = "Lives: " .. lives
+local function updateLives(data)
+    healthBar:setHealth(data.health, data.maxHealth)
+    livesText.text = "Lives: " .. data.lives
 end
 
 local function updateScore(score)
@@ -51,6 +54,10 @@ local function endGame()
     composer.setVariable("finalScore", director.getScore())
     composer.removeScene("scenes.highscores")
     composer.gotoScene("scenes.highscores", {time = 800, effect = "crossFade"})
+end
+
+local function endLevel()
+    endGame() -- TODO: should redirect to end level scene
 end
 
 -- -----------------------------------------------------------------------------------
@@ -82,10 +89,11 @@ function scene:create(event)
     director.addListener("score", updateScore)
     director.addListener("life", updateLives)
     director.addListener("gameOver", endGame)
-    director.addListener("endLevel", endGame)
+    director.addListener("endLevel", endLevel)
 
-    livesText = display.newText(uiGroup, "Lives: " .. 3, 200, 80, native.systemFont, 36)
-    scoreText = display.newText(uiGroup, "Score: " .. 0, 400, 80, native.systemFont, 36)
+    healthBar = healthbar.new(uiGroup, 100, 80, 100, 10)
+    livesText = display.newText(uiGroup, "Lives: " .. 3, 300, 80, native.systemFont, 36)
+    scoreText = display.newText(uiGroup, "Score: " .. 0, 500, 80, native.systemFont, 36)
 end
 
 -- show()
