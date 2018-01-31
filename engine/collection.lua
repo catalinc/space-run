@@ -6,10 +6,14 @@ local MIN_Y = -100
 local MAX_Y = display.contentHeight + 100
 
 -- -----------------------------------------------------------------------------------
--- Entity collection.
+-- Public API
 -- -----------------------------------------------------------------------------------
 
 local Collection = {}
+
+function Collection.new()
+    return setmetatable({data = {}}, {__index = Collection})
+end
 
 function Collection:add(entity)
     table.insert(self.data, entity)
@@ -25,7 +29,7 @@ function Collection:remove(entity)
     end
 end
 
-function Collection:collect()
+function Collection:removeOffScreen()
     for i = #self.data, 1, -1 do
         local thisEntity = self.data[i]
         if thisEntity.x < MIN_X or thisEntity.x > MAX_X or
@@ -48,14 +52,4 @@ function Collection:count()
     return #self.data
 end
 
--- -----------------------------------------------------------------------------------
--- Public API
--- -----------------------------------------------------------------------------------
-
-local M = {}
-
-function M.new()
-    return setmetatable({data = {}}, {__index = Collection})
-end
-
-return M
+return Collection

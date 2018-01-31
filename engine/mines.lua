@@ -2,9 +2,10 @@
 
 local physics = require("physics")
 local sprites = require("engine.sprites")
-local entities = require("engine.entities")
+local collection = require("engine.collection")
+local groups = require("engine.groups")
 
-local collection = entities.new()
+local mines = collection.new()
 
 -- -----------------------------------------------------------------------------------
 -- Public API
@@ -12,7 +13,8 @@ local collection = entities.new()
 
 local M = {}
 
-function M.spawn(group)
+function M.spawn()
+    local group = groups.get("main")
     local newMine = display.newImageRect(group, sprites, 1, 102, 85)
     newMine.myName = "mine" -- Used for collision detection
     newMine.points = 250
@@ -23,23 +25,23 @@ function M.spawn(group)
     newMine.y = -60
     newMine:setLinearVelocity(math.random(-40, 40), math.random(40, 120))
 
-    collection:add(newMine)
+    mines:add(newMine)
 end
 
-function M.remove(asteroid)
-    collection:remove(asteroid)
+function M.remove(mine)
+    mines:remove(mine)
 end
 
-function M.collect()
-    collection:collect()
+function M.removeOffScreen()
+    mines:removeOffScreen()
 end
 
-function M.cleanup()
-    collection:clear()
+function M.clear()
+    mines:clear()
 end
 
 function M.count()
-    return collection:count()
+    return mines:count()
 end
 
 return M

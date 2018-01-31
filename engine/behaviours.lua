@@ -16,7 +16,7 @@ local M = {}
 function M.simple(enemy)
     local target = enemy.target
     if not target then return end
-    if not target.isBodyActive then return end
+    if target.isExploding then return end
     if not enemy.isVisible then return end -- Don't attack if we are not visible
 
     local now = eachframe.lastFrameTime
@@ -25,7 +25,7 @@ function M.simple(enemy)
     if now - enemy.lastFireTime > enemy.fireInterval and dx < 10 then
         enemy.lastFireTime = now
         sounds.play("fire")
-        laser.fire(enemy.parent, enemy.x, enemy.y,
+        laser.fire(enemy.x, enemy.y,
                    {y = HEIGHT + 40,
                     name="enemyLaser",
                     duration = 2000,

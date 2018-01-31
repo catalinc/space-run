@@ -13,7 +13,6 @@ local laser = require("engine.laser")
 
 local M = {}
 
--- TODO find a way to pass the "AI" from outside
 function M.new(group, x, y, options)
     options = options or {}
 

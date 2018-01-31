@@ -1,6 +1,7 @@
 -- Scrolling background.
 
 local eachframe = require("libs.eachframe")
+local groups = require("engine.groups")
 
 local background1
 local background2
@@ -30,8 +31,9 @@ end
 
 local M = {}
 
-function M.init(group)
+function M.start()
     local backgroundImage = {type = "image", filename = "graphics/background.png"}
+    local group = groups.get("back")
 
     background1 = display.newRect(group, 0, 0, display.actualContentWidth, display.actualContentHeight)
     background1.fill = backgroundImage
@@ -42,14 +44,15 @@ function M.init(group)
     background2.fill = backgroundImage
     background2.x = display.contentCenterX
     background2.y = display.contentCenterY - display.actualContentHeight
-end
 
-function M.start()
     eachframe.add(eachFrame)
 end
 
 function M.stop()
     eachframe.remove(eachFrame)
+
+    display.remove(background1)
+    display.remove(background2)
 end
 
 return M

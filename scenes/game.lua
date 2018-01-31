@@ -12,6 +12,9 @@ local physics = require("physics")
 local sounds = require("libs.sounds")
 local director = require("engine.director")
 local healthbar = require("engine.healthbar")
+local background = require("engine.background")
+local events = require("engine.events")
+local groups = require("engine.groups")
 
 local healthBar
 local livesText
@@ -34,20 +37,25 @@ end
 
 local function startGame()
     physics.start()
+    background.start()
     director.start()
     sounds.playStream("gameMusic")
 end
 
 local function pauseGame()
+    background.stop()
     director.pause()
     physics.pause()
     sounds.stop()
 end
 
 local function stopGame()
+    background.stop()
     director.stop()
     physics.stop()
     sounds.stop()
+    events.clear()
+    groups.clear()
 end
 
 local function endGame()
@@ -83,13 +91,16 @@ function scene:create(event)
     local uiGroup = display.newGroup() -- Display group for UI objects like the score
     sceneGroup:insert(uiGroup)
 
-    director.init(mainGroup, backGroup)
-    director.loadLevel(1)
+    groups.set("main", mainGroup)
+    groups.set("back", backGroup)
 
-    director.addListener("score", updateScore)
-    director.addListener("life", updateLives)
-    director.addListener("gameOver", endGame)
-    director.addListener("endLevel", endLevel)
+    events.subscribe("scoreIncreased", updateScore)
+    events.subscribe("playerHit", updateLives)
+    events.subscribe("playerRestored", updateLives)
+    events.subscribe("levelCleared", endLevel)
+    events.subscribe("gameOver", endGame)
+
+    director.loadLevel(1)
 
     healthBar = healthbar.new(uiGroup, 100, 80, 100, 10)
     livesText = display.newText(uiGroup, "Lives: " .. 3, 300, 80, native.systemFont, 36)

@@ -1,5 +1,6 @@
 -- Fire phasers!
 local sprites = require("engine.sprites")
+local groups = require("engine.groups")
 
 local HEIGHT = display.contentHeight
 
@@ -9,13 +10,14 @@ local HEIGHT = display.contentHeight
 
 local M = {}
 
-function M.fire(group, x, y, options)
+function M.fire(x, y, options)
     options = options or {}
     local name = options.name or "laser"
     local damage = options.damage or 100
     local duration = options.duration or 1000
     local toY = options.y or 0
 
+    local group = groups.get("main")
     local newLaser = display.newImageRect(group, sprites, 5, 14, 40)
     newLaser.isBullet = true
     newLaser.x = x

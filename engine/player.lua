@@ -5,6 +5,8 @@ local sounds = require("libs.sounds")
 local mathutils = require("libs.mathutils")
 local sprites = require("engine.sprites")
 local laser = require("engine.laser")
+local groups = require("engine.groups")
+local events = require("engine.events")
 
 local WIDTH = display.contentWidth
 local HEIGHT = display.contentHeight
@@ -21,29 +23,31 @@ local clamp = mathutils.clamp
 
 local M = {}
 
-function M.new(group)
+function M.new(options)
+    options = options or {}
+    local group = groups.get("main")
     local newPlayer = display.newImageRect(group, sprites, 4, 98, 79)
     newPlayer.x = display.contentCenterX
     newPlayer.y = display.contentHeight - 100
-    newPlayer.lives = 3
-    newPlayer.maxHealth = 100
-    newPlayer.health = newPlayer.maxHealth
-    newPlayer.myName = "ship" -- Used for collision detection
+    newPlayer.score = options.score or 0
+    newPlayer.lives = options.lives or 3
+    newPlayer.maxHealth = options.maxHealth or 100
+    newPlayer.health = options.health or newPlayer.maxHealth
+    newPlayer.myName = "player" -- Used for collision detection
     newPlayer.lastFireTime = 0
     newPlayer.touchOffsetX = 0
     newPlayer.touchOffsetY = 0
+    newPlayer.isExploding = false
 
     physics.addBody(newPlayer, {radius = 30, isSensor = true})
 
     function newPlayer:touch(event)
-        if not self.isBodyActive then
-            return
-        end
+        if self.isExploding then return end
 
         local now = event.time
         if now - self.lastFireTime > 300 then
             sounds.play("fire")
-            laser.fire(group, self.x, self.y, {y = -40, duration = 1000, damage = 40})
+            laser.fire(self.x, self.y, {y = -40, duration = 1000, damage = 40})
             self.lastFireTime = now
         end
 
@@ -65,19 +69,24 @@ function M.new(group)
     newPlayer:addEventListener("touch", newPlayer)
 
     function newPlayer:takeDamage(amount)
+        if self.isExploding then return end
+
         self.health = self.health - amount
         if self.health <= 0 then
             self.health = 0
             self:die()
         end
+
+        events.publish("playerHit",
+                       {lives = self.lives, health = self.health, maxHealth = self.maxHealth})
     end
 
     function newPlayer:die()
         sounds.play("explosion")
 
-        self.isBodyActive = false
         self.lives = self.lives - 1
         self.alpha = 0
+        self.isExploding = true
 
         if self.lives > 0 then
             timer.performWithDelay(1000, function() self:restore() end)
@@ -90,12 +99,22 @@ function M.new(group)
 
     function newPlayer:restore()
         self.health = 100
+        self.isBodyActive = false
         self.x = display.contentCenterX
         self.y = display.contentHeight - 100
 
         transition.to(self,
-                      {alpha = 1, time = 1000,
-                       onComplete = function() self.isBodyActive = true end})
+                      {alpha = 1, time = 1000, onComplete = function()
+                            self.isBodyActive = true
+                            self.isExploding = false
+                            events.publish("playerRestored",
+                                           {lives = self.lives, health = self.health, maxHealth = self.maxHealth})
+                        end})
+    end
+
+    function newPlayer:increaseScore(amount)
+        self.score = self.score + amount
+        events.publish("scoreIncreased", self.score)
     end
 
     return newPlayer

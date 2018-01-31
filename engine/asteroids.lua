@@ -2,9 +2,10 @@
 
 local physics = require("physics")
 local sprites = require("engine.sprites")
-local entities = require("engine.entities")
+local collection = require("engine.collection")
+local groups = require("engine.groups")
 
-local collection = entities.new()
+local asteroids = collection.new()
 
 -- -----------------------------------------------------------------------------------
 -- Public API
@@ -12,7 +13,8 @@ local collection = entities.new()
 
 local M = {}
 
-function M.spawn(group)
+function M.spawn()
+    local group = groups.get("main")
     local newAsteroid = display.newImageRect(group, sprites, 1, 102, 85)
     newAsteroid.myName = "asteroid" -- Used for collision detection
     newAsteroid.points = 100
@@ -40,23 +42,23 @@ function M.spawn(group)
 
     newAsteroid:applyTorque(math.random(-6, 6))
 
-    collection:add(newAsteroid)
+    asteroids:add(newAsteroid)
 end
 
 function M.remove(asteroid)
-    collection:remove(asteroid)
+    asteroids:remove(asteroid)
 end
 
-function M.collect()
-    collection:collect()
+function M.removeOffScreen()
+    asteroids:removeOffScreen()
 end
 
-function M.cleanup()
-    collection:clear()
+function M.clear()
+    asteroids:clear()
 end
 
 function M.count()
-    return collection:count()
+    return asteroids:count()
 end
 
 return M
