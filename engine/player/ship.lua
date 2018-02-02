@@ -2,11 +2,13 @@
 
 local physics = require("physics")
 local sounds = require("libs.sounds")
-local mathutils = require("libs.mathutils")
-local sprites = require("engine.sprites")
-local laser = require("engine.laser")
-local groups = require("engine.groups")
-local events = require("engine.events")
+local groups = require("engine.ui.groups")
+local events = require("engine.ui.events")
+local sprites = require("engine.ui.sprites")
+local laser = require("engine.weapons.laser")
+local mathutils = require("engine.common.mathutils")
+
+local M = {}
 
 local WIDTH = display.contentWidth
 local HEIGHT = display.contentHeight
@@ -14,14 +16,7 @@ local MIN_X = 100
 local MAX_X = WIDTH - 100
 local MIN_Y = 0
 local MAX_Y = HEIGHT
-
 local clamp = mathutils.clamp
-
--- -----------------------------------------------------------------------------------
--- Public API
--- -----------------------------------------------------------------------------------
-
-local M = {}
 
 function M.new(options)
     options = options or {}
@@ -46,7 +41,6 @@ function M.new(options)
 
         local now = event.time
         if now - self.lastFireTime > 300 then
-            sounds.play("fire")
             laser.fire(self.x, self.y, {y = -40, duration = 1000, damage = 40})
             self.lastFireTime = now
         end

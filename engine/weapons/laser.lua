@@ -1,16 +1,16 @@
 -- Fire phasers!
-local sprites = require("engine.sprites")
-local groups = require("engine.groups")
 
-local HEIGHT = display.contentHeight
-
--- -----------------------------------------------------------------------------------
--- Public API
--- -----------------------------------------------------------------------------------
+local sounds = require("libs.sounds")
+local groups = require("engine.ui.groups")
+local sprites = require("engine.ui.sprites")
 
 local M = {}
 
+local HEIGHT = display.contentHeight
+
 function M.fire(x, y, options)
+    sounds.play("fire")
+
     options = options or {}
     local name = options.name or "laser"
     local damage = options.damage or 100

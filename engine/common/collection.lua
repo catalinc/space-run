@@ -1,15 +1,11 @@
 -- Container for display objects.
 
+local Collection = {}
+
 local MIN_X = -100
 local MAX_X = display.contentWidth + 100
 local MIN_Y = -100
 local MAX_Y = display.contentHeight + 100
-
--- -----------------------------------------------------------------------------------
--- Public API
--- -----------------------------------------------------------------------------------
-
-local Collection = {}
 
 function Collection.new()
     return setmetatable({data = {}}, {__index = Collection})

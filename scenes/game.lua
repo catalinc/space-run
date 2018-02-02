@@ -11,10 +11,9 @@ local scene = composer.newScene()
 local physics = require("physics")
 local sounds = require("libs.sounds")
 local director = require("engine.director")
-local healthbar = require("engine.healthbar")
-local background = require("engine.background")
-local events = require("engine.events")
-local groups = require("engine.groups")
+local healthbar = require("engine.ui.healthbar") -- TODO: move to engine.player.ship?
+local groups = require("engine.ui.groups")
+local events = require("engine.ui.events")
 
 local healthBar
 local livesText
@@ -37,20 +36,17 @@ end
 
 local function startGame()
     physics.start()
-    background.start()
     director.start()
     sounds.playStream("gameMusic")
 end
 
 local function pauseGame()
-    background.stop()
     director.pause()
     physics.pause()
     sounds.stop()
 end
 
 local function stopGame()
-    background.stop()
     director.stop()
     physics.stop()
     sounds.stop()

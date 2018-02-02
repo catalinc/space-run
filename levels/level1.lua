@@ -1,12 +1,55 @@
 local M = {
     waves = {
-        {after = 1, generate = {"asteroid", "enemy", "enemy"}},
-        {after = 5, generate = {"asteroid", "asteroid", "enemy"}},
-        {after = 3, generate = {"asteroid", "enemy", "enemy"}},
-        {after = 5, generate = {"enemy", "enemy", "enemy", "enemy"}},
-        {after = 3, generate = {"mine", "mine"}},
-        {after = 3, generate = {"enemy", "asteroid", "enemy"}},
-        {after = 5, generate = {"enemy", "asteroid", "asteroid"}},
+        {after = 1, generate = {
+            {"enemy", "grunt"},
+            {"enemy", "grunt"},
+            {"asteroid", "rock1"},
+        }},
+        {after = 5, generate = {
+            {"enemy", "grunt"},
+            {"asteroid", "rock1"},
+            {"asteroid", "rock2"},
+        }},
+        {after = 3, generate = {
+            {"enemy", "grunt"},
+            {"enemy", "grunt"},
+            {"asteroid", "rock3"},
+            {"asteroid", "rock2"},
+        }},
+        {after = 5, generate = {
+            {"enemy", "grunt"},
+            {"enemy", "grunt"},
+            {"enemy", "grunt"},
+            {"asteroid", "rock1"},
+            {"asteroid", "rock2"},
+            {"asteroid", "rock3"},
+        }},
+        {after = 3, generate = {
+            {"enemy", "grunt"},
+            {"enemy", "grunt"},
+            {"mine", "static"},
+            {"mine", "static"},
+            {"asteroid", "rock1"},
+            {"asteroid", "rock2"},
+        }},
+        {after = 3, generate = {
+            {"enemy", "grunt"},
+            {"enemy", "grunt"},
+            {"enemy", "grunt"},
+            {"asteroid", "rock1"},
+            {"asteroid", "rock2"},
+            {"asteroid", "rock3"},
+        }},
+        {after = 5, generate = {
+            {"enemy", "grunt"},
+            {"asteroid", "rock1"},
+            {"asteroid", "rock3"},
+        }},
+        {after = 10, generate = {
+            {"enemy", "boss"},
+            {"enemy", "grunt"},
+            {"asteroid", "rock1"},
+        }}
     }
 }
 

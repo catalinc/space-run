@@ -1,10 +1,13 @@
 -- The game driver.
 
-local asteroids = require("engine.asteroids")
-local enemies = require("engine.enemies")
-local mines = require("engine.mines")
-local player = require("engine.player")
-local events = require("engine.events")
+local events = require("engine.ui.events")
+local background = require("engine.ui.background")
+local asteroids = require("engine.asteroids.manager")
+local enemies = require("engine.enemies.manager")
+local mines = require("engine.mines.manager")
+local player = require("engine.player.ship")
+
+local M = {}
 
 local playerShip
 local currentLevel
@@ -12,10 +15,6 @@ local currentWave
 local lastWaveTime
 local getTimer = system.getTimer
 local gameLoopTimer
-
--- -----------------------------------------------------------------------------------
--- Game loop functions
--- -----------------------------------------------------------------------------------
 
 local function isEndOfLevel()
     return enemies.count() + asteroids.count() + mines.count() == 0
@@ -34,13 +33,15 @@ local function gameLoop()
             if elapsed >= waveData.after then
                 lastWaveTime = now
                 for i = 1, #waveData.generate do
-                    local kind = waveData.generate[i]
-                    if kind == "enemy" then
-                        enemies.spawn(playerShip)
-                    elseif kind == "asteroid" then
-                        asteroids.spawn(group)
-                    elseif kind == "mine" then
-                        mines.spawn()
+                    local entityData = waveData.generate[i]
+                    local entityClass = entityData[1]
+                    local entityType = entityData[2]
+                    if entityClass == "asteroid" then
+                        asteroids.spawn(entityType)
+                    elseif entityClass == "mine" then
+                        mines.spawn(entityType)
+                    elseif entityClass == "enemy" then
+                        enemies.spawn(entityType, playerShip)
                     end
                 end
                 currentWave = currentWave + 1
@@ -48,10 +49,6 @@ local function gameLoop()
         elseif isEndOfLevel() then events.publish("levelCleared") end
     end
 end
-
--- -----------------------------------------------------------------------------------
--- Collision handling functions
--- -----------------------------------------------------------------------------------
 
 local function getEntityByName(object1, object2, name)
     if object1.myName == name then return object1 end
@@ -72,32 +69,32 @@ end
 local function enemyHit(enemy, damage)
     enemy:takeDamage(damage)
     if enemy:isDead() then
-        playerShip:increaseScore(enemy.points)
+        playerShip:increaseScore(enemy:getPoints())
         enemies.remove(enemy)
     end
 end
 
 local function onCollision(event)
     if event.phase == "began" then
-        local object1 = event.object1
-        local object2 = event.object2
+        local o1 = event.object1
+        local o2 = event.object2
 
-        local asteroid = getEntityByName(object1, object2, "asteroid")
-        local player = getEntityByName(object1, object2, "player")
-        local laser = getEntityByName(object1, object2, "laser")
-        local enemy = getEntityByName(object1, object2, "enemy")
-        local enemyLaser = getEntityByName(object1, object2, "enemyLaser")
-        local mine = getEntityByName(object1, object2, "mine")
+        local asteroid = getEntityByName(o1, o2, "asteroid")
+        local player = getEntityByName(o1, o2, "player")
+        local laser = getEntityByName(o1, o2, "laser")
+        local enemy = getEntityByName(o1, o2, "enemy")
+        local enemyLaser = getEntityByName(o1, o2, "enemyLaser")
+        local mine = getEntityByName(o1, o2, "mine")
 
         if laser and asteroid then
-            playerShip:increaseScore(asteroid.points)
+            playerShip:increaseScore(asteroid:getPoints())
             display.remove(laser)
             asteroids.remove(asteroid)
         elseif laser and enemy then
             display.remove(laser)
             enemyHit(enemy, laser.damage)
         elseif laser and mine then
-            playerShip:increaseScore(mine.points)
+            playerShip:increaseScore(mine:getPoints())
             display.remove(laser)
             mines.remove(mine)
         elseif enemyLaser and asteroid then
@@ -108,45 +105,50 @@ local function onCollision(event)
             playerHit(enemyLaser.damage)
         elseif enemy and player then
             enemies.remove(enemy)
-            playerHit(enemy.damage)
+            playerHit(enemy:getDamage())
         elseif asteroid and player then
             asteroids.remove(asteroid)
-            playerHit(asteroid.damage)
+            playerHit(asteroid:getDamage())
+        elseif mine and player then
+            mines.remove(mine)
+            playerHit(mine:getDamage())
         end
     end
 end
 
--- -----------------------------------------------------------------------------------
--- Public API
--- -----------------------------------------------------------------------------------
-
-local M = {}
+local function removeAllEntities()
+    asteroids.clear()
+    enemies.clear()
+    mines.clear()
+end
 
 function M.start()
+    background.start()
+    gameLoopTimer = timer.performWithDelay(500, gameLoop, 0)
+    Runtime:addEventListener("collision", onCollision)
+end
+
+function M.resume()
+    background.resume()
     gameLoopTimer = timer.performWithDelay(500, gameLoop, 0)
     Runtime:addEventListener("collision", onCollision)
 end
 
 function M.pause()
+    background.pause()
     timer.cancel(gameLoopTimer)
     Runtime:removeEventListener("collision", onCollision)
 end
 
 function M.stop()
     M.pause()
-
-    asteroids.clear()
-    enemies.clear()
-    mines.clear()
+    background.stop()
+    removeAllEntities()
 end
 
 function M.loadLevel(num)
-    asteroids.clear()
-    enemies.clear()
-    mines.clear()
-
+    removeAllEntities()
     playerShip = player.new()
-
     currentWave = 1
     currentLevel = require("levels.level"..num)
     lastWaveTime = getTimer()

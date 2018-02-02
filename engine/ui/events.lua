@@ -1,12 +1,8 @@
 -- Game events.
 
-local bus = {}
-
--- -----------------------------------------------------------------------------------
--- Public API
--- -----------------------------------------------------------------------------------
-
 local M = {}
+
+local bus = {}
 
 function M.subscribe(event, listener)
     local listeners = bus[event]

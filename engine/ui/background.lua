@@ -1,7 +1,9 @@
 -- Scrolling background.
 
 local eachframe = require("libs.eachframe")
-local groups = require("engine.groups")
+local groups = require("engine.ui.groups")
+
+local M = {}
 
 local background1
 local background2
@@ -11,7 +13,7 @@ local HEIGHT = display.actualContentHeight
 local MID_Y = display.actualContentHeight * 0.5
 local START_Y = display.contentCenterY - display.actualContentHeight
 
-local function eachFrame()
+local function scroll()
     local delta = eachframe.deltaTime
     background1.y = background1.y + speed * delta
     background2.y = background2.y + speed * delta
@@ -24,12 +26,6 @@ local function eachFrame()
         background2.y = START_Y
     end
 end
-
--- -----------------------------------------------------------------------------------
--- Public API
--- -----------------------------------------------------------------------------------
-
-local M = {}
 
 function M.start()
     local backgroundImage = {type = "image", filename = "graphics/background.png"}
@@ -45,11 +41,19 @@ function M.start()
     background2.x = display.contentCenterX
     background2.y = display.contentCenterY - display.actualContentHeight
 
-    eachframe.add(eachFrame)
+    eachframe.add(scroll)
+end
+
+function M.pause()
+    eachframe.remove(scroll)
+end
+
+function M.resume()
+    eachframe.add(scroll)
 end
 
 function M.stop()
-    eachframe.remove(eachFrame)
+    eachframe.remove(scroll)
 
     display.remove(background1)
     display.remove(background2)
