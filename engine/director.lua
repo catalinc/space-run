@@ -1,13 +1,17 @@
 -- The game driver.
 
-local events = require("engine.ui.events")
 local background = require("engine.ui.background")
-local asteroids = require("engine.asteroids.manager")
-local enemies = require("engine.enemies.manager")
-local mines = require("engine.mines.manager")
+local events = require("engine.common.events")
 local player = require("engine.player.ship")
+local Asteroids = require("engine.asteroids.manager")
+local Enemies = require("engine.enemies.manager")
+local Mines = require("engine.mines.manager")
 
 local M = {}
+
+local asteroids = Asteroids:new()
+local enemies = Enemies:new()
+local mines = Mines:new()
 
 local playerShip
 local currentLevel
@@ -17,14 +21,14 @@ local getTimer = system.getTimer
 local gameLoopTimer
 
 local function isEndOfLevel()
-    return enemies.count() + asteroids.count() + mines.count() == 0
+    return enemies:count() + asteroids:count() + mines:count() == 0
 end
 
 local function gameLoop()
     if currentLevel then
-        asteroids.removeOffScreen()
-        enemies.removeOffScreen()
-        mines.removeOffScreen()
+        asteroids:removeOffScreen()
+        enemies:removeOffScreen()
+        mines:removeOffScreen()
 
         local waveData = currentLevel.waves[currentWave]
         if waveData then
@@ -34,14 +38,14 @@ local function gameLoop()
                 lastWaveTime = now
                 for i = 1, #waveData.generate do
                     local entityData = waveData.generate[i]
-                    local entityClass = entityData[1]
-                    local entityType = entityData[2]
-                    if entityClass == "asteroid" then
-                        asteroids.spawn(entityType)
-                    elseif entityClass == "mine" then
-                        mines.spawn(entityType)
-                    elseif entityClass == "enemy" then
-                        enemies.spawn(entityType, playerShip)
+                    local className = entityData[1]
+                    local typeName = entityData[2]
+                    if className == "asteroid" then
+                        asteroids:spawn(typeName)
+                    elseif className == "mine" then
+                        mines:spawn(typeName)
+                    elseif className == "enemy" then
+                        enemies:spawn(typeName, playerShip)
                     end
                 end
                 currentWave = currentWave + 1
@@ -70,7 +74,7 @@ local function enemyHit(enemy, damage)
     enemy:takeDamage(damage)
     if enemy:isDead() then
         playerShip:increaseScore(enemy:getPoints())
-        enemies.remove(enemy)
+        enemies:remove(enemy)
     end
 end
 
@@ -89,37 +93,37 @@ local function onCollision(event)
         if laser and asteroid then
             playerShip:increaseScore(asteroid:getPoints())
             display.remove(laser)
-            asteroids.remove(asteroid)
+            asteroids:remove(asteroid)
         elseif laser and enemy then
             display.remove(laser)
             enemyHit(enemy, laser.damage)
         elseif laser and mine then
             playerShip:increaseScore(mine:getPoints())
             display.remove(laser)
-            mines.remove(mine)
+            mines:remove(mine)
         elseif enemyLaser and asteroid then
             display.remove(enemyLaser)
-            asteroids.remove(asteroid)
+            asteroids:remove(asteroid)
         elseif enemyLaser and player then
             display.remove(enemyLaser)
             playerHit(enemyLaser.damage)
         elseif enemy and player then
-            enemies.remove(enemy)
+            enemies:remove(enemy)
             playerHit(enemy:getDamage())
         elseif asteroid and player then
-            asteroids.remove(asteroid)
+            asteroids:remove(asteroid)
             playerHit(asteroid:getDamage())
         elseif mine and player then
-            mines.remove(mine)
+            mines:remove(mine)
             playerHit(mine:getDamage())
         end
     end
 end
 
 local function removeAllEntities()
-    asteroids.clear()
-    enemies.clear()
-    mines.clear()
+    asteroids:clear()
+    enemies:clear()
+    mines:clear()
 end
 
 function M.start()

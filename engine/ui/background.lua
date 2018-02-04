@@ -1,7 +1,7 @@
 -- Scrolling background.
 
 local eachframe = require("libs.eachframe")
-local groups = require("engine.ui.groups")
+local groups = require("engine.common.groups")
 
 local M = {}
 

@@ -1,17 +1,26 @@
 -- Bad guys generator.
 
-local mathutils = require("engine.common.mathutils")
-local collection = require("engine.common.collection")
 local types = require("engine.enemies.types")
 local enemy = require("engine.enemies.enemy")
+local Collection = require("engine.common.collection")
 
 local random = math.random
-local randomSequence = mathutils.randomSequence
 local randomLanes = {}
 local MAX_LANES = 4
 local LANE_WIDTH = display.contentWidth / MAX_LANES
+local START_Y = -60
 
-local M = {}
+local function randomSequence(min, max)
+    local t = {}
+    for i = min, max do
+        t[#t + 1] = i
+    end
+    for i = #t, 1, -1 do
+        local j = math.random(1, i)
+        t[i], t[j] = t[j], t[i]
+    end
+    return t
+end
 
 local function randomX()
     if #randomLanes == 0 then
@@ -22,28 +31,12 @@ local function randomX()
     return LANE_WIDTH * lane
 end
 
-local enemies = collection.new()
+local Enemies = Collection:new()
 
-function M.spawn(name, target)
-    local enemyType = types.get(name)
-    local newEnemy = enemy.new(randomX(), -60, enemyType, target)
-    enemies:add(newEnemy)
+function Enemies:spawn(typeName, target)
+    local typeObject = types.get(typeName)
+    local newEnemy = enemy.new(randomX(), START_Y, typeObject, target)
+    self:add(newEnemy)
 end
 
-function M.remove(enemy)
-    enemies:remove(enemy)
-end
-
-function M.removeOffScreen()
-    enemies:removeOffScreen()
-end
-
-function M.clear()
-    enemies:clear()
-end
-
-function M.count()
-    return enemies:count()
-end
-
-return M
+return Enemies

@@ -2,20 +2,20 @@
 
 local physics = require("physics")
 local eachframe = require("libs.eachframe")
-local groups = require("engine.ui.groups")
 local healthbar = require("engine.ui.healthbar")
+local groups = require("engine.common.groups")
 
 local M = {}
 
-function M.new(x, y, enemyType, target)
+function M.new(x, y, typeObject, target)
     local group = groups.get("main")
-    local sprite = enemyType.sprite
+    local sprite = typeObject.sprite
     local newEnemy = display.newImageRect(group, sprite.sheet, sprite.frameIndex, sprite.width, sprite.height)
     newEnemy.yScale = -1
     newEnemy.x = x
     newEnemy.y = y
-    newEnemy.type = enemyType
-    newEnemy.health = enemyType.maxHealth
+    newEnemy.type = typeObject
+    newEnemy.health = typeObject.maxHealth
     newEnemy.target = target
     newEnemy.myName = "enemy" -- Used for collision detection
     newEnemy.healthBar = healthbar.new(group, x, y, newEnemy.contentWidth - 10, 5)

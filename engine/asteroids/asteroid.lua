@@ -1,7 +1,7 @@
 -- Space rock.
 
 local physics = require("physics")
-local groups = require("engine.ui.groups")
+local groups = require("engine.common.groups")
 
 local M = {}
 

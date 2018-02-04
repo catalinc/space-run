@@ -7,8 +7,11 @@ local MAX_X = display.contentWidth + 100
 local MIN_Y = -100
 local MAX_Y = display.contentHeight + 100
 
-function Collection.new()
-    return setmetatable({data = {}}, {__index = Collection})
+function Collection:new()
+    o = {data = {}}
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
 
 function Collection:add(entity)

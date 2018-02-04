@@ -12,8 +12,8 @@ local physics = require("physics")
 local sounds = require("libs.sounds")
 local director = require("engine.director")
 local healthbar = require("engine.ui.healthbar") -- TODO: move to engine.player.ship?
-local groups = require("engine.ui.groups")
-local events = require("engine.ui.events")
+local groups = require("engine.common.groups")
+local events = require("engine.common.events")
 
 local healthBar
 local livesText

@@ -26,8 +26,8 @@ local types = {
 
 local M = {}
 
-function M.get(name)
-    return types[name]
+function M.get(typeName)
+    return types[typeName]
 end
 
 return M

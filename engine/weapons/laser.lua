@@ -1,8 +1,8 @@
 -- Fire phasers!
 
 local sounds = require("libs.sounds")
-local groups = require("engine.ui.groups")
 local sprites = require("engine.ui.sprites")
+local groups = require("engine.common.groups")
 
 local M = {}
 

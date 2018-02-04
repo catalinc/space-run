@@ -2,11 +2,10 @@
 
 local physics = require("physics")
 local sounds = require("libs.sounds")
-local groups = require("engine.ui.groups")
-local events = require("engine.ui.events")
 local sprites = require("engine.ui.sprites")
+local groups = require("engine.common.groups")
+local events = require("engine.common.events")
 local laser = require("engine.weapons.laser")
-local mathutils = require("engine.common.mathutils")
 
 local M = {}
 
@@ -16,7 +15,12 @@ local MIN_X = 100
 local MAX_X = WIDTH - 100
 local MIN_Y = 0
 local MAX_Y = HEIGHT
-local clamp = mathutils.clamp
+
+local function clamp(v, min, max)
+    if v < min then return min end
+    if v > max then return max end
+    return v
+end
 
 function M.new(options)
     options = options or {}
