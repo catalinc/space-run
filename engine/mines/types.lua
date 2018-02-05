@@ -1,9 +1,9 @@
--- Asteroid types.
+-- Mine types.
 
 local imageSheet = require("engine.ui.sprites")
 local behaviours = require("engine.mines.behaviours")
 
-local types = {
+local M = {
     static = {
         sprite = {sheet = imageSheet, frameIndex = 1, width = 102, height = 85},
         points = 250,
@@ -11,11 +11,5 @@ local types = {
         behaviour = behaviours.fall,
     },
 }
-
-local M = {}
-
-function M.get(name)
-    return types[name]
-end
 
 return M

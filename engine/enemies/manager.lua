@@ -34,7 +34,7 @@ end
 local Enemies = Collection:new()
 
 function Enemies:spawn(typeName, target)
-    local typeObject = types.get(typeName)
+    local typeObject = types[typeName]
     local newEnemy = enemy.new(randomX(), START_Y, typeObject, target)
     self:add(newEnemy)
 end

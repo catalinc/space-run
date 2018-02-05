@@ -7,7 +7,7 @@ local Collection = require("engine.common.collection")
 local Mines = Collection:new()
 
 function Mines:spawn(typeName)
-    local typeObject = types.get(typeName)
+    local typeObject = types[typeName]
     local newMine = mine.new(typeObject)
     self:add(newMine)
 end

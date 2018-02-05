@@ -3,7 +3,7 @@
 local imageSheet = require("engine.ui.sprites")
 local behaviours = require("engine.asteroids.behaviours")
 
-local types = {
+local M = {
     rock1 = {
         sprite = {sheet = imageSheet, frameIndex = 1, width = 102, height = 85},
         points = 50,
@@ -23,11 +23,5 @@ local types = {
         behaviour = behaviours.flyRandom,
     },
 }
-
-local M = {}
-
-function M.get(typeName)
-    return types[typeName]
-end
 
 return M

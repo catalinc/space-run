@@ -7,7 +7,7 @@ local Collection = require("engine.common.collection")
 local Asteroids = Collection:new()
 
 function Asteroids:spawn(typeName)
-    local typeObject = types.get(typeName)
+    local typeObject = types[typeName]
     local newAsteroid = asteroid.new(typeObject)
     self:add(newAsteroid)
 end

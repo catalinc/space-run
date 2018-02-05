@@ -3,7 +3,7 @@
 local imageSheet = require("engine.ui.sprites")
 local behaviours = require("engine.enemies.behaviours")
 
-local types = {
+local M = {
     grunt = {
         sprite = {sheet = imageSheet, frameIndex = 4, width = 98, height = 79},
         points = 100,
@@ -21,11 +21,5 @@ local types = {
         behaviour = behaviours.boss,
     },
 }
-
-local M = {}
-
-function M.get(name)
-    return types[name]
-end
 
 return M
