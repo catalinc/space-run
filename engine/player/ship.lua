@@ -37,8 +37,9 @@ function M.new(options)
     newPlayer.touchOffsetX = 0
     newPlayer.touchOffsetY = 0
     newPlayer.isExploding = false
+    newPlayer.radius = 30
 
-    physics.addBody(newPlayer, {radius = 30, isSensor = true})
+    physics.addBody(newPlayer, {radius = newPlayer.radius, isSensor = true})
 
     function newPlayer:touch(event)
         if self.isExploding then return end
