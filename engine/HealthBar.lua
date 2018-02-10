@@ -1,39 +1,39 @@
--- Health bar for enemies.
+-- Unit health bar
 
-local M = {}
+local HealthBar = {}
 
-function M.new(parent, x, y, width, height)
+function HealthBar.new(group, x, y, width, height)
     width = width or 35
     height = height or 6
 
-    local group = display.newGroup()
-    group.anchorX = 0
-    group.anchorY = 0
-    group.anchorChildren = true
+    local newHealthBar = display.newGroup()
+    newHealthBar.anchorX = 0
+    newHealthBar.anchorY = 0
+    newHealthBar.anchorChildren = true
 
     local redBar = display.newRect(0, 0, width, height)
     redBar.anchorX = 0
     redBar.anchorY = 0
     redBar:setFillColor(255, 0, 0)
-    group:insert(redBar)
+    newHealthBar:insert(redBar)
 
     local greenBar = display.newRect(0, 0, width, height)
     greenBar.anchorX = 0
     greenBar.anchorY = 0
     greenBar:setFillColor(0, 255, 0)
-    group:insert(greenBar)
+    newHealthBar:insert(greenBar)
 
-    function group:setHealth(current, max)
+    function newHealthBar:setHealth(current, max)
         local percent = current / max
         if percent == 0 then percent = 0.01 end
         greenBar.xScale = percent
     end
 
-    parent:insert(group)
-    group.x = x
-    group.y = y
+    group:insert(newHealthBar)
+    newHealthBar.x = x
+    newHealthBar.y = y
 
-    return group
+    return newHealthBar
 end
 
-return M
+return HealthBar

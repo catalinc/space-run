@@ -8,16 +8,16 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
-local sounds = require("libs.sounds")
+local Sounds = require("libs.Sounds")
 
 local function gotoGame()
-    composer.removeScene("scenes.game")
-    composer.gotoScene("scenes.game", {time = 800, effect = "crossFade"})
+    composer.removeScene("scenes.Game")
+    composer.gotoScene("scenes.Game", {time = 800, effect = "crossFade"})
 end
 
 local function gotoHighScores()
-    composer.removeScene("scenes.highscores")
-    composer.gotoScene("scenes.highscores", {time = 800, effect = "crossFade"})
+    composer.removeScene("scenes.HighScores")
+    composer.gotoScene("scenes.HighScores", {time = 800, effect = "crossFade"})
 end
 
 
@@ -25,7 +25,6 @@ end
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
--- create()
 function scene:create(event)
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
@@ -48,7 +47,6 @@ function scene:create(event)
     highScoresButton:addEventListener("tap", gotoHighScores)
 end
 
--- show()
 function scene:show(event)
     local sceneGroup = self.view
     local phase = event.phase
@@ -57,11 +55,10 @@ function scene:show(event)
         -- Code here runs when the scene is still off screen (but is about to come on screen)
     elseif phase == "did" then
         -- Code here runs when the scene is entirely on screen
-        sounds.playStream("menuMusic")
+        Sounds.playStream("menuMusic")
     end
 end
 
--- hide()
 function scene:hide(event)
     local sceneGroup = self.view
     local phase = event.phase
@@ -70,24 +67,25 @@ function scene:hide(event)
         -- Code here runs when the scene is on screen (but is about to go off screen)
     elseif phase == "did" then
         -- Code here runs immediately after the scene goes entirely off screen
-        sounds.stop()
+        Sounds.stop()
     end
 end
 
--- destroy()
 function scene:destroy(event)
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
-    sounds.dispose("menuMusic")
+    Sounds.dispose("menuMusic")
 end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
+
 scene:addEventListener("create", scene)
 scene:addEventListener("show", scene)
 scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
+
 -- -----------------------------------------------------------------------------------
 
 return scene

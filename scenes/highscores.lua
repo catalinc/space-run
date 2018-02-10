@@ -9,7 +9,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local json = require("json")
-local sounds = require("libs.sounds")
+local Sounds = require("libs.Sounds")
 
 local scoresTable = {}
 local filePath = system.pathForFile("scores.json", system.DocumentsDirectory)
@@ -40,15 +40,14 @@ local function saveScores()
 end
 
 local function gotoMenu()
-    composer.removeScene("scenes.menu")
-    composer.gotoScene("scenes.menu", {time = 800, effect = "crossFade"})
+    composer.removeScene("scenes.Menu")
+    composer.gotoScene("scenes.Menu", {time = 800, effect = "crossFade"})
 end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
--- create()
 function scene:create(event)
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
@@ -91,7 +90,6 @@ function scene:create(event)
     menuButton:addEventListener("tap", gotoMenu)
 end
 
--- show()
 function scene:show(event)
     local sceneGroup = self.view
     local phase = event.phase
@@ -101,11 +99,10 @@ function scene:show(event)
 
     elseif phase == "did" then
         -- Code here runs when the scene is entirely on screen
-        sounds.playStream("highScoresMusic")
+        Sounds.playStream("highScoresMusic")
     end
 end
 
--- hide()
 function scene:hide(event)
     local sceneGroup = self.view
     local phase = event.phase
@@ -114,24 +111,25 @@ function scene:hide(event)
         -- Code here runs when the scene is on screen (but is about to go off screen)
     elseif phase == "did" then
         -- Code here runs immediately after the scene goes entirely off screen
-        sounds.stop()
+        Sounds.stop()
     end
 end
 
--- destroy()
 function scene:destroy(event)
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
-    sounds.dispose("highScoresMusic")
+    Sounds.dispose("highScoresMusic")
 end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
+
 scene:addEventListener("create", scene)
 scene:addEventListener("show", scene)
 scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
+
 -- -----------------------------------------------------------------------------------
 
 return scene

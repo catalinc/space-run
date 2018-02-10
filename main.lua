@@ -1,6 +1,6 @@
 local composer = require("composer")
-local databox = require("libs.databox")
-local sounds = require("libs.sounds")
+local DataBox = require("libs.DataBox")
+local Sounds = require("libs.Sounds")
 
 math.randomseed(os.time())
 
@@ -55,16 +55,16 @@ if platform == 'Android' or platform == 'WinPhone' then
 end
 
 -- Set default settings
-databox({isSoundOn = true, isMusicOn = true})
-databox.isMusicOn = false -- Temporary
-databox.isSoundOn = false -- Temporary
+DataBox({isSoundOn = true, isMusicOn = true})
+DataBox.isMusicOn = false -- TODO: Temporary
+DataBox.isSoundOn = false -- TODO: Temporary
 
--- Sound settings
-sounds.isSoundOn = databox.isSoundOn
-sounds.isMusicOn = databox.isMusicOn
+-- Set sound settings
+Sounds.isSoundOn = DataBox.isSoundOn
+Sounds.isMusicOn = DataBox.isMusicOn
 
 -- Automatically remove scenes from memory
 composer.recycleOnSceneChange = true
 
 -- Go to the menu screen
-composer.gotoScene("scenes.menu")
+composer.gotoScene("scenes.Menu")

@@ -9,12 +9,12 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local physics = require("physics")
-local sounds = require("libs.sounds")
-local director = require("engine.director")
-local healthbar = require("engine.ui.healthbar") -- TODO: move to engine.player.ship?
-local groups = require("engine.common.groups")
-local events = require("engine.common.events")
+local Sounds = require("libs.Sounds")
+local World = require("engine.World")
+local EventBus = require("engine.EventBus")
+local HealthBar = require("engine.HealthBar")
 
+local world
 local healthBar
 local livesText
 local scoreText
@@ -25,119 +25,110 @@ physics.setGravity(0, 0)
 -- -----------------------------------------------------------------------------------
 -- Scene game functions
 -- -----------------------------------------------------------------------------------
-local function updateLives(data)
-    healthBar:setHealth(data.health, data.maxHealth)
-    livesText.text = "Lives: " .. data.lives
+
+local function updateLives(player)
+    healthBar:setHealth(player.health, player.maxHealth)
+    livesText.text = "Lives: " .. player.lives
 end
 
 local function updateScore(score)
     scoreText.text = "Score: " .. score
 end
 
-local function startGame()
+local function start()
     physics.start()
-    director.start()
-    sounds.playStream("gameMusic")
+    world:start()
+    Sounds.playStream("gameMusic")
 end
 
-local function pauseGame()
-    director.pause()
+local function pause()
     physics.pause()
-    sounds.stop()
+    world:pause()
+    Sounds.stop()
 end
 
-local function stopGame()
-    director.stop()
+local function cleanup()
+    EventBus.clear()
+
     physics.stop()
-    sounds.stop()
-    events.clear()
-    groups.clear()
+    world:destroy()
+
+    Sounds.stop()
+    Sounds.dispose("explosion")
+    Sounds.dispose("fire")
+    Sounds.dispose("gameMusic")
 end
 
-local function endGame()
-    composer.setVariable("finalScore", director.getScore())
-    composer.removeScene("scenes.highscores")
-    composer.gotoScene("scenes.highscores", {time = 800, effect = "crossFade"})
+local function gameOver()
+    composer.setVariable("finalScore", world.score)
+    composer.removeScene("scenes.HighScores")
+    composer.gotoScene("scenes.HighScores", {time = 800, effect = "crossFade"})
 end
 
-local function endLevel()
-    endGame() -- TODO: should redirect to end level scene
+local function levelCleared()
+    gameOver() -- TODO: should redirect to end level scene
 end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
--- create()
 function scene:create(event)
     -- Code here runs when the scene is first created but has not yet appeared on screen
-
     local sceneGroup = self.view
+
+    -- Temporarly pause physiscs until the scene is created
 
     physics.pause()
 
-    -- Set up display groups
+    -- Setup events
 
-    local backGroup = display.newGroup() -- Display group for the background image
-    sceneGroup:insert(backGroup)
+    EventBus.subscribe("scoreUpdated", updateScore)
+    EventBus.subscribe("playerHit", updateLives)
+    EventBus.subscribe("playerRestored", updateLives)
+    EventBus.subscribe("levelCleared", levelCleared)
+    EventBus.subscribe("gameOver", gameOver)
 
-    local mainGroup = display.newGroup() -- Display group for the ship, asteroids, lasers, etc.
-    sceneGroup:insert(mainGroup)
+    -- Setup the world
+
+    world = World.new(sceneGroup)
+    world:loadLevel(1)  -- TODO: Level should be read from settings
+
+    -- Setup the UI
 
     local uiGroup = display.newGroup() -- Display group for UI objects like the score
     sceneGroup:insert(uiGroup)
 
-    groups.set("main", mainGroup)
-    groups.set("back", backGroup)
-
-    events.subscribe("scoreIncreased", updateScore)
-    events.subscribe("playerHit", updateLives)
-    events.subscribe("playerRestored", updateLives)
-    events.subscribe("levelCleared", endLevel)
-    events.subscribe("gameOver", endGame)
-
-    director.loadLevel(1)
-
-    healthBar = healthbar.new(uiGroup, 100, 80, 100, 10)
+    healthBar = HealthBar.new(uiGroup, 100, 80, 100, 10)
     livesText = display.newText(uiGroup, "Lives: " .. 3, 300, 80, native.systemFont, 36)
     scoreText = display.newText(uiGroup, "Score: " .. 0, 500, 80, native.systemFont, 36)
 end
 
--- show()
 function scene:show(event)
-    local sceneGroup = self.view
     local phase = event.phase
 
     if phase == "will" then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
     elseif phase == "did" then
         -- Code here runs when the scene is entirely on screen
-        startGame()
+        start()
     end
 end
 
--- hide()
 function scene:hide(event)
-    local sceneGroup = self.view
     local phase = event.phase
 
     if phase == "will" then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-        pauseGame()
+        pause()
     elseif phase == "did" then
         -- Code here runs immediately after the scene goes entirely off screen
-        stopGame()
     end
 end
 
--- destroy()
 function scene:destroy(event)
     -- Code here runs prior to the removal of scene's view
-    local sceneGroup = self.view
-
-    sounds.dispose("explosion")
-    sounds.dispose("fire")
-    sounds.dispose("gameMusic")
+    cleanup()
 end
 
 -- -----------------------------------------------------------------------------------

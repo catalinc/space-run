@@ -1,10 +1,10 @@
--- Game events.
-
-local M = {}
+-- Global bus for game events
 
 local bus = {}
 
-function M.subscribe(event, listener)
+local EventBus = {}
+
+function EventBus.subscribe(event, listener)
     local listeners = bus[event]
     if not listeners then
         listeners = {}
@@ -13,7 +13,7 @@ function M.subscribe(event, listener)
     listeners[#listeners + 1] = listener
 end
 
-function M.unsubscribe(event, listener)
+function EventBus.unsubscribe(event, listener)
     local listeners = bus[event]
     if listeners then
         for i = #listeners, 1, -1 do
@@ -26,7 +26,7 @@ function M.unsubscribe(event, listener)
     end
 end
 
-function M.publish(event, data)
+function EventBus.publish(event, data)
     local listeners = bus[event]
     if listeners then
         for i = #listeners, 1, -1 do
@@ -36,8 +36,8 @@ function M.publish(event, data)
     end
 end
 
-function M.clear()
+function EventBus.clear()
     bus = {}
 end
 
-return M
+return EventBus

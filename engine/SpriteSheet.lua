@@ -1,4 +1,4 @@
--- Sprites sheet.
+-- Sprite sheet
 
 local options =
 {
