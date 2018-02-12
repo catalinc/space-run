@@ -35,14 +35,12 @@ function CollisionHandler:onCollision(event)
         local enemyLaser = self:getUnit(o1, o2, "EnemyLaser")
 
         if playerLaser and asteroid then
-            self.world:updateScore(asteroid.points)
             display.remove(playerLaser)
             display.remove(asteroid)
         elseif playerLaser and enemy then
             display.remove(playerLaser)
             self:enemyHit(enemy, playerLaser)
         elseif playerLaser and mine then
-            self.world:updateScore(mine.points)
             display.remove(playerLaser)
             display.remove(mine)
         elseif enemyLaser and asteroid then
@@ -81,7 +79,6 @@ function CollisionHandler:enemyHit(enemy, who)
     enemy:takeDamage(who.damage)
     if enemy:isDead() then
         local player = who.source
-        self.world:updateScore(enemy.points)
         display.remove(enemy)
     end
 end

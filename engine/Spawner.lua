@@ -2,7 +2,7 @@
 
 local EventBus = require("engine.EventBus")
 
-local ClassNames = {"Asteroid", "Mine", "Enemy", "Player"}
+local classes = {"Asteroid", "Mine", "Enemy", "Player"}
 
 local Spawner = {}
 Spawner.__index = Spawner
@@ -14,8 +14,8 @@ function Spawner.new(group)
     newSpawner.counter = {}
     newSpawner.registry = {}
 
-    for i = 1, #ClassNames do
-        local className = ClassNames[i]
+    for i = 1, #classes do
+        local className = classes[i]
         local classMod = require("engine." .. className)
         local typesMod = require("engine." .. className .. "Types")
         newSpawner.registry[className] = {classMod = classMod, typesMod = typesMod}
@@ -47,7 +47,7 @@ function Spawner:spawn(className, typeName)
         local unitType = typesMod[typeName]
         if unitType then
             x = math.random(200, display.contentWidth - 200) -- TODO: find something smarter
-            classMod.new(self.group, x, nil, unitType)
+            classMod.create(self.group, x, nil, unitType)
         end
     end
 end

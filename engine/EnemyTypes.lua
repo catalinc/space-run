@@ -14,7 +14,7 @@ end
 
 function interceptAndShoot(enemy)
     if enemy.state == "idle" then
-        enemy:moveToIntercept(100)
+        enemy:moveToIntercept(200)
     elseif enemy.state == "moving" then
         if enemy:canAttack() then
             enemy:fireLaser()
@@ -29,7 +29,6 @@ local EnemyTypes = {}
 EnemyTypes.grunt = {
         sprite = {frameIndex = 4, width = 98, height = 79},
         physics = {radius = 30, isSensor = true},
-        points = 100,
         maxHealth = 100,
         damage = 20,
         interval = 2000,
@@ -41,7 +40,6 @@ EnemyTypes.grunt = {
 EnemyTypes.boss = {
         sprite = {frameIndex = 4, width = 98, height = 79},
         physics = {radius = 30, isSensor = true},
-        points = 1000,
         maxHealth = 500,
         damage = 50,
         interval = 1000,

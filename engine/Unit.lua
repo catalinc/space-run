@@ -56,14 +56,13 @@ end
 
 local Unit = {}
 
-function Unit.new(className, group, x, y, options)
+function Unit.create(className, group, x, y, options)
     local sprite = options.sprite
     local newUnit = display.newImageRect(group, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
     newUnit.className = className
     newUnit.x = x or START_X
     newUnit.y = y or START_Y
     newUnit.state = "idle"
-    newUnit.points = options.points or 1
     newUnit.damage = options.damage or 1
     newUnit.behaviour = options.behaviour
     newUnit.lives = options.maxLives or 1
@@ -71,7 +70,7 @@ function Unit.new(className, group, x, y, options)
     newUnit.health = newUnit.maxHealth
 
     if options.showHealthBar then
-        newUnit.healthBar = HealthBar.new(group, newUnit.x, newUnit.y, newUnit.contentWidth - 10, 5)
+        newUnit.healthBar = HealthBar.create(group, newUnit.x, newUnit.y, newUnit.contentWidth - 10, 5)
     end
 
     newUnit.eachFrame = eachFrame

@@ -17,7 +17,6 @@ local AsteroidTypes = {}
 AsteroidTypes.rock1 = {
     sprite = {frameIndex = 1, width = 102, height = 85},
     physics = {radius = 40, bounce = 0.8},
-    points = 50,
     damage = 10,
     behaviour = fall,
 }
@@ -25,7 +24,6 @@ AsteroidTypes.rock1 = {
 AsteroidTypes.rock2 = {
     sprite = {frameIndex = 2, width = 90, height = 83},
     physics = {radius = 40, bounce = 0.8},
-    points = 80,
     damage = 20,
     behaviour = fall,
 }
@@ -33,7 +31,6 @@ AsteroidTypes.rock2 = {
 AsteroidTypes.rock3 = {
     sprite = {frameIndex = 3, width = 100, height = 97},
     physics = {radius = 40, bounce = 0.8},
-    points = 100,
     damage = 30,
     behaviour = fall,
 }

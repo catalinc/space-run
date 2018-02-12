@@ -23,7 +23,6 @@ function World.new(group)
     newWorld.background = Background.new(backGroup)
     newWorld.spawner = Spawner.new(foreGroup)
     newWorld.collision = CollisionHandler.new(newWorld)
-    newWorld.score = 0
 
     return setmetatable(newWorld, World)
 end
@@ -91,11 +90,6 @@ function World:tick()
             EventBus.publish("levelCleared")
         end
     end
-end
-
-function World:updateScore()
-    self.score = self.score + 1
-    EventBus.publish("scoreUpdated", self.score)
 end
 
 return World

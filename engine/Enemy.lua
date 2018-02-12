@@ -40,7 +40,7 @@ end
 
 local function moveToIntercept(self, distance)
     local target = self:getTarget()
-    if target then
+    if target and target.state == "active" then
         local toX = target.x
         local toY = math.max(0, target.y - distance)
         self.state = "moving"
@@ -57,8 +57,8 @@ end
 
 local Enemy = {}
 
-function Enemy.new(group, x, y, options)
-    local newEnemy = Unit.new("Enemy", group, x, y, options)
+function Enemy.create(group, x, y, options)
+    local newEnemy = Unit.create("Enemy", group, x, y, options)
     newEnemy.yScale = -1 -- Temporary until replaced with proper sprite
     newEnemy.interval = options.interval or 1000
     newEnemy.duration = options.duration or 1000

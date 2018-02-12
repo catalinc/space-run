@@ -30,7 +30,7 @@ if platform == 'Android' then
 end
 
 -- Set default settings
-Settings({isSoundOn = false, isMusicOn = false}) -- TODO: Music is disabled temporarly for development
+Settings({isSoundOn = false, isMusicOn = false, currentLevel = 1, maxLevel = 2}) -- TODO: Music is disabled temporarly for development
 
 -- Automatically remove scenes from memory
 composer.recycleOnSceneChange = true

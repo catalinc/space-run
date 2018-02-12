@@ -17,7 +17,8 @@ local HealthBar = require("engine.HealthBar")
 local world
 local healthBar
 local livesText
-local scoreText
+local waveText
+local levelText
 
 physics.start()
 physics.setGravity(0, 0)
@@ -31,8 +32,8 @@ local function updateLives(player)
     livesText.text = "Lives: " .. player.lives
 end
 
-local function updateScore(score)
-    scoreText.text = "Score: " .. score
+local function updateWave(waveNo)
+    waveText.text = "Score: " .. waveNo
 end
 
 local function start()
@@ -60,14 +61,18 @@ local function cleanup()
 end
 
 local function gotoProgress()
-    composer.setVariable("finalScore", world.score) -- TODO: use score???
-    composer.removeScene("scenes.Progress")
-    composer.gotoScene("scenes.Progress", {time = 800, effect = "crossFade"})
+    if Settings.currentLevel == Settings.maxLevel then
+        composer.removeScene("scenes.Win")
+        composer.gotoScene("scenes.Win", {time = 800, effect = "crossFade"})
+    else
+        composer.removeScene("scenes.Progress")
+        composer.gotoScene("scenes.Progress", {time = 800, effect = "crossFade"})
+    end
 end
 
 local function gotoGameOver()
-    composer.removeScene("scenes.GameOver")
-    composer.gotoScene("scenes.GameOver", {time = 800, effect = "crossFade"})
+    composer.removeScene("scenes.Lose")
+    composer.gotoScene("scenes.Lose", {time = 800, effect = "crossFade"})
 end
 
 -- -----------------------------------------------------------------------------------
@@ -84,7 +89,7 @@ function scene:create(event)
 
     -- Setup events
 
-    EventBus.subscribe("scoreUpdated", updateScore)
+    EventBus.subscribe("newWave", updateWave)
     EventBus.subscribe("playerHit", updateLives)
     EventBus.subscribe("playerRestored", updateLives)
     EventBus.subscribe("levelCleared", gotoProgress)
@@ -100,9 +105,20 @@ function scene:create(event)
     local uiGroup = display.newGroup() -- Display group for UI objects like the score
     sceneGroup:insert(uiGroup)
 
-    healthBar = HealthBar.new(uiGroup, 100, 80, 100, 10)
-    livesText = display.newText(uiGroup, "Lives: " .. 3, 300, 80, native.systemFont, 36)
-    scoreText = display.newText(uiGroup, "Score: " .. 0, 500, 80, native.systemFont, 36)
+    local y = 20
+
+    -- TODO: All texts should be created with modern syntax
+    local healthText = display.newText({parent = uiGroup,
+                                        text = "Shield: ",
+                                        align = "right",
+                                        x = 120, y = y,
+                                        width = 100,
+                                        font = native.systemFont,
+                                        fontSize = 24})
+    healthBar = HealthBar.create(uiGroup, 180, y - 3 , 100, 10)
+    livesText = display.newText(uiGroup, "Lives: " .. 3, 420, y, native.systemFont, 24)
+    waveText = display.newText(uiGroup, "Wave: " .. 1, 520, y, native.systemFont, 24)
+    levelText = display.newText(uiGroup, "Level: " .. Settings.currentLevel, 620, y, native.systemFont, 24)
 end
 
 function scene:show(event)

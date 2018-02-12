@@ -78,8 +78,8 @@ end
 
 local Player = {}
 
-function Player.new(group, x, y, options)
-    local newPlayer = Unit.new("Player", group, x, y, options)
+function Player.create(group, x, y, options)
+    local newPlayer = Unit.create("Player", group, x, y, options)
     newPlayer.state = "active"
     newPlayer.x = START_X
     newPlayer.y = START_Y

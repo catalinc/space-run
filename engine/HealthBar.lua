@@ -2,7 +2,7 @@
 
 local HealthBar = {}
 
-function HealthBar.new(group, x, y, width, height)
+function HealthBar.create(group, x, y, width, height)
     width = width or 35
     height = height or 6
 

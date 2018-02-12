@@ -7,11 +7,17 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+local Settings = require("libs.Settings")
 local Sounds = require("libs.Sounds")
 
 local function gotoGame()
     composer.removeScene("scenes.Game")
     composer.gotoScene("scenes.Game", {time = 800, effect = "crossFade"})
+end
+
+local function newGame()
+    Settings.currentLevel = 1
+    gotoGame()
 end
 
 -- -----------------------------------------------------------------------------------
@@ -30,9 +36,13 @@ function scene:create(event)
     title.x = display.contentCenterX
     title.y = 200
 
-    local playButton = display.newText(sceneGroup, "Play", display.contentCenterX, 700, native.systemFont, 44)
-    playButton:setFillColor(0.82, 0.86, 1)
-    playButton:addEventListener("tap", gotoGame)
+    local newGameButton = display.newText(sceneGroup, "New Game", display.contentCenterX, 500, native.systemFont, 44)
+    newGameButton:setFillColor(0.82, 0.86, 1)
+    newGameButton:addEventListener("tap", newGame)
+
+    local continueGameButton = display.newText(sceneGroup, "Continue", display.contentCenterX, 650, native.systemFont, 44)
+    continueGameButton:setFillColor(0.82, 0.86, 1)
+    continueGameButton:addEventListener("tap", gotoGame)
 end
 
 function scene:show(event)

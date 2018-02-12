@@ -31,19 +31,21 @@ function scene:create(event)
     -- TODO: Handle score?
     local score = composer.getVariable("levelScore")
 
-    Settings.currentLevel = Settings.currentLevel + 1
-
     local background = display.newImageRect(sceneGroup, "graphics/background.png", 800, 1400)
     background.x = display.contentCenterX
     background.y = display.contentCenterY
 
-    local playButton = display.newText(sceneGroup, "Next Level", display.contentCenterX, 700, native.systemFont, 44)
+    local levelText = display.newText(sceneGroup, "Level " .. Settings.currentLevel .. " cleared", display.contentCenterX, 300, native.systemFont, 44)
+
+    local playButton = display.newText(sceneGroup, "Next Level", display.contentCenterX, 450, native.systemFont, 44)
     playButton:setFillColor(0.82, 0.86, 1)
     playButton:addEventListener("tap", gotoGame)
 
-    local menuButton = display.newText(sceneGroup, "Menu", display.contentCenterX, 810, native.systemFont, 44)
+    local menuButton = display.newText(sceneGroup, "Menu", display.contentCenterX, 600, native.systemFont, 44)
     menuButton:setFillColor(0.75, 0.78, 1)
     menuButton:addEventListener("tap", gotoMenu)
+
+    Settings.currentLevel = Settings.currentLevel + 1
 end
 
 function scene:show(event)
