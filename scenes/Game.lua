@@ -15,6 +15,7 @@ local EventBus = require("engine.EventBus")
 local HealthBar = require("engine.HealthBar")
 
 local world
+local healthText
 local healthBar
 local livesText
 local waveText
@@ -32,8 +33,8 @@ local function updateLives(player)
     livesText.text = "Lives: " .. player.lives
 end
 
-local function updateWave(waveNo)
-    waveText.text = "Score: " .. waveNo
+local function updateWave(waveData)
+    waveText.text = "Wave: " .. waveData.current .. "/" .. waveData.total
 end
 
 local function start()
@@ -108,17 +109,17 @@ function scene:create(event)
     local y = 20
 
     -- TODO: All texts should be created with modern syntax
-    local healthText = display.newText({parent = uiGroup,
-                                        text = "Shield: ",
-                                        align = "right",
-                                        x = 120, y = y,
-                                        width = 100,
-                                        font = native.systemFont,
-                                        fontSize = 24})
+    healthText = display.newText({parent = uiGroup,
+                                 text = "Shield: ",
+                                 align = "right",
+                                 x = 120, y = y,
+                                 width = 100,
+                                 font = native.systemFont,
+                                 fontSize = 24})
     healthBar = HealthBar.create(uiGroup, 180, y - 3 , 100, 10)
-    livesText = display.newText(uiGroup, "Lives: " .. 3, 420, y, native.systemFont, 24)
-    waveText = display.newText(uiGroup, "Wave: " .. 1, 520, y, native.systemFont, 24)
-    levelText = display.newText(uiGroup, "Level: " .. Settings.currentLevel, 620, y, native.systemFont, 24)
+    livesText = display.newText(uiGroup, "Lives: " .. 3, 340, y, native.systemFont, 24)
+    levelText = display.newText(uiGroup, "Level: " .. Settings.currentLevel, 500, y, native.systemFont, 24)
+    waveText = display.newText(uiGroup, "Wave " .. world.currentWave .. "/" .. world.wavesCount, 600, y, native.systemFont, 24)
 end
 
 function scene:show(event)

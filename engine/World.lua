@@ -63,6 +63,7 @@ end
 function World:loadLevel(num)
     self.currentLevel = require("levels.Level"..num)
     self.currentWave = 1
+    self.wavesCount = #self.currentLevel.waves
     self.lastWaveTime = system.getTimer()
 end
 
@@ -85,6 +86,9 @@ function World:tick()
                     self.spawner:spawn(className, typeName)
                 end
                 self.currentWave = self.currentWave + 1
+                local current = self.currentWave
+                if current > self.wavesCount then current = self.wavesCount end
+                EventBus.publish("newWave", {current = current, total = self.wavesCount})
             end
         elseif self:isEndOfLevel() then
             EventBus.publish("levelCleared")

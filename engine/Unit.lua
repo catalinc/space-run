@@ -11,7 +11,7 @@ local MAX_X = display.contentWidth + 100
 local MIN_Y = -100
 local MAX_Y = display.contentHeight + 100
 local START_X = display.contentWidth / 2
-local START_Y = -60
+local START_Y = -40
 
 local function eachFrame(self)
     if self.x < MIN_X or self.x > MAX_X or
