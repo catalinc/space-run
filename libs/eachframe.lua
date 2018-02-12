@@ -1,52 +1,53 @@
--- EachFrame library
--- This is a handy manager for the enterFrame runtime event.
--- Listeners can be both functions and objects.
--- The point of this module is to have only one runtime listener to call all other listeners.
--- This leads to less runtime errors.
--- Don't forget to remove the listeners when they are not needed anymore. Use Corona's finalize event.
+--[[
+    A handy manager for Corona's 'enterFrame' runtime event.
 
-local M = {deltaTime = 0, lastFrameTime = 0}
+    This library registers a single 'enterFrame' listener to call all the other listeners.
 
-local getTimer = system.getTimer
+    In addition it provides the delta time between frames and the timestamp of the last frame.
+    These can be useful for sprite animation and/or game logic.
+
+    Listeners can be functions or tables. A table listener must provide a 'eachFrame' method
+    in order to be called.
+
+    Do not forget to remove a listener when is not needed anymore. In case the listener is a
+    display object you can use Corona's 'finalize' event to remove it.
+--]]
+
+local EachFrame = {deltaTime = 0, lastFrameTime = 0}
 
 local function enterFrame()
-    local now = getTimer()
-    M.deltaTime = (now - M.lastFrameTime) / (1000 / 60)
-    M.lastFrameTime = now
+    local now = system.getTimer()
+    EachFrame.deltaTime = (now - EachFrame.lastFrameTime) / (1000 / 60)
+    EachFrame.lastFrameTime = now
 
-    for i = 1, #M.enterFrameListeners do
-        if type(M.enterFrameListeners[i]) == 'function' then
-            M.enterFrameListeners[i]()
-        elseif type(M.enterFrameListeners[i]) == 'table' and
-            type(M.enterFrameListeners[i].eachFrame) == 'function' then
-            M.enterFrameListeners[i]:eachFrame()
+    for i = 1, #EachFrame.listeners do
+        local listener = EachFrame.listeners[i]
+        if type(listener) == 'function' then
+            listener()
+        elseif type(listener) == 'table' and type(listener.eachFrame) == 'function' then
+            listener:eachFrame()
         end
     end
 end
 
-function M.add(listener)
-    if not M.enterFrameListeners then
-        M.enterFrameListeners = {}
+function EachFrame.add(listener)
+    if not EachFrame.listeners then
+        EachFrame.listeners = {}
         Runtime:addEventListener('enterFrame', enterFrame)
     end
-    table.insert(M.enterFrameListeners, listener)
-    return listener
+    table.insert(EachFrame.listeners, listener)
 end
 
-function M.remove(listener)
-    if not listener or not M.enterFrameListeners then return end
-    local ind = table.indexOf(M.enterFrameListeners, listener)
-    if ind then
-        table.remove(M.enterFrameListeners, ind)
-        if #M.enterFrameListeners == 0 then
-            M.removeAll()
+function EachFrame.remove(listener)
+    if not listener or not EachFrame.listeners then return end
+    local index = table.indexOf(EachFrame.listeners, listener)
+    if index then
+        table.remove(EachFrame.listeners, index)
+        if #EachFrame.listeners == 0 then
+            Runtime:removeEventListener('enterFrame', enterFrame)
+            EachFrame.listeners = nil
         end
     end
 end
 
-function M.removeAll()
-    Runtime:removeEventListener('enterFrame', enterFrame)
-    M.enterFrameListeners = nil
-end
-
-return M
+return EachFrame

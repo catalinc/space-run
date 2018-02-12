@@ -1,6 +1,5 @@
 local composer = require("composer")
-local DataBox = require("libs.DataBox")
-local Sounds = require("libs.Sounds")
+local Settings = require("libs.Settings")
 
 math.randomseed(os.time())
 
@@ -8,34 +7,10 @@ display.setStatusBar(display.HiddenStatusBar)
 
 local platform = system.getInfo('platformName')
 
--- Hide navigation bar on Android
+-- Hide navigation bar and add support for back button on Android
 if platform == 'Android' then
     native.setProperty('androidSystemUiVisibility', 'immersiveSticky')
-end
 
--- Exit and enter fullscreen mode
--- CMD+CTRL+F on OS X
--- F11 or ALT+ENTER on Windows
-if platform == 'Mac OS X' or platform == 'Win' then
-    Runtime:addEventListener('key',
-        function(event)
-            if event.phase == 'down' and
-                ((platform == 'Mac OS X' and event.keyName == 'f' and event.isCommandDown and event.isCtrlDown) or
-                (platform == 'Win' and (event.keyName == 'f11' or (event.keyName == 'enter' and event.isAltDown)))) then
-                if native.getProperty('windowMode') == 'fullscreen' then
-                    native.setProperty('windowMode', 'normal')
-                else
-                    native.setProperty('windowMode', 'fullscreen')
-                end
-            end
-        end
-    )
-end
-
--- Add support for back button on Android and Window Phone
--- When it's pressed, check if current scene has a special field gotoPreviousScene
--- If it's a function - call it, if it's a string - go back to the specified scene
-if platform == 'Android' or platform == 'WinPhone' then
     Runtime:addEventListener('key',
         function(event)
             if event.phase == 'down' and event.keyName == 'back' then
@@ -55,13 +30,7 @@ if platform == 'Android' or platform == 'WinPhone' then
 end
 
 -- Set default settings
-DataBox({isSoundOn = true, isMusicOn = true})
-DataBox.isMusicOn = false -- TODO: Temporary
-DataBox.isSoundOn = false -- TODO: Temporary
-
--- Set sound settings
-Sounds.isSoundOn = DataBox.isSoundOn
-Sounds.isMusicOn = DataBox.isMusicOn
+Settings({isSoundOn = false, isMusicOn = false}) -- TODO: Music is disabled temporarly for development
 
 -- Automatically remove scenes from memory
 composer.recycleOnSceneChange = true
