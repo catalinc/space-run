@@ -1,4 +1,3 @@
-
 local composer = require("composer")
 
 local scene = composer.newScene()
@@ -9,6 +8,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local physics = require("physics")
+local Settings = require("libs.Settings")
 local Sounds = require("libs.Sounds")
 local World = require("engine.World")
 local EventBus = require("engine.EventBus")
@@ -59,14 +59,15 @@ local function cleanup()
     Sounds.dispose("gameMusic")
 end
 
-local function gameOver()
-    composer.setVariable("finalScore", world.score)
-    composer.removeScene("scenes.HighScores")
-    composer.gotoScene("scenes.HighScores", {time = 800, effect = "crossFade"})
+local function gotoProgress()
+    composer.setVariable("finalScore", world.score) -- TODO: use score???
+    composer.removeScene("scenes.Progress")
+    composer.gotoScene("scenes.Progress", {time = 800, effect = "crossFade"})
 end
 
-local function levelCleared()
-    gameOver() -- TODO: should redirect to end level scene
+local function gotoGameOver()
+    composer.removeScene("scenes.GameOver")
+    composer.gotoScene("scenes.GameOver", {time = 800, effect = "crossFade"})
 end
 
 -- -----------------------------------------------------------------------------------
@@ -86,13 +87,13 @@ function scene:create(event)
     EventBus.subscribe("scoreUpdated", updateScore)
     EventBus.subscribe("playerHit", updateLives)
     EventBus.subscribe("playerRestored", updateLives)
-    EventBus.subscribe("levelCleared", levelCleared)
-    EventBus.subscribe("gameOver", gameOver)
+    EventBus.subscribe("levelCleared", gotoProgress)
+    EventBus.subscribe("gameOver", gotoGameOver)
 
     -- Setup the world
 
     world = World.new(sceneGroup)
-    world:loadLevel(1)  -- TODO: Level should be read from settings
+    world:loadLevel(Settings.currentLevel)
 
     -- Setup the UI
 

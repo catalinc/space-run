@@ -14,6 +14,11 @@ local function gotoGame()
     composer.gotoScene("scenes.Game", {time = 800, effect = "crossFade"})
 end
 
+local function gotoMenu()
+    composer.removeScene("scenes.Menu")
+    composer.gotoScene("scenes.Menu", {time = 800, effect = "crossFade"})
+end
+
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -26,13 +31,13 @@ function scene:create(event)
     background.x = display.contentCenterX
     background.y = display.contentCenterY
 
-    local title = display.newImageRect(sceneGroup, "graphics/title.png", 500, 80)
-    title.x = display.contentCenterX
-    title.y = 200
-
-    local playButton = display.newText(sceneGroup, "Play", display.contentCenterX, 700, native.systemFont, 44)
+    local playButton = display.newText(sceneGroup, "Restart Level", display.contentCenterX, 700, native.systemFont, 44)
     playButton:setFillColor(0.82, 0.86, 1)
     playButton:addEventListener("tap", gotoGame)
+
+    local menuButton = display.newText(sceneGroup, "Menu", display.contentCenterX, 810, native.systemFont, 44)
+    menuButton:setFillColor(0.75, 0.78, 1)
+    menuButton:addEventListener("tap", gotoMenu)
 end
 
 function scene:show(event)
