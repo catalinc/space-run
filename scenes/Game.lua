@@ -117,9 +117,24 @@ function scene:create(event)
                                  font = native.systemFont,
                                  fontSize = 24})
     healthBar = HealthBar.create(uiGroup, 180, y - 3 , 100, 10)
-    livesText = display.newText(uiGroup, "Lives: " .. 3, 340, y, native.systemFont, 24)
-    levelText = display.newText(uiGroup, "Level: " .. Settings.currentLevel, 500, y, native.systemFont, 24)
-    waveText = display.newText(uiGroup, "Wave " .. world.currentWave .. "/" .. world.wavesCount, 600, y, native.systemFont, 24)
+    livesText = display.newText({parent = uiGroup,
+                                text = "Lives: " .. 3,
+                                x = 340,
+                                y = y,
+                                font = native.systemFont,
+                                fontSize = 24})
+    levelText = display.newText({parent = uiGroup,
+                                text = "Level: " .. Settings.currentLevel,
+                                x = 500,
+                                y = y ,
+                                font = native.systemFont,
+                                fontSize = 24})
+    waveText = display.newText({parent = uiGroup,
+                               text = "Wave " .. world.currentWave .. "/" .. world.wavesCount,
+                               x = 600,
+                               y = y,
+                               font = native.systemFont,
+                               fontSize = 24})
 end
 
 function scene:show(event)

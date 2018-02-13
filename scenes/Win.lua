@@ -33,14 +33,29 @@ function scene:create(event)
     background.x = display.contentCenterX
     background.y = display.contentCenterY
 
-    local winText = display.newText(sceneGroup, "Yay! :)", display.contentCenterX, 300, native.systemFont, 48)
+    local winText = display.newText({parent = sceneGroup,
+                                    text = "Yay! :)",
+                                    x = display.contentCenterX,
+                                    y = 300,
+                                    font = native.systemFont,
+                                    fontSize = 48})
     winText:setFillColor(0.76, 0.92, 0.34)
 
-    local playButton = display.newText(sceneGroup, "New Game", display.contentCenterX, 450, native.systemFont, 44)
+    local playButton = display.newText({parent = sceneGroup,
+                                       text = "New Game",
+                                       x = display.contentCenterX,
+                                       y = 450,
+                                       font = native.systemFont,
+                                       fontSize = 44})
     playButton:setFillColor(0.82, 0.86, 1)
     playButton:addEventListener("tap", gotoGame)
 
-    local menuButton = display.newText(sceneGroup, "Menu", display.contentCenterX, 600, native.systemFont, 44)
+    local menuButton = display.newText({parent = sceneGroup,
+                                       text = "Menu",
+                                       x = display.contentCenterX,
+                                       y = 600,
+                                       font = native.systemFont,
+                                       fontSize = 44})
     menuButton:setFillColor(0.75, 0.78, 1)
     menuButton:addEventListener("tap", gotoMenu)
 end

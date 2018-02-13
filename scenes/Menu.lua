@@ -36,11 +36,21 @@ function scene:create(event)
     title.x = display.contentCenterX
     title.y = 200
 
-    local newGameButton = display.newText(sceneGroup, "New Game", display.contentCenterX, 500, native.systemFont, 44)
+    local newGameButton = display.newText({parent = sceneGroup,
+                                          text = "New Game",
+                                          x = display.contentCenterX,
+                                          y = 500,
+                                          font = native.systemFont,
+                                          fontSize = 44})
     newGameButton:setFillColor(0.82, 0.86, 1)
     newGameButton:addEventListener("tap", newGame)
 
-    local continueGameButton = display.newText(sceneGroup, "Continue", display.contentCenterX, 650, native.systemFont, 44)
+    local continueGameButton = display.newText({parent = sceneGroup,
+                                               text = "Continue",
+                                               x = display.contentCenterX,
+                                               y = 650,
+                                               font = native.systemFont,
+                                               fontSize = 44})
     continueGameButton:setFillColor(0.82, 0.86, 1)
     continueGameButton:addEventListener("tap", gotoGame)
 end
