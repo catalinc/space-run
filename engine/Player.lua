@@ -1,6 +1,7 @@
 -- The player
 
 local physics = require("physics")
+local EachFrame = require("libs.EachFrame")
 local Sounds = require("libs.Sounds")
 local Unit = require("engine.Unit")
 local EventBus = require("engine.EventBus")
@@ -76,6 +77,12 @@ local function restore(self)
                     end})
 end
 
+local function finalize(self)
+    EachFrame.remove(self)
+    EventBus.publish("unitDestroyed", self)
+    EventBus.publish("gameOver", self)
+end
+
 local Player = {}
 
 function Player.create(group, x, y, options)
@@ -95,6 +102,7 @@ function Player.create(group, x, y, options)
     newPlayer.takeDamage = takeDamage
     newPlayer.explode = explode
     newPlayer.restore = restore
+    newPlayer.finalize = finalize
 
     return newPlayer
 end

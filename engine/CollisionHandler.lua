@@ -27,60 +27,41 @@ function CollisionHandler:onCollision(event)
         local o1 = event.object1
         local o2 = event.object2
 
-        local asteroid = self:getUnit(o1, o2, "Asteroid")
-        local mine = self:getUnit(o1, o2, "Mine")
-        local player = self:getUnit(o1, o2, "Player")
-        local enemy = self:getUnit(o1, o2, "Enemy")
-        local playerLaser = self:getUnit(o1, o2, "PlayerLaser")
-        local enemyLaser = self:getUnit(o1, o2, "EnemyLaser")
+        local asteroid      = self:getUnitOrWeapon(o1, o2, "Asteroid")
+        local mine          = self:getUnitOrWeapon(o1, o2, "Mine")
+        local player        = self:getUnitOrWeapon(o1, o2, "Player")
+        local enemy         = self:getUnitOrWeapon(o1, o2, "Enemy")
+        local playerWeapon  = self:getUnitOrWeapon(o1, o2, "PlayerWeapon")
+        local enemyWeapon   = self:getUnitOrWeapon(o1, o2, "EnemyWeapon")
 
-        if playerLaser and asteroid then
-            display.remove(playerLaser)
-            display.remove(asteroid)
-        elseif playerLaser and enemy then
-            display.remove(playerLaser)
-            self:enemyHit(enemy, playerLaser)
-        elseif playerLaser and mine then
-            display.remove(playerLaser)
-            display.remove(mine)
-        elseif enemyLaser and asteroid then
-            display.remove(enemyLaser)
-            display.remove(asteroid)
-        elseif enemyLaser and player then
-            display.remove(enemyLaser)
-            self:playerHit(player, enemyLaser)
-        elseif enemy and player then
-            self:playerHit(player, enemy)
-            display.remove(enemy)
-        elseif asteroid and player then
-            self:playerHit(player, asteroid)
-            display.remove(asteroid)
-        elseif mine and player then
-            self:playerHit(player, mine)
-            display.remove(mine)
+        if playerWeapon and asteroid    then self:onUnitWeaponCollision(asteroid, playerWeapon)
+        elseif playerWeapon and enemy   then self:onUnitWeaponCollision(enemy, playerWeapon)
+        elseif playerWeapon and mine    then self:onUnitWeaponCollision(mine, playerWeapon)
+        elseif enemyWeapon and asteroid then self:onUnitWeaponCollision(asteroid, enemyWeapon)
+        elseif enemyWeapon and player   then self:onUnitWeaponCollision(player, enemyWeapon)
+        elseif enemy and player         then self:onUnitUnitCollision(player, enemy)
+        elseif asteroid and player      then self:onUnitUnitCollision(player, asteroid)
+        elseif mine and player          then self:onUnitUnitCollision(player, mine)
         end
     end
 end
 
-function CollisionHandler:getUnit(o1, o2, className)
-    if o1.className == className then return o1 end
-    if o2.className == className then return o2 end
+function CollisionHandler:getUnitOrWeapon(o1, o2, name)
+    if o1.name == name then return o1 end
+    if o2.name == name then return o2 end
 end
 
-function CollisionHandler:playerHit(player, who)
-    player:takeDamage(who.damage)
-    if player:isDead() then
-        display.remove(player)
-        timer.performWithDelay(2000, function() EventBus.publish("gameOver") end)
-    end
+function CollisionHandler:onUnitWeaponCollision(unit, weapon)
+    unit:takeDamage(weapon.damage)
+    if unit:isDead() then display.remove(unit) end
+    display.remove(weapon)
 end
 
-function CollisionHandler:enemyHit(enemy, who)
-    enemy:takeDamage(who.damage)
-    if enemy:isDead() then
-        local player = who.source
-        display.remove(enemy)
-    end
+function CollisionHandler:onUnitUnitCollision(unit1, unit2)
+    unit1:takeDamage(unit2.damage)
+    unit2:takeDamage(unit1.damage)
+    if unit1:isDead() then display.remove(unit1) end
+    if unit2:isDead() then display.remove(unit2) end
 end
 
 return CollisionHandler

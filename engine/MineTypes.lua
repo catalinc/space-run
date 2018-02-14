@@ -16,6 +16,7 @@ local MineTypes = {}
 MineTypes.static = {
         sprite = {frameIndex = 1, width = 102, height = 85},
         physics = {radius = 40, isSensor = true},
+        health = 250,
         damage = 200,
         behaviour = fall,
         showHealthBar = true,

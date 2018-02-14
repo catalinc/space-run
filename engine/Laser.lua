@@ -3,8 +3,8 @@
 local Sounds = require("libs.Sounds")
 local SpriteSheet = require("engine.SpriteSheet")
 
-local UP_Y = -40
-local DOWN_Y = display.contentHeight + 40
+local UP_Y = -15
+local DOWN_Y = display.contentHeight + 15
 
 local Laser = {}
 
@@ -13,13 +13,13 @@ function Laser.fire(source, direction)
 
     local group = source.parent
     local newLaser = display.newImageRect(group, SpriteSheet, 5, 14, 40)
+    newLaser.name = source.name .. "Weapon"
     newLaser.isBullet = true
     newLaser.source = source
     newLaser.x = source.x
     newLaser.y = source.y
     newLaser.damage = source.damage
     newLaser.duration = source.duration
-    newLaser.className = source.className .. "Laser"
     newLaser:toBack()
 
     if direction == "down" then

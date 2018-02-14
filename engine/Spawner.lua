@@ -2,7 +2,7 @@
 
 local EventBus = require("engine.EventBus")
 
-local classes = {"Asteroid", "Mine", "Enemy", "Player"}
+local unitNames = {"Asteroid", "Mine", "Enemy", "Player"}
 
 local Spawner = {}
 Spawner.__index = Spawner
@@ -14,23 +14,23 @@ function Spawner.new(group)
     newSpawner.counter = {}
     newSpawner.registry = {}
 
-    for i = 1, #classes do
-        local className = classes[i]
-        local classMod = require("engine." .. className)
-        local typesMod = require("engine." .. className .. "Types")
-        newSpawner.registry[className] = {classMod = classMod, typesMod = typesMod}
+    for i = 1, #unitNames do
+        local name = unitNames[i]
+        local classMod = require("engine." .. name)
+        local typesMod = require("engine." .. name .. "Types")
+        newSpawner.registry[name] = {classMod = classMod, typesMod = typesMod}
     end
 
     newSpawner.unitCreated = function (unit)
-        local className = unit.className
-        local count = newSpawner.counter[className] or 0
-        newSpawner.counter[className] = count + 1
+        local name = unit.name
+        local count = newSpawner.counter[name] or 0
+        newSpawner.counter[name] = count + 1
     end
 
     newSpawner.unitDestroyed = function (unit)
-        local className = unit.className
-        local count = newSpawner.counter[className] or 0
-        newSpawner.counter[className] = count - 1
+        local name = unit.name
+        local count = newSpawner.counter[name] or 0
+        newSpawner.counter[name] = count - 1
     end
 
     EventBus.subscribe("unitCreated", newSpawner.unitCreated)
@@ -39,12 +39,12 @@ function Spawner.new(group)
     return setmetatable(newSpawner, Spawner)
 end
 
-function Spawner:spawn(className, typeName)
-    local classEntry = self.registry[className]
-    if classEntry then
-        local classMod = classEntry.classMod
-        local typesMod = classEntry.typesMod
-        local unitType = typesMod[typeName]
+function Spawner:spawn(name, type)
+    local entry = self.registry[name]
+    if entry then
+        local classMod = entry.classMod
+        local typesMod = entry.typesMod
+        local unitType = typesMod[type]
         if unitType then
             x = math.random(200, display.contentWidth - 200) -- TODO: find something smarter
             classMod.create(self.group, x, nil, unitType)
@@ -52,11 +52,11 @@ function Spawner:spawn(className, typeName)
     end
 end
 
-function Spawner:getUnitsCount(classNames)
+function Spawner:getUnitsCount(names)
     local total = 0
-    for i = 1, #classNames do
-        local className = classNames[i]
-        total = total + (self.counter[className] or 0)
+    for i = 1, #names do
+        local name = names[i]
+        total = total + (self.counter[name] or 0)
     end
     return total
 end

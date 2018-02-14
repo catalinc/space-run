@@ -56,10 +56,10 @@ end
 
 local Unit = {}
 
-function Unit.create(className, group, x, y, options)
+function Unit.create(name, group, x, y, options)
     local sprite = options.sprite
     local newUnit = display.newImageRect(group, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
-    newUnit.className = className
+    newUnit.name = name
     newUnit.x = x or START_X
     newUnit.y = y or START_Y
     newUnit.state = "idle"

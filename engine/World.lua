@@ -81,9 +81,9 @@ function World:tick()
                 self.lastWaveTime = now
                 for i = 1, #waveData.generate do
                     local toGenerate = waveData.generate[i]
-                    local className = toGenerate[1]
-                    local typeName = toGenerate[2]
-                    self.spawner:spawn(className, typeName)
+                    local name = toGenerate[1]
+                    local type = toGenerate[2]
+                    self.spawner:spawn(name, type)
                 end
                 self.currentWave = self.currentWave + 1
                 local current = self.currentWave

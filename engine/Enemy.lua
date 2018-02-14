@@ -9,7 +9,7 @@ local function getTarget(self)
         local group = self.parent
         for i = 1, group.numChildren do
             local unit = group[i]
-            if unit.className == "Player" then
+            if unit.name == "Player" then
                 self.target = unit
                 break
             end
