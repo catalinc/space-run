@@ -4,42 +4,42 @@ local EventBus = require("engine.EventBus")
 
 local unitNames = {"Asteroid", "Mine", "Enemy", "Player"}
 
-local Spawner = {}
-Spawner.__index = Spawner
+local UnitFactory = {}
+UnitFactory.__index = UnitFactory
 
-function Spawner.new(group)
-    local newSpawner = {}
+function UnitFactory.new(group)
+    local newUnitFactory = {}
 
-    newSpawner.group = group
-    newSpawner.counter = {}
-    newSpawner.registry = {}
+    newUnitFactory.group = group
+    newUnitFactory.counter = {}
+    newUnitFactory.registry = {}
 
     for i = 1, #unitNames do
         local name = unitNames[i]
         local classMod = require("engine." .. name)
         local typesMod = require("engine." .. name .. "Types")
-        newSpawner.registry[name] = {classMod = classMod, typesMod = typesMod}
+        newUnitFactory.registry[name] = {classMod = classMod, typesMod = typesMod}
     end
 
-    newSpawner.unitCreated = function (unit)
+    newUnitFactory.unitCreated = function (unit)
         local name = unit.name
-        local count = newSpawner.counter[name] or 0
-        newSpawner.counter[name] = count + 1
+        local count = newUnitFactory.counter[name] or 0
+        newUnitFactory.counter[name] = count + 1
     end
 
-    newSpawner.unitDestroyed = function (unit)
+    newUnitFactory.unitDestroyed = function (unit)
         local name = unit.name
-        local count = newSpawner.counter[name] or 0
-        newSpawner.counter[name] = count - 1
+        local count = newUnitFactory.counter[name] or 0
+        newUnitFactory.counter[name] = count - 1
     end
 
-    EventBus.subscribe("unitCreated", newSpawner.unitCreated)
-    EventBus.subscribe("unitDestroyed", newSpawner.unitDestroyed)
+    EventBus.subscribe("unitCreated", newUnitFactory.unitCreated)
+    EventBus.subscribe("unitDestroyed", newUnitFactory.unitDestroyed)
 
-    return setmetatable(newSpawner, Spawner)
+    return setmetatable(newUnitFactory, UnitFactory)
 end
 
-function Spawner:spawn(name, type)
+function UnitFactory:create(name, type)
     local entry = self.registry[name]
     if entry then
         local classMod = entry.classMod
@@ -52,7 +52,7 @@ function Spawner:spawn(name, type)
     end
 end
 
-function Spawner:getUnitsCount(names)
+function UnitFactory:getUnitsCount(names)
     local total = 0
     for i = 1, #names do
         local name = names[i]
@@ -61,11 +61,11 @@ function Spawner:getUnitsCount(names)
     return total
 end
 
-function Spawner:destroy()
+function UnitFactory:destroy()
     EventBus.unsubscribe("unitCreated", self.unitCreated)
     EventBus.unsubscribe("unitDestroyed", self.unitDestroyed)
     self.registry = nil
     self.counter = nil
 end
 
-return Spawner
+return UnitFactory

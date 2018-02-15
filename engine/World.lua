@@ -2,7 +2,7 @@
 
 local Background = require("engine.Background")
 local EventBus = require("engine.EventBus")
-local Spawner = require("engine.Spawner")
+local UnitFactory = require("engine.UnitFactory")
 local CollisionHandler = require("engine.CollisionHandler")
 
 local World = {}
@@ -21,7 +21,7 @@ function World.new(group)
     newWorld.backGroup = backGroup
 
     newWorld.background = Background.new(backGroup)
-    newWorld.spawner = Spawner.new(foreGroup)
+    newWorld.unitFactory = UnitFactory.new(foreGroup)
     newWorld.collision = CollisionHandler.new(newWorld)
 
     return setmetatable(newWorld, World)
@@ -50,8 +50,8 @@ function World:destroy()
 
     self.collision = nil
 
-    self.spawner:destroy()
-    self.spawner = nil
+    self.unitFactory:destroy()
+    self.unitFactory = nil
 
     self.background:destroy()
     self.background = nil
@@ -68,7 +68,7 @@ function World:loadLevel(num)
 end
 
 function World:isEndOfLevel()
-    return self.spawner:getUnitsCount({"Asteroid", "Mine", "Enemy"}) == 0
+    return self.unitFactory:getUnitsCount({"Asteroid", "Mine", "Enemy"}) == 0
 end
 
 function World:tick()
@@ -83,7 +83,7 @@ function World:tick()
                     local toGenerate = waveData.generate[i]
                     local name = toGenerate[1]
                     local type = toGenerate[2]
-                    self.spawner:spawn(name, type)
+                    self.unitFactory:create(name, type)
                 end
                 self.currentWave = self.currentWave + 1
                 local current = self.currentWave
