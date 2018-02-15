@@ -19,6 +19,7 @@ AsteroidTypes.rock1 = {
     physics = {radius = 40, bounce = 0.8},
     damage = 10,
     behaviour = fall,
+    showHealthBar = true,
 }
 
 AsteroidTypes.rock2 = {
@@ -26,6 +27,7 @@ AsteroidTypes.rock2 = {
     physics = {radius = 40, bounce = 0.8},
     damage = 20,
     behaviour = fall,
+    showHealthBar = true,
 }
 
 AsteroidTypes.rock3 = {
@@ -33,6 +35,7 @@ AsteroidTypes.rock3 = {
     physics = {radius = 40, bounce = 0.8},
     damage = 30,
     behaviour = fall,
+    showHealthBar = true,
 }
 
 return AsteroidTypes

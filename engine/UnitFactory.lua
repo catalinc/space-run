@@ -1,71 +1,31 @@
--- Spawns units and keeps track of the population
+-- Creates units according to their name and type.
 
 local EventBus = require("engine.EventBus")
 
-local unitNames = {"Asteroid", "Mine", "Enemy", "Player"}
+local registry = {}
 
-local UnitFactory = {}
-UnitFactory.__index = UnitFactory
+local knownUnits = {"Asteroid", "Mine", "Enemy", "Player"}
 
-function UnitFactory.new(group)
-    local newUnitFactory = {}
-
-    newUnitFactory.group = group
-    newUnitFactory.counter = {}
-    newUnitFactory.registry = {}
-
-    for i = 1, #unitNames do
-        local name = unitNames[i]
-        local classMod = require("engine." .. name)
-        local typesMod = require("engine." .. name .. "Types")
-        newUnitFactory.registry[name] = {classMod = classMod, typesMod = typesMod}
-    end
-
-    newUnitFactory.unitCreated = function (unit)
-        local name = unit.name
-        local count = newUnitFactory.counter[name] or 0
-        newUnitFactory.counter[name] = count + 1
-    end
-
-    newUnitFactory.unitDestroyed = function (unit)
-        local name = unit.name
-        local count = newUnitFactory.counter[name] or 0
-        newUnitFactory.counter[name] = count - 1
-    end
-
-    EventBus.subscribe("unitCreated", newUnitFactory.unitCreated)
-    EventBus.subscribe("unitDestroyed", newUnitFactory.unitDestroyed)
-
-    return setmetatable(newUnitFactory, UnitFactory)
+for i = 1, #knownUnits do
+    local name = knownUnits[i]
+    local classMod = require("engine." .. name)
+    local typesMod = require("engine." .. name .. "Types")
+    registry[name] = {classMod = classMod, typesMod = typesMod}
 end
 
-function UnitFactory:create(name, type)
-    local entry = self.registry[name]
+local UnitFactory = {}
+
+function UnitFactory.create(group, name, type)
+    local entry = registry[name]
     if entry then
         local classMod = entry.classMod
         local typesMod = entry.typesMod
-        local unitType = typesMod[type]
+        local unitType = typesMod[type] -- type object
         if unitType then
             x = math.random(200, display.contentWidth - 200) -- TODO: find something smarter
-            classMod.create(self.group, x, nil, unitType)
+            classMod.create(group, x, nil, unitType)
         end
     end
-end
-
-function UnitFactory:getUnitsCount(names)
-    local total = 0
-    for i = 1, #names do
-        local name = names[i]
-        total = total + (self.counter[name] or 0)
-    end
-    return total
-end
-
-function UnitFactory:destroy()
-    EventBus.unsubscribe("unitCreated", self.unitCreated)
-    EventBus.unsubscribe("unitDestroyed", self.unitDestroyed)
-    self.registry = nil
-    self.counter = nil
 end
 
 return UnitFactory

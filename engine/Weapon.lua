@@ -1,4 +1,4 @@
--- Base class for all weapons.
+-- Base weapon
 
 local SpriteSheet = require("engine.SpriteSheet")
 

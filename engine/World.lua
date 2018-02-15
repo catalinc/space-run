@@ -21,37 +21,54 @@ function World.new(group)
     newWorld.backGroup = backGroup
 
     newWorld.background = Background.new(backGroup)
-    newWorld.unitFactory = UnitFactory.new(foreGroup)
-    newWorld.collision = CollisionHandler.new(newWorld)
+    newWorld.collisionHandler = CollisionHandler.new(newWorld)
+
+    newWorld.unitCounter = {}
+
+    newWorld.unitCreated = function (unit)
+        local name = unit.name
+        local count = newWorld.unitCounter[name] or 0
+        newWorld.unitCounter[name] = count + 1
+    end
+
+    newWorld.unitDestroyed = function (unit)
+        local name = unit.name
+        local count = newWorld.unitCounter[name] or 0
+        newWorld.unitCounter[name] = count - 1
+    end
+
+    EventBus.subscribe("unitCreated", newWorld.unitCreated)
+    EventBus.subscribe("unitDestroyed", newWorld.unitDestroyed)
 
     return setmetatable(newWorld, World)
 end
 
 function World:start()
     self.background:start()
-    self.collision:start()
+    self.collisionHandler:start()
     self.timer = timer.performWithDelay(500, function() self:tick() end, 0)
 end
 
 function World:pause()
     self.background:pause()
-    self.collision:stop()
+    self.collisionHandler:stop()
     timer.cancel(self.timer)
 end
 
 function World:resume()
     self.background:resume()
-    self.collision:start()
+    self.collisionHandler:start()
     self.timer = timer.performWithDelay(500, function() self:tick() end, 0)
 end
 
 function World:destroy()
     self:pause()
 
-    self.collision = nil
+    EventBus.unsubscribe("unitCreated", self.unitCreated)
+    EventBus.unsubscribe("unitDestroyed", self.unitDestroyed)
+    self.unitCounter = nil
 
-    self.unitFactory:destroy()
-    self.unitFactory = nil
+    self.collisionHandler = nil
 
     self.background:destroy()
     self.background = nil
@@ -65,10 +82,17 @@ function World:loadLevel(num)
     self.currentWave = 1
     self.wavesCount = #self.currentLevel.waves
     self.lastWaveTime = system.getTimer()
+    self.unitCounter = {}
 end
 
 function World:isEndOfLevel()
-    return self.unitFactory:getUnitsCount({"Asteroid", "Mine", "Enemy"}) == 0
+    local names = {"Asteroid", "Mine", "Enemy"}
+    local total = 0
+    for i = 1, #names do
+        local name = names[i]
+        total = total + (self.unitCounter[name] or 0)
+    end
+    return total == 0
 end
 
 function World:tick()
@@ -76,14 +100,14 @@ function World:tick()
         local waveData = self.currentLevel.waves[self.currentWave]
         if waveData then
             local now = system.getTimer()
-            local elapsed = (now - self.lastWaveTime) / 1000 -- Seconds
+            local elapsed = (now - self.lastWaveTime) / 1000 -- seconds
             if elapsed >= waveData.after then
                 self.lastWaveTime = now
                 for i = 1, #waveData.generate do
                     local toGenerate = waveData.generate[i]
                     local name = toGenerate[1]
                     local type = toGenerate[2]
-                    self.unitFactory:create(name, type)
+                    UnitFactory.create(self.foreGroup, name, type)
                 end
                 self.currentWave = self.currentWave + 1
                 local current = self.currentWave
