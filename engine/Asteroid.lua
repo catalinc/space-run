@@ -1,5 +1,3 @@
--- Space rocks
-
 local Unit = require("engine.Unit")
 
 local Asteroid = {}

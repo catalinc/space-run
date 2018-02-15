@@ -1,5 +1,3 @@
--- Creates units according to their name and type.
-
 local EventBus = require("engine.EventBus")
 
 local registry = {}
@@ -22,8 +20,8 @@ function UnitFactory.create(group, name, type)
         local typesMod = entry.typesMod
         local unitType = typesMod[type] -- type object
         if unitType then
-            x = math.random(200, display.contentWidth - 200) -- TODO: find something smarter
-            classMod.create(group, x, nil, unitType)
+            local x = math.random(200, display.contentWidth - 200) -- TODO: find something smarter
+            return classMod.create(group, x, nil, unitType)
         end
     end
 end

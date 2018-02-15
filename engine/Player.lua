@@ -5,7 +5,6 @@ local EachFrame = require("libs.EachFrame")
 local Sounds = require("libs.Sounds")
 local Unit = require("engine.Unit")
 local EventBus = require("engine.EventBus")
-local Laser = require("engine.Laser")
 
 local MIN_X = 100
 local MAX_X = display.contentWidth - 100
@@ -24,7 +23,7 @@ local function onTouch(self, event)
     if self.state == "active" then
         local now = event.time
         if now - self.lastFireTime > self.interval then
-            Laser.fire(self, "up")
+            self:fireWeapon("Bullet", "default", {direction = "up"})
             self.lastFireTime = now
         end
         local phase = event.phase
@@ -74,7 +73,7 @@ local function restore(self)
                         self.isBodyActive = true
                         self.state = "active"
                         EventBus.publish("playerRestored", self)
-                    end})
+                  end})
 end
 
 local function finalize(self)

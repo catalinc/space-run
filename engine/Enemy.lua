@@ -2,7 +2,7 @@
 
 local EachFrame = require("libs.EachFrame")
 local Unit = require("engine.Unit")
-local Laser = require("engine.Laser")
+local WeaponFactory = require("engine.WeaponFactory")
 
 local function getTarget(self)
     if not self.target then
@@ -31,7 +31,7 @@ local function fireLaser(self)
             local dx = math.abs(self.x - target.x)
             local dt = now - self.lastFireTime
             if dt >= self.interval and dx <= target.radius then
-                Laser.fire(self, "down")
+                self:fireWeapon("Bullet", "default", {direction = "down"})
                 self.lastFireTime = now
             end
         end

@@ -14,7 +14,7 @@ end
 
 function interceptAndShoot(enemy)
     if enemy.state == "idle" then
-        enemy:moveToIntercept(200)
+        enemy:moveToIntercept(300)
     elseif enemy.state == "moving" then
         if enemy:canAttack() then
             enemy:fireLaser()
