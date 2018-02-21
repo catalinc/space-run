@@ -103,6 +103,8 @@ function Player.create(group, x, y, options)
     newPlayer.restore = restore
     newPlayer.finalize = finalize
 
+    newPlayer:scale(1.5, 1.5) -- TODO: temporary
+
     return newPlayer
 end
 

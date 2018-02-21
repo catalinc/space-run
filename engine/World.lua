@@ -1,6 +1,6 @@
 -- The game driver.
 
-local Background = require("engine.Background")
+local Starfield = require("engine.Starfield")
 local EventBus = require("engine.EventBus")
 local UnitFactory = require("engine.UnitFactory")
 local CollisionHandler = require("engine.CollisionHandler")
@@ -20,7 +20,7 @@ function World.new(group)
     newWorld.foreGroup = foreGroup
     newWorld.backGroup = backGroup
 
-    newWorld.background = Background.new(backGroup)
+    newWorld.starfield = Starfield.new(backGroup)
     newWorld.collisionHandler = CollisionHandler.new(newWorld)
 
     newWorld.unitCounter = {}
@@ -44,19 +44,19 @@ function World.new(group)
 end
 
 function World:start()
-    self.background:start()
+    self.starfield:start()
     self.collisionHandler:start()
     self.timer = timer.performWithDelay(500, function() self:tick() end, 0)
 end
 
 function World:pause()
-    self.background:pause()
+    self.starfield:stop()
     self.collisionHandler:stop()
     timer.cancel(self.timer)
 end
 
 function World:resume()
-    self.background:resume()
+    self.starfield:start()
     self.collisionHandler:start()
     self.timer = timer.performWithDelay(500, function() self:tick() end, 0)
 end
@@ -70,8 +70,8 @@ function World:destroy()
 
     self.collisionHandler = nil
 
-    self.background:destroy()
-    self.background = nil
+    self.starfield:destroy()
+    self.starfield = nil
 
     display.remove(self.rootGroup)
     self.rootGroup = nil
