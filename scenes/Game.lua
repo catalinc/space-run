@@ -112,14 +112,14 @@ function scene:create(event)
     healthText = display.newText({parent = uiGroup,
                                  text = "Shield: ",
                                  align = "right",
-                                 x = 120, y = y,
+                                 x = 130, y = y,
                                  width = 100,
                                  font = native.systemFont,
                                  fontSize = 24})
-    healthBar = HealthBar.create(uiGroup, 180, y - 3 , 100, 10)
+    healthBar = HealthBar.create(uiGroup, 190, y - 3 , 100, 10)
     livesText = display.newText({parent = uiGroup,
                                 text = "Lives: " .. 3,
-                                x = 340,
+                                x = 350,
                                 y = y,
                                 font = native.systemFont,
                                 fontSize = 24})
