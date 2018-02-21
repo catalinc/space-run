@@ -17,7 +17,7 @@ local EachFrame = {deltaTime = 0, lastFrameTime = 0}
 
 local function enterFrame()
     local now = system.getTimer()
-    EachFrame.deltaTime = (now - EachFrame.lastFrameTime) / (1000 / 60)
+    EachFrame.deltaTime = now - EachFrame.lastFrameTime
     EachFrame.lastFrameTime = now
 
     for i = 1, #EachFrame.listeners do

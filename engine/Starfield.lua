@@ -2,33 +2,31 @@
 
 local EachFrame = require("libs.EachFrame")
 
+local HEIGHT = display.contentHeight
+local WIDTH = display.contentWidth
+local PALETTE = {{0.7, 0.2, 0.1}, {0.1, 0.8, 0.2}, {0.5, 0.5, 0.5}, {0.7}, {0.8, 0.8, 0}}
+
+local w = WIDTH / 100
+local h = HEIGHT / 10
+local r = 3
+
+local STAR_TYPES = {
+    small = {size = 1, speed = 2, maxCount = w * h},
+    medium = {size = 4, speed = 8, maxCount = (w / r) * (h / r)},
+    big = {size = 8, speed = 32, maxCount = (w / (r * r)) * (h / (r * r))},
+}
+
 local function eachFrame(self)
-    local delta = EachFrame.deltaTime
+    local delta = EachFrame.deltaTime / 1000 -- seconds
 
-    for i = 1, #self.smallStars do
-        local star = self.smallStars[i]
-        star.y = star.y + 1 * delta
-        if star.y > display.contentHeight then
-            star.x = math.random(display.contentWidth)
-            star.y = math.random(display.contentHeight)
-        end
-    end
+    if delta > 1 then delta = 0.016 end
 
-    for i = 1, #self.mediumStars do
-        local star = self.mediumStars[i]
-        star.y = star.y + 2 * delta
-        if star.y > display.contentHeight then
-            star.x = math.random(display.contentWidth)
-            star.y = math.random(display.contentHeight)
-        end
-    end
-
-    for i = 1, #self.bigStars do
-        local star = self.bigStars[i]
-        star.y = star.y + 4 * delta
-        if star.y > display.contentHeight then
-            star.x = math.random(display.contentWidth)
-            star.y = math.random(display.contentHeight)
+    for i = 1, #self.stars do
+        local star = self.stars[i]
+        star.y = star.y + star.speed * delta
+        if star.y > HEIGHT then
+            star.x = math.random(WIDTH)
+            star.y = math.random(1, 10)
         end
     end
 end
@@ -42,23 +40,11 @@ local function stop(self)
 end
 
 local function destroy(self)
-    for i = 1, #self.smallStars do
-        display.remove(self.smallStars[i])
-        self.smallStars[i] = nil
+    for i = 1, #self.stars do
+        display.remove(self.stars[i])
+        self.stars[i] = nil
     end
-    self.smallStars = nil
-
-    for i = 1, #self.mediumStars do
-        display.remove(self.mediumStars[i])
-        self.mediumStars[i] = nil
-    end
-    self.mediumStars = nil
-
-    for i = 1, #self.bigStars do
-        display.remove(self.bigStars[i])
-        self.bigStars[i] = nil
-    end
-    self.bigStars = nil
+    self.stars = nil
 end
 
 local Starfield = {}
@@ -66,43 +52,20 @@ local Starfield = {}
 function Starfield.new(group)
     local newStarfield = {}
 
-    local width = display.contentWidth
-    local height = display.contentHeight
-
-    local reduce = 8
-    local ratio = 3
-
-    local xResolution = width / (reduce * 10)
-    local yResolution = height / reduce
-
-    local maxSmallStars = xResolution * yResolution
-    local maxMediumStars = (xResolution / ratio) * (yResolution / ratio)
-    local maxBigStars = (xResolution / (ratio * ratio)) * (yResolution / (ratio * ratio))
-
-    local smallStars = {}
-    for i = 1, maxSmallStars do
-        local x = math.random(width)
-        local y = math.random(height)
-        smallStars[i] = display.newCircle(group, x, y, 1)
+    local stars = {}
+    for k, v in pairs(STAR_TYPES) do
+        for i = 1, v.maxCount do
+            local x = math.random(WIDTH)
+            local y = math.random(HEIGHT)
+            local newStar = display.newCircle(group, x, y, v.size)
+            newStar.speed = v.speed
+            local color = PALETTE[math.random(1, #PALETTE)]
+            newStar:setFillColor(unpack(color))
+            stars[#stars + 1] = newStar
+        end
     end
 
-    local mediumStars = {}
-    for i = 1, maxMediumStars do
-        local x = math.random(width)
-        local y = math.random(height)
-        mediumStars[i] = display.newCircle(group, x, y, 2)
-    end
-
-    local bigStars = {}
-    for i = 1, maxBigStars do
-        local x = math.random(width)
-        local y = math.random(height)
-        bigStars[i] = display.newCircle(group, x, y, 4)
-    end
-
-    newStarfield.smallStars = smallStars
-    newStarfield.mediumStars = mediumStars
-    newStarfield.bigStars = bigStars
+    newStarfield.stars = stars
     newStarfield.eachFrame = eachFrame
     newStarfield.start = start
     newStarfield.stop = stop
