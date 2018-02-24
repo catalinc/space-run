@@ -1,9 +1,7 @@
--- The game driver.
-
-local Starfield = require("engine.Starfield")
-local EventBus = require("engine.EventBus")
-local UnitFactory = require("engine.UnitFactory")
-local CollisionHandler = require("engine.CollisionHandler")
+local EventBus = require("engine.shared.EventBus")
+local UnitFactory = require("engine.unit.UnitFactory")
+local Starfield = require("engine.world.Starfield")
+local CollisionHandler = require("engine.world.CollisionHandler")
 
 local World = {}
 World.__index = World
@@ -105,13 +103,13 @@ function World:tick()
         self.lastWaveTime = now
         for i = 1, #waveData.generate do
           local toGenerate = waveData.generate[i]
-          local name = toGenerate[1]
-          local type = toGenerate[2]
-          UnitFactory.create(self.foreGroup, name, type)
+          local category = toGenerate[1]
+          local name = toGenerate[2]
+          UnitFactory.create(category, name, self.foreGroup)
         end
         self.currentWave = self.currentWave + 1
         local current = self.currentWave
-        if current > self.wavesCount then current = self.wavesCount end
+        if current > self.wavesCount then current = self.wavesCount end -- FIXME
         EventBus.publish("newWave", {current = current, total = self.wavesCount})
       end
     elseif self:isEndOfLevel() then

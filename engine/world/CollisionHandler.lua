@@ -1,6 +1,4 @@
--- Collision handling
-
-local EventBus = require("engine.EventBus")
+local EventBus = require("engine.shared.EventBus")
 
 local CollisionHandler = {}
 CollisionHandler.__index = CollisionHandler

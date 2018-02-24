@@ -1,19 +1,17 @@
--- Base weapon
-
-local SpriteSheet = require("engine.SpriteSheet")
+local physics = require("physics")
+local SpriteSheet = require("engine.shared.SpriteSheet")
 
 local Weapon = {}
 
-function Weapon.create(source, target, options)
+function Weapon.create(source, options)
   local sprite = options.sprite
   local newWeapon = display.newImageRect(source.parent, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
+
   newWeapon.name = source.name .. "Weapon"
   newWeapon.source = source
-  newWeapon.target = target
+  newWeapon.damage = options.damage or source.damage
   newWeapon.x = source.x
   newWeapon.y = source.y
-  newWeapon.damage = options.damage or source.damage
-  newWeapon.duration = options.duration or source.duration
   newWeapon.isBullet = true
   newWeapon:toBack()
 

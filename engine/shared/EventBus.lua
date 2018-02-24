@@ -1,5 +1,3 @@
--- Global bus for game events
-
 local bus = {}
 
 local EventBus = {}

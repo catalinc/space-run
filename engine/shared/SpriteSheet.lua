@@ -1,5 +1,3 @@
--- Sprite sheet
-
 local options = 
 {
   frames = 

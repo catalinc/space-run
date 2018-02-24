@@ -1,10 +1,8 @@
--- Flying through space
-
 local EachFrame = require("libs.EachFrame")
 
 local HEIGHT = display.contentHeight
 local WIDTH = display.contentWidth
-local PALETTE = {{0.7, 0.2, 0.1}, {0.1, 0.8, 0.2}, {0.5, 0.5, 0.5}, {0.7}, {0.8, 0.8, 0}}
+local PALETTE = {{0.3}, {0.5}, {0.8}, {1.0}, {1.0, 1.0, 0}}
 
 local w = WIDTH / 100
 local h = HEIGHT / 10
@@ -12,8 +10,8 @@ local r = 3
 
 local STAR_TYPES = {
   small = {size = 1, speed = 2, maxCount = w * h}, 
-  medium = {size = 4, speed = 8, maxCount = (w / r) * (h / r)}, 
-  big = {size = 8, speed = 32, maxCount = (w / (r * r)) * (h / (r * r))}, 
+  medium = {size = 3, speed = 8, maxCount = (w / r) * (h / r)}, 
+  big = {size = 5, speed = 32, maxCount = (w / (r * r)) * (h / (r * r))}, 
 }
 
 local function eachFrame(self)

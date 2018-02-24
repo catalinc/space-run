@@ -1,10 +1,7 @@
--- The player
-
-local physics = require("physics")
 local EachFrame = require("libs.EachFrame")
 local Sounds = require("libs.Sounds")
-local Unit = require("engine.Unit")
-local EventBus = require("engine.EventBus")
+local Ship = require("engine.ships.Ship")
+local EventBus = require("engine.shared.EventBus")
 
 local MIN_X = 100
 local MAX_X = display.contentWidth - 100
@@ -12,6 +9,16 @@ local MIN_Y = 0
 local MAX_Y = display.contentHeight
 local START_X = display.contentCenterX
 local START_Y = display.contentHeight - 100
+
+local options = {
+  sprite = {frameIndex = 4, width = 98, height = 79}, 
+  physics = {radius = 30, isSensor = true}, 
+  maxLives = 3, 
+  maxHealth = 100, 
+  damage = 50, 
+  fireInterval = 300, 
+  behaviour = function (self) end
+}
 
 local function clamp(v, min, max)
   if v < min then return min end
@@ -21,11 +28,9 @@ end
 
 local function onTouch(self, event)
   if self.state == "active" then
-    local now = event.time
-    if now - self.lastFireTime > self.interval then
-      self:fireWeapon("Bullet", "default", {direction = "up"})
-      self.lastFireTime = now
-    end
+
+    self:fireWeapon("Bullet", {direction = "up", time = 500})
+
     local phase = event.phase
     if "began" == phase then
       display.currentStage:setFocus(self)
@@ -38,6 +43,7 @@ local function onTouch(self, event)
       display.currentStage:setFocus(nil)
     end
   end
+
   return true
 end
 
@@ -69,45 +75,44 @@ local function restore(self)
   self.y = START_Y
 
   transition.to(self, {alpha = 1, time = 1000, 
-    onComplete = function()
-      self.isBodyActive = true
-      self.state = "active"
-      EventBus.publish("playerRestored", self)
-    end})
-  end
+  onComplete = function() self:activate() end})
+end
 
-  local function finalize(self)
-    EachFrame.remove(self)
-    EventBus.publish("unitDestroyed", self)
-    EventBus.publish("gameOver", self)
-  end
+local function activate(self)
+  self.isBodyActive = true
+  self.state = "active"
+  EventBus.publish("playerRestored", self)
+end
 
-  local Player = {}
+local function finalize(self)
+  EachFrame.remove(self)
+  EventBus.publish("unitDestroyed", self)
+  EventBus.publish("gameOver", self)
+end
 
-  function Player.create(group, x, y, options)
-    local newPlayer = Unit.create("Player", group, x, y, options)
-    newPlayer.state = "active"
-    newPlayer.x = START_X
-    newPlayer.y = START_Y
-    newPlayer.duration = options.duration or 1000
-    newPlayer.interval = options.interval or 300
-    newPlayer.radius = options.physics.radius or 30
-    newPlayer.lastFireTime = 0
-    newPlayer.touchOffsetX = 0
-    newPlayer.touchOffsetY = 0
+local Player = {}
 
-    newPlayer.touch = onTouch
-    newPlayer:addEventListener("touch", newPlayer)
-    newPlayer.takeDamage = takeDamage
-    newPlayer.explode = explode
-    newPlayer.restore = restore
-    newPlayer.finalize = finalize
+function Player.create(group, x, y)
+  local newPlayer = Ship.create("Player", group, x, y, options)
 
-    newPlayer:scale(1.5, 1.5) -- TODO: temporary
+  newPlayer.state = "active"
+  newPlayer.x = START_X
+  newPlayer.y = START_Y
+  newPlayer.radius = options.physics.radius
+  newPlayer.touchOffsetX = 0
+  newPlayer.touchOffsetY = 0
 
-    return newPlayer
-  end
+  newPlayer.touch = onTouch
+  newPlayer:addEventListener("touch", newPlayer)
+  newPlayer.takeDamage = takeDamage
+  newPlayer.explode = explode
+  newPlayer.restore = restore
+  newPlayer.activate = activate
+  newPlayer.finalize = finalize
 
-  return Player
+  newPlayer:scale(1.5, 1.5) -- TODO: temporary increase player ship size to make it more visible on screen
 
- 
+  return newPlayer
+end
+
+return Player

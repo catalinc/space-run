@@ -1,11 +1,8 @@
--- Base unit
-
 local physics = require("physics")
 local EachFrame = require("libs.EachFrame")
-local SpriteSheet = require("engine.SpriteSheet")
-local HealthBar = require("engine.HealthBar")
-local EventBus = require("engine.EventBus")
-local WeaponFactory = require("engine.WeaponFactory")
+local SpriteSheet = require("engine.shared.SpriteSheet")
+local EventBus = require("engine.shared.EventBus")
+local HealthBar = require("engine.unit.HealthBar")
 
 local MIN_X = -100
 local MAX_X = display.contentWidth + 100
@@ -55,16 +52,12 @@ local function finalize(self)
   EventBus.publish("unitDestroyed", self)
 end
 
-local function fireWeapon(self, name, type, options)
-  local newWeapon = WeaponFactory.create(name, type, self, self.target)
-  newWeapon:fire(options)
-end
-
 local Unit = {}
 
 function Unit.create(name, group, x, y, options)
   local sprite = options.sprite
   local newUnit = display.newImageRect(group, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
+
   newUnit.name = name
   newUnit.x = x or START_X
   newUnit.y = y or START_Y
@@ -85,7 +78,6 @@ function Unit.create(name, group, x, y, options)
   newUnit.isDead = isDead
   newUnit.finalize = finalize
   newUnit:addEventListener("finalize")
-  newUnit.fireWeapon = fireWeapon
 
   physics.addBody(newUnit, "dynamic", options.physics or {radius = 1})
 

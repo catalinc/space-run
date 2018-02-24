@@ -10,9 +10,9 @@ local scene = composer.newScene()
 local physics = require("physics")
 local Settings = require("libs.Settings")
 local Sounds = require("libs.Sounds")
-local World = require("engine.World")
-local EventBus = require("engine.EventBus")
-local HealthBar = require("engine.HealthBar")
+local EventBus = require("engine.shared.EventBus")
+local HealthBar = require("engine.unit.HealthBar")
+local World = require("engine.world.World")
 
 local world
 local healthText

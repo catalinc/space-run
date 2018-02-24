@@ -1,60 +1,59 @@
-local M = {
+local Level = {
   waves = {
     {after = 1, generate = {
-      {"Player", "default"}, 
+      {"Ship", "Player"}, 
     }}, 
     {after = 1, generate = {
-      {"Enemy", "grunt"}, 
-      {"Enemy", "grunt"}, 
-      {"Asteroid", "rock1"}, 
+      {"Ship", "Grunt"}, 
+      {"Ship", "Grunt"}, 
+      {"Asteroid", "Small"}, 
     }}, 
     {after = 5, generate = {
-      {"Enemy", "grunt"}, 
-      {"Asteroid", "rock1"}, 
-      {"Asteroid", "rock2"}, 
+      {"Ship", "Grunt"}, 
+      {"Asteroid", "Small"}, 
+      {"Asteroid", "Medium"}, 
     }}, 
     {after = 3, generate = {
-      {"Enemy", "grunt"}, 
-      {"Enemy", "grunt"}, 
-      {"Asteroid", "rock3"}, 
-      {"Asteroid", "rock2"}, 
+      {"Ship", "Grunt"}, 
+      {"Ship", "Grunt"}, 
+      {"Asteroid", "Big"}, 
+      {"Asteroid", "Medium"}, 
     }}, 
     {after = 5, generate = {
-      {"Enemy", "grunt"}, 
-      {"Enemy", "grunt"}, 
-      {"Enemy", "grunt"}, 
-      {"Asteroid", "rock1"}, 
-      {"Asteroid", "rock2"}, 
-      {"Asteroid", "rock3"}, 
+      {"Ship", "Grunt"}, 
+      {"Ship", "Grunt"}, 
+      {"Ship", "Grunt"}, 
+      {"Asteroid", "Small"}, 
+      {"Asteroid", "Medium"}, 
+      {"Asteroid", "Big"}, 
     }}, 
     {after = 3, generate = {
-      {"Enemy", "grunt"}, 
-      {"Enemy", "grunt"}, 
-      {"Mine", "static"}, 
-      {"Mine", "static"}, 
-      {"Asteroid", "rock1"}, 
-      {"Asteroid", "rock2"}, 
+      {"Ship", "Grunt"}, 
+      {"Ship", "Grunt"}, 
+      {"Mine", "Slow"}, 
+      {"Asteroid", "Small"}, 
+      {"Asteroid", "Medium"}, 
     }}, 
     {after = 3, generate = {
-      {"Enemy", "grunt"}, 
-      {"Enemy", "grunt"}, 
-      {"Enemy", "grunt"}, 
-      {"Asteroid", "rock1"}, 
-      {"Asteroid", "rock2"}, 
-      {"Asteroid", "rock3"}, 
+      {"Ship", "Grunt"}, 
+      {"Ship", "Grunt"}, 
+      {"Ship", "Grunt"}, 
+      {"Asteroid", "Small"}, 
+      {"Asteroid", "Medium"}, 
+      {"Asteroid", "Big"}, 
     }}, 
     {after = 5, generate = {
-      {"Enemy", "grunt"}, 
-      {"Asteroid", "rock1"}, 
-      {"Asteroid", "rock3"}, 
+      {"Ship", "Grunt"}, 
+      {"Asteroid", "Small"}, 
+      {"Asteroid", "Big"}, 
     }}, 
     {after = 10, generate = {
-      {"Enemy", "boss"}, 
-      {"Enemy", "grunt"}, 
-      {"Asteroid", "rock1"}, 
-    }}}}
+      {"Mine", "Slow"}, 
+      {"Ship", "Boss"}, 
+      {"Ship", "Grunt"}, 
+      {"Asteroid", "Small"}, 
+    }}, 
+  }, 
+}
 
-    return M
-
-
-   
+return Level

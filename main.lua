@@ -29,6 +29,9 @@ if platform == 'Android' then
   )
 end
 
+-- Set default background color
+display.setDefault("background", 0.0353, 0.0902, 0.1608)
+
 -- Set default settings
 Settings({isSoundOn = false, isMusicOn = false, currentLevel = 1, maxLevel = 2}) -- TODO: Music is disabled temporarly for development
 
