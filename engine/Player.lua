@@ -14,77 +14,77 @@ local START_X = display.contentCenterX
 local START_Y = display.contentHeight - 100
 
 local function clamp(v, min, max)
-    if v < min then return min end
-    if v > max then return max end
-    return v
+  if v < min then return min end
+  if v > max then return max end
+  return v
 end
 
 local function onTouch(self, event)
-    if self.state == "active" then
-        local now = event.time
-        if now - self.lastFireTime > self.interval then
-            self:fireWeapon("Bullet", "default", {direction = "up"})
-            self.lastFireTime = now
-        end
-        local phase = event.phase
-        if "began" == phase then
-            display.currentStage:setFocus(self)
-            self.touchOffsetX = event.x - self.x
-            self.touchOffsetY = event.y - self.y
-        elseif "moved" == phase then
-            self.x = clamp(event.x - self.touchOffsetX, MIN_X, MAX_X)
-            self.y = clamp(event.y - self.touchOffsetY, MIN_Y, MAX_Y)
-        elseif "ended" == phase or "cancelled" == phase then
-            display.currentStage:setFocus(nil)
-        end
+  if self.state == "active" then
+    local now = event.time
+    if now - self.lastFireTime > self.interval then
+      self:fireWeapon("Bullet", "default", {direction = "up"})
+      self.lastFireTime = now
     end
-    return true
+    local phase = event.phase
+    if "began" == phase then
+      display.currentStage:setFocus(self)
+      self.touchOffsetX = event.x - self.x
+      self.touchOffsetY = event.y - self.y
+    elseif "moved" == phase then
+      self.x = clamp(event.x - self.touchOffsetX, MIN_X, MAX_X)
+      self.y = clamp(event.y - self.touchOffsetY, MIN_Y, MAX_Y)
+    elseif "ended" == phase or "cancelled" == phase then
+      display.currentStage:setFocus(nil)
+    end
+  end
+  return true
 end
 
 local function takeDamage(self, amount)
-    if self.state == "active" then
-        self.health = self.health - amount
-        if self.health <= 0 then
-            self.health = 0
-            if self.lives > 0 then
-                self.lives = self.lives - 1
-                self:explode()
-            end
-        end
-        EventBus.publish("playerHit", self)
+  if self.state == "active" then
+    self.health = self.health - amount
+    if self.health <= 0 then
+      self.health = 0
+      if self.lives > 0 then
+        self.lives = self.lives - 1
+        self:explode()
+      end
     end
+    EventBus.publish("playerHit", self)
+  end
 end
 
 local function explode(self)
-    Sounds.play("explosion")
-    self.state = "exploding"
-    self.alpha = 0
-    timer.performWithDelay(1000, function() self:restore() end)
+  Sounds.play("explosion")
+  self.state = "exploding"
+  self.alpha = 0
+  timer.performWithDelay(1000, function() self:restore() end)
 end
 
 local function restore(self)
-    self.health = self.maxHealth
-    self.isBodyActive = false
-    self.x = START_X
-    self.y = START_Y
+  self.health = self.maxHealth
+  self.isBodyActive = false
+  self.x = START_X
+  self.y = START_Y
 
-    transition.to(self,{alpha = 1, time = 1000,
-                  onComplete = function()
-                        self.isBodyActive = true
-                        self.state = "active"
-                        EventBus.publish("playerRestored", self)
-                  end})
-end
+  transition.to(self, {alpha = 1, time = 1000, 
+    onComplete = function()
+      self.isBodyActive = true
+      self.state = "active"
+      EventBus.publish("playerRestored", self)
+    end})
+  end
 
-local function finalize(self)
+  local function finalize(self)
     EachFrame.remove(self)
     EventBus.publish("unitDestroyed", self)
     EventBus.publish("gameOver", self)
-end
+  end
 
-local Player = {}
+  local Player = {}
 
-function Player.create(group, x, y, options)
+  function Player.create(group, x, y, options)
     local newPlayer = Unit.create("Player", group, x, y, options)
     newPlayer.state = "active"
     newPlayer.x = START_X
@@ -106,6 +106,8 @@ function Player.create(group, x, y, options)
     newPlayer:scale(1.5, 1.5) -- TODO: temporary
 
     return newPlayer
-end
+  end
 
-return Player
+  return Player
+
+ 

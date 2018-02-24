@@ -15,83 +15,83 @@ local START_X = display.contentWidth / 2
 local START_Y = -40
 
 local function eachFrame(self)
-    if self.x < MIN_X or self.x > MAX_X or
-       self.y < MIN_Y or self.y > MAX_Y then
-        display.remove(self)
-        return
-    end
-    if self.healthBar then
-        self.healthBar.x = self.x - (self.contentWidth / 2) + 5
-        self.healthBar.y = self.y - (self.contentHeight / 2) - 5
-    end
-    if self.behaviour then
-        self.behaviour(self)
-    end
+  if self.x < MIN_X or self.x > MAX_X or
+    self.y < MIN_Y or self.y > MAX_Y then
+    display.remove(self)
+    return
+  end
+  if self.healthBar then
+    self.healthBar.x = self.x - (self.contentWidth / 2) + 5
+    self.healthBar.y = self.y - (self.contentHeight / 2) - 5
+  end
+  if self.behaviour then
+    self.behaviour(self)
+  end
 end
 
 local function takeDamage(self, amount)
-    self.health = self.health - amount
-    if self.health <= 0 then
-        self.health = 0
-        if self.lives > 0 then
-            self.lives = self.lives - 1
-        end
+  self.health = self.health - amount
+  if self.health <= 0 then
+    self.health = 0
+    if self.lives > 0 then
+      self.lives = self.lives - 1
     end
-    if self.healthBar then
-        self.healthBar:setHealth(self.health, self.maxHealth)
-    end
+  end
+  if self.healthBar then
+    self.healthBar:setHealth(self.health, self.maxHealth)
+  end
 end
 
 local function isDead(self)
-    return self.lives == 0
+  return self.lives == 0
 end
 
 local function finalize(self)
-    if self.healthBar then
-        display.remove(self.healthBar)
-        self.healthBar = nil
-    end
-    EachFrame.remove(self)
-    EventBus.publish("unitDestroyed", self)
+  if self.healthBar then
+    display.remove(self.healthBar)
+    self.healthBar = nil
+  end
+  EachFrame.remove(self)
+  EventBus.publish("unitDestroyed", self)
 end
 
 local function fireWeapon(self, name, type, options)
-    local newWeapon = WeaponFactory.create(name, type, self, self.target)
-    newWeapon:fire(options)
+  local newWeapon = WeaponFactory.create(name, type, self, self.target)
+  newWeapon:fire(options)
 end
 
 local Unit = {}
 
 function Unit.create(name, group, x, y, options)
-    local sprite = options.sprite
-    local newUnit = display.newImageRect(group, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
-    newUnit.name = name
-    newUnit.x = x or START_X
-    newUnit.y = y or START_Y
-    newUnit.state = "idle"
-    newUnit.damage = options.damage or 1
-    newUnit.behaviour = options.behaviour
-    newUnit.lives = options.maxLives or 1
-    newUnit.maxHealth = options.maxHealth or 100
-    newUnit.health = newUnit.maxHealth
+  local sprite = options.sprite
+  local newUnit = display.newImageRect(group, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
+  newUnit.name = name
+  newUnit.x = x or START_X
+  newUnit.y = y or START_Y
+  newUnit.state = "idle"
+  newUnit.damage = options.damage or 1
+  newUnit.behaviour = options.behaviour
+  newUnit.lives = options.maxLives or 1
+  newUnit.maxHealth = options.maxHealth or 100
+  newUnit.health = newUnit.maxHealth
 
-    if options.showHealthBar then
-        newUnit.healthBar = HealthBar.create(group, newUnit.x, newUnit.y, newUnit.contentWidth - 10, 5)
-    end
+  if options.showHealthBar then
+    newUnit.healthBar = HealthBar.create(group, newUnit.x, newUnit.y, newUnit.contentWidth - 10, 5)
+  end
 
-    newUnit.eachFrame = eachFrame
-    EachFrame.add(newUnit)
-    newUnit.takeDamage = takeDamage
-    newUnit.isDead = isDead
-    newUnit.finalize = finalize
-    newUnit:addEventListener("finalize")
-    newUnit.fireWeapon = fireWeapon
+  newUnit.eachFrame = eachFrame
+  EachFrame.add(newUnit)
+  newUnit.takeDamage = takeDamage
+  newUnit.isDead = isDead
+  newUnit.finalize = finalize
+  newUnit:addEventListener("finalize")
+  newUnit.fireWeapon = fireWeapon
 
-    physics.addBody(newUnit, "dynamic", options.physics or {radius = 1})
+  physics.addBody(newUnit, "dynamic", options.physics or {radius = 1})
 
-    EventBus.publish("unitCreated", newUnit)
+  EventBus.publish("unitCreated", newUnit)
 
-    return newUnit
+  return newUnit
 end
 
 return Unit

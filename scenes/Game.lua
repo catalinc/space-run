@@ -29,51 +29,51 @@ physics.setGravity(0, 0)
 -- -----------------------------------------------------------------------------------
 
 local function updateLives(player)
-    healthBar:setHealth(player.health, player.maxHealth)
-    livesText.text = "Lives: " .. player.lives
+  healthBar:setHealth(player.health, player.maxHealth)
+  livesText.text = "Lives: " .. player.lives
 end
 
 local function updateWave(waveData)
-    waveText.text = "Wave: " .. waveData.current .. "/" .. waveData.total
+  waveText.text = "Wave: " .. waveData.current .. "/" .. waveData.total
 end
 
 local function start()
-    physics.start()
-    world:start()
-    Sounds.playStream("gameMusic")
+  physics.start()
+  world:start()
+  Sounds.playStream("gameMusic")
 end
 
 local function pause()
-    physics.pause()
-    world:pause()
-    Sounds.stop()
+  physics.pause()
+  world:pause()
+  Sounds.stop()
 end
 
 local function cleanup()
-    EventBus.clear()
+  EventBus.clear()
 
-    physics.stop()
-    world:destroy()
+  physics.stop()
+  world:destroy()
 
-    Sounds.stop()
-    Sounds.dispose("explosion")
-    Sounds.dispose("fire")
-    Sounds.dispose("gameMusic")
+  Sounds.stop()
+  Sounds.dispose("explosion")
+  Sounds.dispose("fire")
+  Sounds.dispose("gameMusic")
 end
 
 local function gotoProgress()
-    if Settings.currentLevel == Settings.maxLevel then
-        composer.removeScene("scenes.Win")
-        composer.gotoScene("scenes.Win", {time = 800, effect = "crossFade"})
-    else
-        composer.removeScene("scenes.Progress")
-        composer.gotoScene("scenes.Progress", {time = 800, effect = "crossFade"})
-    end
+  if Settings.currentLevel == Settings.maxLevel then
+    composer.removeScene("scenes.Win")
+    composer.gotoScene("scenes.Win", {time = 800, effect = "crossFade"})
+  else
+    composer.removeScene("scenes.Progress")
+    composer.gotoScene("scenes.Progress", {time = 800, effect = "crossFade"})
+  end
 end
 
 local function gotoGameOver()
-    composer.removeScene("scenes.Lose")
-    composer.gotoScene("scenes.Lose", {time = 800, effect = "crossFade"})
+  composer.removeScene("scenes.Lose")
+  composer.gotoScene("scenes.Lose", {time = 800, effect = "crossFade"})
 end
 
 -- -----------------------------------------------------------------------------------
@@ -81,87 +81,87 @@ end
 -- -----------------------------------------------------------------------------------
 
 function scene:create(event)
-    -- Code here runs when the scene is first created but has not yet appeared on screen
-    local sceneGroup = self.view
+  -- Code here runs when the scene is first created but has not yet appeared on screen
+  local sceneGroup = self.view
 
-    -- Temporarly pause physiscs until the scene is created
+  -- Temporarly pause physiscs until the scene is created
 
-    physics.pause()
+  physics.pause()
 
-    -- Setup events
+  -- Setup events
 
-    EventBus.subscribe("newWave", updateWave)
-    EventBus.subscribe("playerHit", updateLives)
-    EventBus.subscribe("playerRestored", updateLives)
-    EventBus.subscribe("levelCleared", gotoProgress)
-    EventBus.subscribe("gameOver", gotoGameOver)
+  EventBus.subscribe("newWave", updateWave)
+  EventBus.subscribe("playerHit", updateLives)
+  EventBus.subscribe("playerRestored", updateLives)
+  EventBus.subscribe("levelCleared", gotoProgress)
+  EventBus.subscribe("gameOver", gotoGameOver)
 
-    -- Setup the world
+  -- Setup the world
 
-    world = World.new(sceneGroup)
-    world:loadLevel(Settings.currentLevel)
+  world = World.new(sceneGroup)
+  world:loadLevel(Settings.currentLevel)
 
-    -- Setup the UI
+  -- Setup the UI
 
-    local uiGroup = display.newGroup() -- Display group for UI objects like the score
-    sceneGroup:insert(uiGroup)
+  local uiGroup = display.newGroup() -- Display group for UI objects like the score
+  sceneGroup:insert(uiGroup)
 
-    local y = 20
+  local y = 20
 
-    -- TODO: All texts should be created with modern syntax
-    healthText = display.newText({parent = uiGroup,
-                                 text = "Shield: ",
-                                 align = "right",
-                                 x = 130, y = y,
-                                 width = 100,
-                                 font = native.systemFont,
-                                 fontSize = 24})
-    healthBar = HealthBar.create(uiGroup, 190, y - 3 , 100, 10)
-    livesText = display.newText({parent = uiGroup,
-                                text = "Lives: " .. 3,
-                                x = 350,
-                                y = y,
-                                font = native.systemFont,
-                                fontSize = 24})
-    levelText = display.newText({parent = uiGroup,
-                                text = "Level: " .. Settings.currentLevel,
-                                x = 500,
-                                y = y ,
-                                font = native.systemFont,
-                                fontSize = 24})
-    waveText = display.newText({parent = uiGroup,
-                               text = "Wave " .. world.currentWave .. "/" .. world.wavesCount,
-                               x = 600,
-                               y = y,
-                               font = native.systemFont,
-                               fontSize = 24})
+  -- TODO: All texts should be created with modern syntax
+  healthText = display.newText({parent = uiGroup, 
+    text = "Shield: ", 
+    align = "right", 
+    x = 130, y = y, 
+    width = 100, 
+    font = native.systemFont, 
+  fontSize = 24})
+  healthBar = HealthBar.create(uiGroup, 190, y - 3, 100, 10)
+  livesText = display.newText({parent = uiGroup, 
+    text = "Lives: " .. 3, 
+    x = 350, 
+    y = y, 
+    font = native.systemFont, 
+  fontSize = 24})
+  levelText = display.newText({parent = uiGroup, 
+    text = "Level: " .. Settings.currentLevel, 
+    x = 500, 
+    y = y, 
+    font = native.systemFont, 
+  fontSize = 24})
+  waveText = display.newText({parent = uiGroup, 
+    text = "Wave " .. world.currentWave .. "/" .. world.wavesCount, 
+    x = 600, 
+    y = y, 
+    font = native.systemFont, 
+  fontSize = 24})
 end
 
 function scene:show(event)
-    local phase = event.phase
+  local phase = event.phase
 
-    if phase == "will" then
-        -- Code here runs when the scene is still off screen (but is about to come on screen)
-    elseif phase == "did" then
-        -- Code here runs when the scene is entirely on screen
-        start()
-    end
+  if phase == "will" then
+    -- Code here runs when the scene is still off screen (but is about to come on screen)
+  elseif phase == "did" then
+    -- Code here runs when the scene is entirely on screen
+    start()
+  end
 end
 
 function scene:hide(event)
-    local phase = event.phase
+  local phase = event.phase
 
-    if phase == "will" then
-        -- Code here runs when the scene is on screen (but is about to go off screen)
-        pause()
-    elseif phase == "did" then
-        -- Code here runs immediately after the scene goes entirely off screen
-    end
+  if phase == "will" then
+    -- Code here runs when the scene is on screen (but is about to go off screen)
+    pause()
+  elseif phase == "did" then
+    -- Code here runs immediately after the scene goes entirely off screen
+  end
 end
 
 function scene:destroy(event)
-    -- Code here runs prior to the removal of scene's view
-    cleanup()
+  -- Code here runs prior to the removal of scene's view
+  cleanup()
 end
 
 -- -----------------------------------------------------------------------------------

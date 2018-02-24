@@ -16,38 +16,38 @@
 local EachFrame = {deltaTime = 0, lastFrameTime = 0}
 
 local function enterFrame()
-    local now = system.getTimer()
-    EachFrame.deltaTime = now - EachFrame.lastFrameTime
-    EachFrame.lastFrameTime = now
+  local now = system.getTimer()
+  EachFrame.deltaTime = now - EachFrame.lastFrameTime
+  EachFrame.lastFrameTime = now
 
-    for i = 1, #EachFrame.listeners do
-        local listener = EachFrame.listeners[i]
-        if type(listener) == 'function' then
-            listener()
-        elseif type(listener) == 'table' and type(listener.eachFrame) == 'function' then
-            listener:eachFrame()
-        end
+  for i = 1, #EachFrame.listeners do
+    local listener = EachFrame.listeners[i]
+    if type(listener) == 'function' then
+      listener()
+    elseif type(listener) == 'table' and type(listener.eachFrame) == 'function' then
+      listener:eachFrame()
     end
+  end
 end
 
 function EachFrame.add(listener)
-    if not EachFrame.listeners then
-        EachFrame.listeners = {}
-        Runtime:addEventListener('enterFrame', enterFrame)
-    end
-    table.insert(EachFrame.listeners, listener)
+  if not EachFrame.listeners then
+    EachFrame.listeners = {}
+    Runtime:addEventListener('enterFrame', enterFrame)
+  end
+  table.insert(EachFrame.listeners, listener)
 end
 
 function EachFrame.remove(listener)
-    if not listener or not EachFrame.listeners then return end
-    local index = table.indexOf(EachFrame.listeners, listener)
-    if index then
-        table.remove(EachFrame.listeners, index)
-        if #EachFrame.listeners == 0 then
-            Runtime:removeEventListener('enterFrame', enterFrame)
-            EachFrame.listeners = nil
-        end
+  if not listener or not EachFrame.listeners then return end
+  local index = table.indexOf(EachFrame.listeners, listener)
+  if index then
+    table.remove(EachFrame.listeners, index)
+    if #EachFrame.listeners == 0 then
+      Runtime:removeEventListener('enterFrame', enterFrame)
+      EachFrame.listeners = nil
     end
+  end
 end
 
 return EachFrame
