@@ -11,12 +11,12 @@ local START_X = display.contentCenterX
 local START_Y = display.contentHeight - 100
 
 local options = {
-  sprite = {frameIndex = 4, width = 98, height = 79}, 
-  physics = {radius = 30, isSensor = true}, 
-  maxLives = 3, 
-  maxHealth = 100, 
-  damage = 50, 
-  fireInterval = 300, 
+  sprite = {frameIndex = 4, width = 98, height = 79},
+  physics = {radius = 30, isSensor = true},
+  maxLives = 3,
+  maxHealth = 100,
+  damage = 50,
+  fireInterval = 300,
   behaviour = function (self) end
 }
 
@@ -29,7 +29,7 @@ end
 local function onTouch(self, event)
   if self.state == "active" then
 
-    self:fireWeapon("Bullet", {direction = "up", time = 500})
+    self:fireWeapon("Bullet", {direction = "up", time = 500, playSound = true})
 
     local phase = event.phase
     if "began" == phase then
@@ -74,7 +74,7 @@ local function restore(self)
   self.x = START_X
   self.y = START_Y
 
-  transition.to(self, {alpha = 1, time = 1000, 
+  transition.to(self, {alpha = 1, time = 1000,
   onComplete = function() self:activate() end})
 end
 

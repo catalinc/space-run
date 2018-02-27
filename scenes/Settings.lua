@@ -7,27 +7,30 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+local widget = require("widget")
 local Settings = require("libs.Settings")
 local Sounds = require("libs.Sounds")
 
-local function gotoGame()
-  composer.removeScene("scenes.Game")
-  composer.gotoScene("scenes.Game", {time = 800, effect = "crossFade"})
+local function closeOverlay()
+  composer.hideOverlay("slideUp", 500)
 end
 
-local function newGame()
-  Settings.currentLevel = 1
-  gotoGame()
+local function onMusicSwitchPress(event)
+  local switch = event.target
+  Settings.isMusicOn = switch.isOn
+  if switch.isOn then
+    Sounds.playStream("menuMusic")
+  else
+    Sounds.stop()
+  end
 end
 
-local options = {
-  isModal = true,
-  effect = "slideDown",
-  time = 500,
-}
-
-local function showSettings()
-  composer.showOverlay("scenes.Settings", options)
+local function onSoundsSwitchPress(event)
+  local switch = event.target
+  Settings.isSoundOn = switch.isOn
+  if switch.isOn then
+    Sounds.play("fire")
+  end
 end
 
 -- -----------------------------------------------------------------------------------
@@ -42,33 +45,60 @@ function scene:create(event)
   background.x = display.contentCenterX
   background.y = display.contentCenterY
 
-  local title = display.newImageRect(sceneGroup, "graphics/title.png", 500, 80)
-  title.x = display.contentCenterX
-  title.y = 200
+  local musicLabel = display.newText(
+    {
+      parent = sceneGroup,
+      text = "Music",
+      x = display.contentCenterX,
+      y = 450,
+      font = native.systemFont,
+      fontSize = 44
+    }
+  )
+  musicLabel:setFillColor(0.82, 0.86, 1)
 
-  local newGameButton = display.newText({
-    parent = sceneGroup, text = "New Game",
-    x = display.contentCenterX, y = 500,
+  local checkboxMusic = widget.newSwitch(
+    {
+        x = display.contentCenterX + 100,
+        y = 455,
+        style = "checkbox",
+        id = "MusicCheckbox",
+        initialSwitchState = Settings.isMusicOn,
+        onPress = onMusicSwitchPress,
+    }
+  )
+  sceneGroup:insert(checkboxMusic)
+
+  local soundsLabel = display.newText(
+    {
+      parent = sceneGroup, text = "Sounds",
+      x = display.contentCenterX,
+      y = 600,
+      font = native.systemFont,
+      fontSize = 44,
+    }
+  )
+  soundsLabel:setFillColor(0.75, 0.78, 1)
+
+  local checkboxSounds = widget.newSwitch(
+    {
+        x = display.contentCenterX + 100,
+        y = 605,
+        style = "checkbox",
+        id = "SoundsCheckbox",
+        initialSwitchState = Settings.isSoundOn,
+        onPress = onSoundsSwitchPress,
+    }
+  )
+  sceneGroup:insert(checkboxSounds)
+
+  local closeButton = display.newText({
+    parent = sceneGroup, text = "Close",
+    x = display.contentCenterX, y = 750,
     font = native.systemFont, fontSize = 44
   })
-  newGameButton:setFillColor(0.82, 0.86, 1)
-  newGameButton:addEventListener("tap", newGame)
-
-  local continueGameButton = display.newText({
-    parent = sceneGroup, text = "Continue",
-    x = display.contentCenterX, y = 650,
-    font = native.systemFont, fontSize = 44
-  })
-  continueGameButton:setFillColor(0.82, 0.86, 1)
-  continueGameButton:addEventListener("tap", gotoGame)
-
-  local settingsButton = display.newText({
-    parent = sceneGroup, text = "Settings",
-    x = display.contentCenterX, y = 800,
-    font = native.systemFont, fontSize = 44
-  })
-  settingsButton:setFillColor(0.82, 0.86, 1)
-  settingsButton:addEventListener("tap", showSettings)
+  closeButton:setFillColor(0.75, 0.78, 1)
+  closeButton:addEventListener("tap", closeOverlay)
 end
 
 function scene:show(event)
@@ -79,7 +109,6 @@ function scene:show(event)
     -- Code here runs when the scene is still off screen (but is about to come on screen)
   elseif phase == "did" then
     -- Code here runs when the scene is entirely on screen
-    Sounds.playStream("menuMusic")
   end
 end
 
@@ -91,14 +120,12 @@ function scene:hide(event)
     -- Code here runs when the scene is on screen (but is about to go off screen)
   elseif phase == "did" then
     -- Code here runs immediately after the scene goes entirely off screen
-    Sounds.stop()
   end
 end
 
 function scene:destroy(event)
   local sceneGroup = self.view
   -- Code here runs prior to the removal of scene's view
-  Sounds.dispose("menuMusic")
 end
 
 -- -----------------------------------------------------------------------------------
