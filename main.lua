@@ -11,7 +11,7 @@ local platform = system.getInfo('platformName')
 if platform == 'Android' then
   native.setProperty('androidSystemUiVisibility', 'immersiveSticky')
 
-  Runtime:addEventListener('key', 
+  Runtime:addEventListener('key',
     function(event)
       if event.phase == 'down' and event.keyName == 'back' then
         local scene = composer.getScene(composer.getSceneName('current'))
@@ -33,7 +33,15 @@ end
 display.setDefault("background", 0.0353, 0.0902, 0.1608)
 
 -- Set default settings
-Settings({isSoundOn = false, isMusicOn = false, currentLevel = 1, maxLevel = 2}) -- TODO: Music is disabled temporarly for development
+Settings(
+  {
+    isSoundOn = false,  -- TODO: all isXXXOn are temporarly disabled for development
+    isMusicOn = false,
+    isVibrateOn = true,
+    currentLevel = 1,
+    maxLevel = 2
+  }
+)
 
 -- Automatically remove scenes from memory
 composer.recycleOnSceneChange = true

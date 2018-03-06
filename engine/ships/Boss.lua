@@ -1,12 +1,12 @@
 local Enemy = require("engine.ships.Enemy")
 
 local options = {
-  sprite = {frameIndex = 4, width = 98, height = 79}, 
-  physics = {radius = 30, isSensor = true}, 
-  maxHealth = 500, 
-  damage = 50, 
-  fireInterval = 1000, 
-  showHealthBar = true, 
+  sprite = {frameIndex = 4, width = 98, height = 79},
+  physics = {radius = 30, isSensor = true},
+  maxHealth = 500,
+  damage = 50,
+  fireInterval = 1000,
+  showHealthBar = true,
 }
 
 local function behaviour(self)
@@ -24,6 +24,7 @@ local Boss = {}
 function Boss.create(group, x, y)
   local newBoss = Enemy.create(group, x, y, options)
   newBoss.behaviour = behaviour
+  newBoss:setFillColor(0.8, 0.8, 0.5)
   return newBoss
 end
 

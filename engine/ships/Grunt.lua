@@ -1,12 +1,12 @@
 local Enemy = require("engine.ships.Enemy")
 
 local options = {
-  sprite = {frameIndex = 4, width = 98, height = 79}, 
-  physics = {radius = 30, isSensor = true}, 
-  maxHealth = 100, 
-  damage = 20, 
-  fireInterval = 1500, 
-  showHealthBar = true, 
+  sprite = {frameIndex = 4, width = 98, height = 79},
+  physics = {radius = 30, isSensor = true},
+  maxHealth = 100,
+  damage = 20,
+  fireInterval = 1500,
+  showHealthBar = true,
 }
 
 local function behaviour(self)
@@ -24,7 +24,7 @@ local Grunt = {}
 function Grunt.create(group, x, y)
   local newGrunt = Enemy.create(group, x, y, options)
   newGrunt.behaviour = behaviour
-  newGrunt:setFillColor(0.5, 0.5, 0.5)
+  newGrunt:setFillColor(0.5, 0.5, 0.8)
   return newGrunt
 end
 

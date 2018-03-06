@@ -5,4 +5,7 @@ settings =
 		default ="portrait",
 		supported = {"portrait"},
 	},
+    plugins = {
+        ['plugin.vibrator'] = {publisherId = 'com.spiralcodestudio'}
+    },
 }

@@ -1,3 +1,5 @@
+local vibrator = require("plugin.vibrator")
+local Settings = require("libs.Settings")
 local EachFrame = require("libs.EachFrame")
 local Sounds = require("libs.Sounds")
 local Ship = require("engine.ships.Ship")
@@ -49,6 +51,9 @@ end
 
 local function takeDamage(self, amount)
   if self.state == "active" then
+    if Settings.isVibrateOn then
+      vibrator.vibrate(300)
+    end
     self.health = self.health - amount
     if self.health <= 0 then
       self.health = 0
