@@ -32,28 +32,28 @@ function scene:create(event)
   background.x = display.contentCenterX
   background.y = display.contentCenterY
 
-  local loseText = display.newText({parent = sceneGroup, 
-    text = "Sorry :(", 
-    x = display.contentCenterX, 
-    y = 300, 
-    font = native.systemFont, 
+  local loseText = display.newText({parent = sceneGroup,
+    text = "Sorry :(",
+    x = display.contentCenterX,
+    y = 300,
+    font = native.systemFont,
   fontSize = 48})
   loseText:setFillColor(1.0, 0.074, 0.074)
 
-  local playButton = display.newText({parent = sceneGroup, 
-    text = "Restart Level", 
-    x = display.contentCenterX, 
-    y = 450, 
-    font = native.systemFont, 
+  local playButton = display.newText({parent = sceneGroup,
+    text = "Restart Level",
+    x = display.contentCenterX,
+    y = 450,
+    font = native.systemFont,
   fontSize = 44})
   playButton:setFillColor(0.82, 0.86, 1)
   playButton:addEventListener("tap", gotoGame)
 
-  local menuButton = display.newText({parent = sceneGroup, 
-    text = "Menu", 
-    x = display.contentCenterX, 
-    y = 600, 
-    font = native.systemFont, 
+  local menuButton = display.newText({parent = sceneGroup,
+    text = "Menu",
+    x = display.contentCenterX,
+    y = 600,
+    font = native.systemFont,
   fontSize = 44})
   menuButton:setFillColor(0.75, 0.78, 1)
   menuButton:addEventListener("tap", gotoMenu)

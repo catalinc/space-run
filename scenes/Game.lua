@@ -109,31 +109,31 @@ function scene:create(event)
   local y = 20
 
   -- TODO: All texts should be created with modern syntax
-  healthText = display.newText({parent = uiGroup, 
-    text = "Shield: ", 
-    align = "right", 
-    x = 130, y = y, 
-    width = 100, 
-    font = native.systemFont, 
+  healthText = display.newText({parent = uiGroup,
+    text = "Shield: ",
+    align = "right",
+    x = 130, y = y,
+    width = 100,
+    font = native.systemFont,
   fontSize = 24})
   healthBar = HealthBar.create(uiGroup, 190, y - 3, 100, 10)
-  livesText = display.newText({parent = uiGroup, 
-    text = "Lives: " .. 3, 
-    x = 350, 
-    y = y, 
-    font = native.systemFont, 
+  livesText = display.newText({parent = uiGroup,
+    text = "Lives: " .. 3,
+    x = 350,
+    y = y,
+    font = native.systemFont,
   fontSize = 24})
-  levelText = display.newText({parent = uiGroup, 
-    text = "Level: " .. Settings.currentLevel, 
-    x = 500, 
-    y = y, 
-    font = native.systemFont, 
+  levelText = display.newText({parent = uiGroup,
+    text = "Level: " .. Settings.currentLevel,
+    x = 500,
+    y = y,
+    font = native.systemFont,
   fontSize = 24})
-  waveText = display.newText({parent = uiGroup, 
-    text = "Wave " .. world.currentWave .. "/" .. world.wavesCount, 
-    x = 600, 
-    y = y, 
-    font = native.systemFont, 
+  waveText = display.newText({parent = uiGroup,
+    text = "Wave " .. world.currentWave .. "/" .. world.wavesCount,
+    x = 600,
+    y = y,
+    font = native.systemFont,
   fontSize = 24})
 end
 

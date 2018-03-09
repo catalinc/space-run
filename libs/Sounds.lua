@@ -10,11 +10,11 @@ local Settings = require("libs.Settings")
 local Sounds = {}
 
 local soundsTable = {
-  menuMusic = 'audio/Escape_Looping.wav', 
-  gameMusic = 'audio/80s-Space-Game_Looping.wav', 
-  highScoresMusic = 'audio/Midnight-Crawlers_Looping.wav', 
-  fire = 'audio/fire.wav', 
-  explosion = 'audio/explosion.wav', 
+  menuMusic = 'audio/Escape_Looping.wav',
+  gameMusic = 'audio/80s-Space-Game_Looping.wav',
+  highScoresMusic = 'audio/Midnight-Crawlers_Looping.wav',
+  fire = 'audio/8BIT_RETRO_Fire_Blaster_Short_Glide_mono.wav',
+  explosion = 'audio/8BIT_RETRO_Explosion_Short_Distant_mono.wav',
 }
 
 audio.reserveChannels(2)
