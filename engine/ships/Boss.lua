@@ -14,7 +14,11 @@ local function behaviour(self)
     self:interceptPlayer(1000, 500)
   elseif self.state == "moving" then
     if self:canAttack() then
-      self:fireWeapon("Bullet", {direction = "down", time = 800})
+      if math.random() > 0.7 then
+        self:fireWeapon("Missile", {target = self:getTarget(), speed = 1, maxAge = 3000, damage = 50})
+      else
+        self:fireWeapon("Bullet", {direction = "down", time = 800})
+      end
     end
   end
 end

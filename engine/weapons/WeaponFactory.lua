@@ -1,4 +1,4 @@
-local knownWeapons = {"Bullet"}
+local knownWeapons = {"Bullet", "Missile"}
 
 local registry = {}
 
