@@ -16,5 +16,9 @@ Graphics and sounds are taken from [Star Explorer][1] tutorial.
 
 GPLv3.
 
+## Screenshot
+
+![Gameplay](./blob/master/game.gif)
+
 [1]: https://docs.coronalabs.com/guide/programming/01/index.html
 [2]: https://coronalabs.com/
