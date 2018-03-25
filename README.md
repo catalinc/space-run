@@ -14,7 +14,7 @@ Graphics and sounds are taken from [Star Explorer][1] tutorial.
 
 ## License
 
-GPLv3.
+MIT
 
 ## Screenshot
 
