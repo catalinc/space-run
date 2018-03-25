@@ -1,36 +1,20 @@
-# Title
+# Space Run
 
-Andromeda Run - A space shooter game.
+A space shooter game. Built on top of [Star Explorer][1] sample by [Corona SDK][2].
 
-# Description
-
-Is the year 3049 and humanity spread through galaxy. You are Garth, a brave explorer seeking new 
-planets suitable for life to establish new colonies. You were happily exploring the galaxy when an 
-unknown alien race had attacked your ship and took you (and your ship) to their home for study.
-Even worse, their home is in Andromeda galaxy. By ingenuity you manage somehow to break free from
-their prison, regain control of your ship and flee. But the aliens are not happy with this and they
-are in pursuit trying to catch you and bring you back to their prison. You are jumping from system
-to system in the Andromeda galaxy searching for a worm hole to your home galaxy and back to safety.
+The game is far from finished. This is only prototype that I built for fun.
 
 # Controls
 
-Screen orientation is vertical. Drag ship to move. The ship is firing continously while dragged.
-An additional button for dropping bombs is available on the right side of the screen.
+Drag ship to move. The ship is firing continously while dragged.
 
-# Game play
+# Credits
 
-Each system is a game level. There will be 10 levels in total. At the end of each level there will
-be a boss fight where the boss is a big bad-ass alien ship. Each level will feature new types of
-aliens. Each new level will be harder to beat due to increase difficulty. As you progress the aliens
-will become harder and harder to kill and their weapons' damage will increase. Need a math formula
-here to compute the values for life/shield and damage for aliens for each level.
-During the game you will find alien technology and you will use it to upgrade your weapons and shields.
+Graphics and sounds are taken from [Star Explorer][1] tutorial.
 
-# Graphics
+# License
 
-Retro style. 8-bit color palette. Old terminal fonts.
+GPLv3.
 
-# Sounds
-
-Background music for each level. Explosions sounds. Laser sounds. Bomb sounds. Power-ups sounds.
-All sounds are 8-bit era.
+[1]: https://docs.coronalabs.com/guide/programming/01/index.html
+[2]: https://coronalabs.com/
