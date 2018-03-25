@@ -18,7 +18,7 @@ GPLv3.
 
 ## Screenshot
 
-![Gameplay](./blob/master/game.gif)
+![Gameplay](./game.gif)
 
 [1]: https://docs.coronalabs.com/guide/programming/01/index.html
 [2]: https://coronalabs.com/
