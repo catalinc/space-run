@@ -1,6 +1,6 @@
 ## Space Run
 
-A space shooter game. Built on top of [Star Explorer][1] sample by [Corona SDK][2].
+Arcade style space shooter built on top of [Star Explorer][1] sample by [Corona SDK][2].
 
 The game is far from finished. This is only prototype that I built for fun.
 
