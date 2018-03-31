@@ -10,7 +10,7 @@ Drag ship to move. The ship is firing continously while dragged.
 
 ## Credits
 
-Graphics and sounds are taken from [Star Explorer][1] tutorial.
+Graphics and sounds taken from [Star Explorer][1] tutorial.
 
 ## License
 
