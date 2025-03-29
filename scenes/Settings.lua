@@ -1,4 +1,3 @@
-local vibrator = require("plugin.vibrator")
 local composer = require("composer")
 
 local scene = composer.newScene()
@@ -31,14 +30,6 @@ local function onSoundsSwitchPress(event)
   Settings.isSoundOn = switch.isOn
   if switch.isOn then
     Sounds.play("fire")
-  end
-end
-
-local function onVibrateSwitchPress(event)
-  local switch = event.target
-  Settings.isVibrateOn = switch.isOn
-  if switch.isOn then
-    vibrator.vibrate(100)
   end
 end
 
@@ -101,36 +92,12 @@ function scene:create(event)
   )
   sceneGroup:insert(checkboxSounds)
 
-  local vibrateLabel = display.newText(
-    {
-      parent = sceneGroup,
-      text = "Vibrate",
-      x = display.contentCenterX,
-      y = soundsLabel.y + 150,
-      font = native.systemFont,
-      fontSize = 44,
-    }
-  )
-  vibrateLabel:setFillColor(0.75, 0.78, 1)
-
-  local checkboxVibrate = widget.newSwitch(
-    {
-        x = display.contentCenterX + 100,
-        y = vibrateLabel.y + 5,
-        style = "checkbox",
-        id = "VibrateCheckbox",
-        initialSwitchState = Settings.isVibrateOn,
-        onPress = onVibrateSwitchPress,
-    }
-  )
-  sceneGroup:insert(checkboxVibrate)
-
   local closeButton = display.newText(
     {
       parent = sceneGroup,
       text = "Close",
       x = display.contentCenterX,
-      y = vibrateLabel.y + 150,
+      y = soundsLabel.y + 150,
       font = native.systemFont,
       fontSize = 44
     }
