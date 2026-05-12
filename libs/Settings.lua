@@ -50,11 +50,10 @@ end
 local Settings_mt = {
   __index = function(t, k)
     return settings[k]
-  end, 
+  end,
   __newindex = function(t, k, value)
     settings[k] = value
-    saveData()
-  end, 
+  end,
   __call = function(t, value) -- On call initialize with default settings
     if type(value) == 'table' then
       defaultSettings = shallowCopy(value)
@@ -64,5 +63,6 @@ local Settings_mt = {
 }
 
 local Settings = {}
+rawset(Settings, "save", saveData)
 
 return setmetatable(Settings, Settings_mt)

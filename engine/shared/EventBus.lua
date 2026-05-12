@@ -27,9 +27,8 @@ end
 function EventBus.publish(event, data)
   local listeners = bus[event]
   if listeners then
-    for i = #listeners, 1, -1 do
-      local listener = listeners[i]
-      listener(data)
+    for i = 1, #listeners do
+      listeners[i](data)
     end
   end
 end

@@ -58,6 +58,7 @@ function scene:create(event)
     menuButton:addEventListener("tap", gotoMenu)
 
     Settings.currentLevel = Settings.currentLevel + 1
+    Settings.save()
 end
 
 function scene:show(event)

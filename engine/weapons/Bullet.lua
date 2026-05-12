@@ -16,7 +16,7 @@ local function fire(self, options)
   local y = options.direction == "up" and Y_UP or Y_DOWN
   local t = options.time or 1000
 
-  transition.to(self, {y = y, time = t, onComplete = function() display.remove(self) end})
+  transition.to(self, {y = y, time = t, onComplete = function() self:release() end})
 end
 
 local Bullet = {}

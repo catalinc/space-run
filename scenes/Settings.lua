@@ -18,6 +18,7 @@ end
 local function onMusicSwitchPress(event)
   local switch = event.target
   Settings.isMusicOn = switch.isOn
+  Settings.save()
   if switch.isOn then
     Sounds.playStream("menuMusic")
   else
@@ -28,6 +29,7 @@ end
 local function onSoundsSwitchPress(event)
   local switch = event.target
   Settings.isSoundOn = switch.isOn
+  Settings.save()
   if switch.isOn then
     Sounds.play("fire")
   end

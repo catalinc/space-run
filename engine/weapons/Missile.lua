@@ -2,6 +2,8 @@ local Sounds = require("libs.Sounds")
 local EachFrame = require("libs.EachFrame")
 local Weapon = require("engine.weapons.Weapon")
 
+local INV_1000 = 1 / 1000
+
 local options = {
   sprite = {frameIndex = 5, width = 14, height = 40},
 }
@@ -19,21 +21,18 @@ end
 
 local function behaviour(self)
   if (not self.target) or self.target.state == "exploding" then
-    display.remove(self)
+    self:release()
     return
   end
   local dx = self.target.x - self.x
   local dy = self.target.y - self.y
-  local angle = math.deg(math.atan2(dy, dx)) + 90
-  if angle < 0 then angle = angle + 360 end
-  angle = angle % 360
-  local dt = EachFrame.deltaTime / 1000
+  local dt = EachFrame.deltaTime * INV_1000
   self.x = self.x + (dx * self.speed * dt)
   self.y = self.y + (dy * self.speed * dt)
-  self.rotation = angle
+  self.rotation = math.deg(math.atan2(dy, dx)) + 90
 
   self.age = self.age + EachFrame.deltaTime
-  if self.age >= self.maxAge then display.remove(self) end
+  if self.age >= self.maxAge then self:release() end
 end
 
 local Missile = {}

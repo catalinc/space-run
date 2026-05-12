@@ -2,6 +2,7 @@ local EventBus = require("engine.shared.EventBus")
 local UnitFactory = require("engine.unit.UnitFactory")
 local Starfield = require("engine.world.Starfield")
 local CollisionHandler = require("engine.world.CollisionHandler")
+local Pool = require("engine.shared.Pool")
 
 local World = {}
 World.__index = World
@@ -70,6 +71,8 @@ function World:destroy()
 
   self.starfield:destroy()
   self.starfield = nil
+
+  Pool.clearAll()
 
   display.remove(self.rootGroup)
   self.rootGroup = nil

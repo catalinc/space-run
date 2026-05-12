@@ -1,12 +1,16 @@
 local EventBus = require("engine.shared.EventBus")
 
+-- typeId constants must match engine/unit/Unit.lua and engine/weapons/Weapon.lua
+local TYPE_PLAYER_WEAPON = 5
+local TYPE_ENEMY_WEAPON  = 6
+
 local CollisionHandler = {}
 CollisionHandler.__index = CollisionHandler
 
 function CollisionHandler.new(world)
   local newHandler = {}
   newHandler.world = world
-  newHandler.globalHandler = function (event)
+  newHandler.globalHandler = function(event)
     newHandler:onCollision(event)
   end
   return setmetatable(newHandler, CollisionHandler)
@@ -20,39 +24,27 @@ function CollisionHandler:stop()
   Runtime:removeEventListener("collision", self.globalHandler)
 end
 
-function CollisionHandler:onCollision(event)
-  if event.phase == "began" then
-    local o1 = event.object1
-    local o2 = event.object2
-
-    local asteroid = self:getUnitOrWeapon(o1, o2, "Asteroid")
-    local mine = self:getUnitOrWeapon(o1, o2, "Mine")
-    local player = self:getUnitOrWeapon(o1, o2, "Player")
-    local enemy = self:getUnitOrWeapon(o1, o2, "Enemy")
-    local playerWeapon = self:getUnitOrWeapon(o1, o2, "PlayerWeapon")
-    local enemyWeapon = self:getUnitOrWeapon(o1, o2, "EnemyWeapon")
-
-    if playerWeapon and asteroid then self:onUnitWeaponCollision(asteroid, playerWeapon)
-    elseif playerWeapon and enemy then self:onUnitWeaponCollision(enemy, playerWeapon)
-    elseif playerWeapon and mine then self:onUnitWeaponCollision(mine, playerWeapon)
-    elseif enemyWeapon and asteroid then self:onUnitWeaponCollision(asteroid, enemyWeapon)
-    elseif enemyWeapon and player then self:onUnitWeaponCollision(player, enemyWeapon)
-    elseif enemy and player then self:onUnitUnitCollision(player, enemy)
-    elseif asteroid and player then self:onUnitUnitCollision(player, asteroid)
-    elseif mine and player then self:onUnitUnitCollision(player, mine)
-    end
-  end
+local function isWeapon(typeId)
+  return typeId == TYPE_PLAYER_WEAPON or typeId == TYPE_ENEMY_WEAPON
 end
 
-function CollisionHandler:getUnitOrWeapon(o1, o2, name)
-  if o1.name == name then return o1 end
-  if o2.name == name then return o2 end
+function CollisionHandler:onCollision(event)
+  if event.phase ~= "began" then return end
+  local o1, o2 = event.object1, event.object2
+
+  if isWeapon(o1.typeId) then
+    self:onUnitWeaponCollision(o2, o1)
+  elseif isWeapon(o2.typeId) then
+    self:onUnitWeaponCollision(o1, o2)
+  else
+    self:onUnitUnitCollision(o1, o2)
+  end
 end
 
 function CollisionHandler:onUnitWeaponCollision(unit, weapon)
   unit:takeDamage(weapon.damage)
   if unit:isDead() then display.remove(unit) end
-  display.remove(weapon)
+  weapon:release()
 end
 
 function CollisionHandler:onUnitUnitCollision(unit1, unit2)

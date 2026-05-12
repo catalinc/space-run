@@ -11,6 +11,14 @@ local MAX_Y = display.contentHeight + 100
 local START_X = display.contentWidth / 2
 local START_Y = -40
 
+-- typeId and physics category/mask bits per unit name
+local UNIT_TYPES = {
+  Player   = {id = 1, cat = 0x0001, mask = 0x002E},
+  Enemy    = {id = 2, cat = 0x0002, mask = 0x0011},
+  Asteroid = {id = 3, cat = 0x0004, mask = 0x0031},
+  Mine     = {id = 4, cat = 0x0008, mask = 0x0011},
+}
+
 local function eachFrame(self)
   if self.x < MIN_X or self.x > MAX_X or
     self.y < MIN_Y or self.y > MAX_Y then
@@ -18,8 +26,8 @@ local function eachFrame(self)
     return
   end
   if self.healthBar then
-    self.healthBar.x = self.x - (self.contentWidth / 2) + 5
-    self.healthBar.y = self.y - (self.contentHeight / 2) - 5
+    self.healthBar.x = self.x + self.healthBarOffsetX
+    self.healthBar.y = self.y + self.healthBarOffsetY
   end
   if self.behaviour then
     self.behaviour(self)
@@ -68,8 +76,17 @@ function Unit.create(name, group, x, y, options)
   newUnit.maxHealth = options.maxHealth or 100
   newUnit.health = newUnit.maxHealth
 
+  local typeInfo = UNIT_TYPES[name]
+  if typeInfo then
+    newUnit.typeId = typeInfo.id
+  end
+
   if options.showHealthBar then
-    newUnit.healthBar = HealthBar.create(group, newUnit.x, newUnit.y, newUnit.contentWidth - 10, 5)
+    local offsetX = -(newUnit.contentWidth / 2) + 5
+    local offsetY = -(newUnit.contentHeight / 2) - 5
+    newUnit.healthBar = HealthBar.create(group, newUnit.x + offsetX, newUnit.y + offsetY, newUnit.contentWidth - 10, 5)
+    newUnit.healthBarOffsetX = offsetX
+    newUnit.healthBarOffsetY = offsetY
   end
 
   newUnit.eachFrame = eachFrame
@@ -79,7 +96,16 @@ function Unit.create(name, group, x, y, options)
   newUnit.finalize = finalize
   newUnit:addEventListener("finalize")
 
-  physics.addBody(newUnit, "dynamic", options.physics or {radius = 1})
+  -- Merge physics options with collision category/mask bits
+  local phys = options.physics or {}
+  local bodyOpts = {}
+  for k, v in pairs(phys) do bodyOpts[k] = v end
+  if not bodyOpts.radius then bodyOpts.radius = 1 end
+  if typeInfo then
+    bodyOpts.categoryBits = typeInfo.cat
+    bodyOpts.maskBits = typeInfo.mask
+  end
+  physics.addBody(newUnit, "dynamic", bodyOpts)
 
   EventBus.publish("unitCreated", newUnit)
 
