@@ -8,6 +8,7 @@ local World = {}
 World.__index = World
 
 function World.new(group)
+  Pool.open()
   local newWorld = {}
 
   local backGroup = display.newGroup()
