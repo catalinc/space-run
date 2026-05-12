@@ -18,9 +18,13 @@ local function release(self)
   transition.cancel(self)
   EachFrame.remove(self)
   self.isVisible = false
-  self.isBodyActive = false
   self.behaviour = nil
-  Pool.put(self.name, self)
+  -- isBodyActive cannot be set during a collision callback (world is locked),
+  -- so defer the physics deactivation and pool insertion to the next frame.
+  timer.performWithDelay(0, function()
+    self.isBodyActive = false
+    Pool.put(self.name, self)
+  end)
 end
 
 local function eachFrame(self)
