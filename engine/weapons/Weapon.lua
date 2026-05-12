@@ -49,11 +49,17 @@ function Weapon.create(source, options)
   local sprite = options.sprite
   local typeInfo = WEAPON_TYPES[weaponName]
 
-  local newWeapon = Pool.get(weaponName)
-  if newWeapon then
-    source.parent:insert(newWeapon)
-    newWeapon.isVisible = true
-  else
+  -- A deferred timer may have pooled a weapon after World:destroy() cleared the pool,
+  -- leaving a dead proxy in the store. Discard it and fall through to create a fresh one.
+  local pooled = Pool.get(weaponName)
+  local newWeapon
+  if pooled and display.isValid(pooled) then
+    source.parent:insert(pooled)
+    pooled.isVisible = true
+    newWeapon = pooled
+  end
+
+  if not newWeapon then
     newWeapon = display.newImageRect(source.parent, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
     newWeapon.name = weaponName
     newWeapon.isBullet = true
