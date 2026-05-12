@@ -21,7 +21,9 @@ local function release(self)
   self.behaviour = nil
   -- isBodyActive cannot be set during a collision callback (world is locked),
   -- so defer the physics deactivation and pool insertion to the next frame.
-  timer.performWithDelay(0, function()
+  -- Store the handle so finalize can cancel it if the scene is torn down first.
+  self._releaseTimer = timer.performWithDelay(0, function()
+    self._releaseTimer = nil
     self.isBodyActive = false
     Pool.put(self.name, self)
   end)
@@ -39,6 +41,10 @@ local function eachFrame(self)
 end
 
 local function finalize(self)
+  if self._releaseTimer then
+    timer.cancel(self._releaseTimer)
+    self._releaseTimer = nil
+  end
   EachFrame.remove(self)
 end
 
@@ -49,17 +55,11 @@ function Weapon.create(source, options)
   local sprite = options.sprite
   local typeInfo = WEAPON_TYPES[weaponName]
 
-  -- A deferred timer may have pooled a weapon after World:destroy() cleared the pool,
-  -- leaving a dead proxy in the store. Discard it and fall through to create a fresh one.
-  local pooled = Pool.get(weaponName)
-  local newWeapon
-  if pooled and display.isValid(pooled) then
-    source.parent:insert(pooled)
-    pooled.isVisible = true
-    newWeapon = pooled
-  end
-
-  if not newWeapon then
+  local newWeapon = Pool.get(weaponName)
+  if newWeapon then
+    source.parent:insert(newWeapon)
+    newWeapon.isVisible = true
+  else
     newWeapon = display.newImageRect(source.parent, SpriteSheet, sprite.frameIndex, sprite.width, sprite.height)
     newWeapon.name = weaponName
     newWeapon.isBullet = true
