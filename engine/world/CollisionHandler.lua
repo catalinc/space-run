@@ -1,6 +1,10 @@
 local EventBus = require("engine.shared.EventBus")
 
 -- typeId constants must match engine/unit/Unit.lua and engine/weapons/Weapon.lua
+local TYPE_PLAYER        = 1
+local TYPE_ENEMY         = 2
+local TYPE_ASTEROID      = 3
+local TYPE_MINE          = 4
 local TYPE_PLAYER_WEAPON = 5
 local TYPE_ENEMY_WEAPON  = 6
 
@@ -24,20 +28,35 @@ function CollisionHandler:stop()
   Runtime:removeEventListener("collision", self.globalHandler)
 end
 
-local function isWeapon(typeId)
-  return typeId == TYPE_PLAYER_WEAPON or typeId == TYPE_ENEMY_WEAPON
-end
-
 function CollisionHandler:onCollision(event)
   if event.phase ~= "began" then return end
   local o1, o2 = event.object1, event.object2
+  local t1, t2 = o1.typeId, o2.typeId
 
-  if isWeapon(o1.typeId) then
-    self:onUnitWeaponCollision(o2, o1)
-  elseif isWeapon(o2.typeId) then
-    self:onUnitWeaponCollision(o1, o2)
-  else
-    self:onUnitUnitCollision(o1, o2)
+  if t1 == TYPE_PLAYER_WEAPON then
+    if t2 == TYPE_ENEMY or t2 == TYPE_ASTEROID or t2 == TYPE_MINE then
+      self:onUnitWeaponCollision(o2, o1)
+    end
+  elseif t2 == TYPE_PLAYER_WEAPON then
+    if t1 == TYPE_ENEMY or t1 == TYPE_ASTEROID or t1 == TYPE_MINE then
+      self:onUnitWeaponCollision(o1, o2)
+    end
+  elseif t1 == TYPE_ENEMY_WEAPON then
+    if t2 == TYPE_PLAYER or t2 == TYPE_ASTEROID then
+      self:onUnitWeaponCollision(o2, o1)
+    end
+  elseif t2 == TYPE_ENEMY_WEAPON then
+    if t1 == TYPE_PLAYER or t1 == TYPE_ASTEROID then
+      self:onUnitWeaponCollision(o1, o2)
+    end
+  elseif t1 == TYPE_PLAYER then
+    if t2 == TYPE_ENEMY or t2 == TYPE_ASTEROID or t2 == TYPE_MINE then
+      self:onUnitUnitCollision(o1, o2)
+    end
+  elseif t2 == TYPE_PLAYER then
+    if t1 == TYPE_ENEMY or t1 == TYPE_ASTEROID or t1 == TYPE_MINE then
+      self:onUnitUnitCollision(o2, o1)
+    end
   end
 end
 
